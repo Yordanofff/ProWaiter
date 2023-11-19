@@ -1,4 +1,27 @@
 public class Validators {
+    
+    public static boolean isValidName(String name) {
+        if (name.matches("[a-zA-Z]+")) {
+            return true;
+        } else if (isSpaceInString(name)) {
+            ConsolePrinter.printError("The name [" + name + "] cannot contain spaces!");
+            return false;
+        }
+        ConsolePrinter.printError("The name [" + name + "] should only contain letters [a-z] or [A-Z].");
+        return false;
+    }
+
+    public static boolean isValidUsername(String username) {
+        // Check if the username contains only letters, digits, and underscores
+        if (username.matches("[a-zA-Z0-9_]+")) {
+            return true;
+        } else if (isSpaceInString(username)) {
+            ConsolePrinter.printError("The username [" + username + "] cannot contain spaces!");
+            return false;
+        }
+        ConsolePrinter.printError("The username [" + username + "] can only contain letters [a-z], digits [0-9] or underscores [_]");
+        return false;
+    }
 
     public static boolean isPasswordValid(String password, int requiredLength) {
         if (isSpaceInString(password)) {
@@ -20,11 +43,11 @@ public class Validators {
         return true;
     }
 
-    public static boolean isStringLongEnough(String str, int requiredLength) {
+    private static boolean isStringLongEnough(String str, int requiredLength) {
         return requiredLength >= str.length();
     }
 
-    public static boolean isDigitInString(String str) {
+    private static boolean isDigitInString(String str) {
         for (Character character : str.toCharArray()) {
             if (Character.isDigit(character)) {
                 return true;
@@ -33,7 +56,7 @@ public class Validators {
         return false;
     }
 
-    public static boolean isCapitalLetterInString(String str) {
+    private static boolean isCapitalLetterInString(String str) {
         for (Character character : str.toCharArray()) {
             if (Character.isUpperCase(character)) {
                 return true;
@@ -42,7 +65,7 @@ public class Validators {
         return false;
     }
 
-    public static boolean isLowercaseLetterInString(String str) {
+    private static boolean isLowercaseLetterInString(String str) {
         for (Character character : str.toCharArray()) {
             if (Character.isLowerCase(character)) {
                 return true;
@@ -51,7 +74,7 @@ public class Validators {
         return false;
     }
 
-    public static boolean isSpaceInString(String str) {
+    private static boolean isSpaceInString(String str) {
         for (String letter : str.split("")) {
             if (letter.equals(" ")) {
                 return true;
