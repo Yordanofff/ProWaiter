@@ -1,5 +1,5 @@
 public class Validators {
-    
+
     public static boolean isValidName(String name) {
         if (name.matches("[a-zA-Z]+")) {
             return true;
@@ -11,13 +11,16 @@ public class Validators {
         return false;
     }
 
-    public static boolean isValidUsername(String username) {
+    public static boolean isValidUsername(String username, int requiredLength) {
         // Check if the username contains only letters, digits, and underscores
-        if (username.matches("[a-zA-Z0-9_]+")) {
-            return true;
+        if (!isStringLongEnough(username, requiredLength)) {
+            ConsolePrinter.printError("The username [" + username + "] needs to be at least [" + requiredLength + "] symbols long!");
+            return false;
         } else if (isSpaceInString(username)) {
             ConsolePrinter.printError("The username [" + username + "] cannot contain spaces!");
             return false;
+        } else if (username.matches("[a-zA-Z0-9_]+")) {
+            return true;
         }
         ConsolePrinter.printError("The username [" + username + "] can only contain letters [a-z], digits [0-9] or underscores [_]");
         return false;
@@ -44,7 +47,7 @@ public class Validators {
     }
 
     private static boolean isStringLongEnough(String str, int requiredLength) {
-        return requiredLength >= str.length();
+        return str.length() >= requiredLength;
     }
 
     private static boolean isDigitInString(String str) {
