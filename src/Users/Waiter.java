@@ -1,3 +1,5 @@
+package Users;
+
 public class Waiter extends User {
     public static final UserType userType = UserType.WAITER;
 

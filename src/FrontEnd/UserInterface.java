@@ -1,3 +1,7 @@
+package FrontEnd;
+
+import Users.UserManager;
+
 public class UserInterface {
     public static void printAppLogo() {
         System.out.println(
@@ -22,17 +26,8 @@ public class UserInterface {
             UserManager.addAdmin();
         } else {
             // print login menu
-            printLoginMenu();
+            MenuBuilder.buildLoginMenu();
         }
-    }
-
-    public static void printMainMenu() {
-        // todo
-        System.out.println("...");
-    }
-
-    public static void printLoginMenu() {
-        Menu.LoginMenu();
     }
 
 }

@@ -1,55 +1,47 @@
+package FrontEnd;
+
 import java.util.*;
 
-public class Menu {
+public class MenuBuilder {
     static final int MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU = 5;
     static final String MENU_SEPARATOR = " - ";  // With spaces if required.
     static final String MENU_LINE_SYMBOL = "-";
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        LoginMenu();
+        buildLoginMenu();
     }
 
-    public static void AdminMenu() {
-        while (true) {
-            String[] menuOptions = new String[]{"Admin option 1", "Admin option 2", "Admin option 3"};
+    public static void buildLoginMenu() {
+        String[] menuOptions = new String[]{"Login", "InnerMenu"};
+        String topMenuLabel = "Please choose one of the options below:";
+        String optionZeroText = "Exit";
+        String optionZeroMsg = "Bye bye";
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, MenuBuilder::LoginMenuAction);
+    }
 
-            int selectedOption = printMenuAndGetUsersChoice(menuOptions, "Hello Admin", "Log Out");
+    public static void buildAdminMenu() {
+        String[] menuOptions = new String[]{"Admin option 1", "Admin option 2", "Admin option 3"};
+        String topMenuLabel = "Hello admin!";
+        String optionZeroText = "Log out";
+        String optionZeroMsg = "Logging out...";
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, MenuBuilder::AdminMenuAction);
+    }
+
+
+    public static void buildMenu(String[] menuOptions, String topMenuLabel, String optionZeroText, String optionZeroMsg, MenuAction menuAction) {
+        while (true) {
+            int selectedOption = printMenuAndGetUsersChoice(menuOptions, topMenuLabel, optionZeroText);
 
             // Exit if 0
             if (selectedOption == 0) {
-                System.out.println("Logging admin out..");
+                System.out.println(optionZeroMsg);
                 break;
             }
 
             // Executing the selected option
-            AdminMenuAction(selectedOption);
-
-            // pause
-            System.out.print("Press any key to continue..: ");
-            scanner.nextLine();
-
-            System.out.println();
-
-        }
-        LoginMenu();
-    }
-
-    public static void LoginMenu() {
-        while (true) {
-            // todo - when Login is successful - exit this loop and jump in another menu.
-            String[] menuOptions = new String[]{"Login", "InnerMenu"};
-
-            int selectedOption = printMenuAndGetUsersChoice(menuOptions, "Please choose one of the options below:", "Exit");
-
-            // Exit if 0
-            if (selectedOption == 0) {
-                System.out.println("Good Bye!");
-                break;
-            }
-
-            // Executing the selected option
-            LoginMenuAction(selectedOption);
+//            AdminMenuAction(selectedOption);
+            menuAction.execute(selectedOption);
 
             // pause
             System.out.print("Press any key to continue..: ");
@@ -57,6 +49,7 @@ public class Menu {
 
             System.out.println();
         }
+        // todo - another parameter to
     }
 
     // todo
@@ -64,9 +57,10 @@ public class Menu {
         // Call methods to run
         switch (option) {
             case 1 -> System.out.println("Action 1");
-            case 2 -> AdminMenu();
+            case 2 -> buildAdminMenu();
         }
     }
+
     public static void AdminMenuAction(int option) {
         // Call methods to run
         switch (option) {
@@ -135,6 +129,7 @@ public class Menu {
      * " 9 - Option ..."
      * "10 - Option ..."
      * "11 - Option ..."
+     *
      * @param hashMapMenuOptionsWithNumbers - HashMap of (number, option name)
      * @return List<String> with all options
      */
@@ -193,16 +188,17 @@ public class Menu {
     /**
      * |      0 - Exit                                   |
      * |      1 - Login                                  |
+     *
      * @param frameLength - longest row data + min spaces on each side + 2
-     * @param rowData - the actual data that needs to be printed "0 - Exit"
+     * @param rowData     - the actual data that needs to be printed "0 - Exit"
      */
-    private static void printMiddleMenuLine(int frameLength, String rowData){
+    private static void printMiddleMenuLine(int frameLength, String rowData) {
         String coloredFrameAndSpacesBeginningOfRow = ConsolePrinter.getGreenMsg("|" + " ".repeat(MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU));
         System.out.print(coloredFrameAndSpacesBeginningOfRow + rowData);
         System.out.println(ConsolePrinter.getGreenMsg(" ".repeat(getNumberOfRemainingSpacesToTheEndOfTheFrame(frameLength, rowData)) + "|"));
     }
 
-    private static int getNumberOfRemainingSpacesToTheEndOfTheFrame(int frameLength, String rowData){
+    private static int getNumberOfRemainingSpacesToTheEndOfTheFrame(int frameLength, String rowData) {
         return (frameLength - (getStringLengthWithoutANSI(rowData) + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU + 2));
     }
 
@@ -213,7 +209,7 @@ public class Menu {
         return getLengthOfTheLongestStringInList(menuQuestionAndOptions);
     }
 
-    private static void printHorizontalLine(int frameLength){
+    private static void printHorizontalLine(int frameLength) {
         String coloredFrameHorizontal = ConsolePrinter.getGreenMsg(MENU_LINE_SYMBOL.repeat(frameLength));
         System.out.println(coloredFrameHorizontal);
     }

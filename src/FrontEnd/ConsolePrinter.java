@@ -1,3 +1,5 @@
+package FrontEnd;
+
 public class ConsolePrinter {
     // ANSI escape codes for text formatting
     public static final String RESET = "\u001B[0m";

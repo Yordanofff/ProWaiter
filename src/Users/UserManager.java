@@ -1,10 +1,14 @@
+package Users;
+import FrontEnd.UserInput;
+import Users.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class UserManager {
-    // todo - part of Administrator?
+    // todo - part of Users.Administrator?
     // todo - load/update users from DB before login
     // todo - change user type /promotion from-to/
     private static List<User> activeUsers = new ArrayList<>();
@@ -54,7 +58,7 @@ public class UserManager {
         // add to all ActiveUsers list
         activeUsers.add(user);
 
-        // Initialize the list if it doesn't exist for the given UserType
+        // Initialize the list if it doesn't exist for the given Users.UserType
         usersByType.putIfAbsent(user.getUserType(), new ArrayList<>());
 
         // Add to usersByType list
@@ -109,13 +113,13 @@ public class UserManager {
     public static void displayUsersByType(UserType userTypeToCheck) {
         if (usersByType.containsKey(userTypeToCheck) && usersByType.get(userTypeToCheck) != null) {
 
-            System.out.println("Users with UserType " + userTypeToCheck + ":");
+            System.out.println("Users with Users.UserType " + userTypeToCheck + ":");
             List<User> userList = usersByType.get(userTypeToCheck);
             for (User user : userList) {
                 System.out.println("Name: " + user.getFullName() + ", Username: " + user.getUsername());
             }
         } else {
-            System.out.println("No users found for UserType: " + userTypeToCheck);
+            System.out.println("No users found for Users.UserType: " + userTypeToCheck);
         }
     }
 

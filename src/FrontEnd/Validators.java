@@ -1,3 +1,5 @@
+package FrontEnd;
+
 public class Validators {
     public static boolean isValidName(String name) {
         if (name.matches("[a-zA-Z]+")) {
@@ -58,7 +60,7 @@ public class Validators {
         return false;
     }
 
-    static boolean isCapitalLetterInString(String str) {
+    public static boolean isCapitalLetterInString(String str) {
         for (Character character : str.toCharArray()) {
             if (Character.isUpperCase(character)) {
                 return true;

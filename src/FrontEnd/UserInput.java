@@ -1,3 +1,7 @@
+package FrontEnd;
+
+import Users.User;
+
 import java.util.Scanner;
 
 public class UserInput {

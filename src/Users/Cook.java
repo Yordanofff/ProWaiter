@@ -1,3 +1,5 @@
+package Users;
+
 public class Cook extends User {
     public static final UserType userType = UserType.KITCHEN;
 

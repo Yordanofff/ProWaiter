@@ -1,3 +1,5 @@
+package Users;
+
 public abstract class User {
     private String username;
     private String firstName;
