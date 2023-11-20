@@ -1,6 +1,6 @@
 package FrontEnd;
 
-import Users.UserManager;
+import BackEnd.Users.UserManager;
 
 public class UserInterface {
     public static void printAppLogo() {

@@ -1,6 +1,6 @@
 package FrontEnd;
 
-import Users.User;
+import BackEnd.Users.User;
 
 import java.util.Scanner;
 

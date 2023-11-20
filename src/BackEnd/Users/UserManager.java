@@ -1,6 +1,5 @@
-package Users;
+package BackEnd.Users;
 import FrontEnd.UserInput;
-import Users.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class UserManager {
-    // todo - part of Users.Administrator?
+    // todo - part of BackEnd.Users.Administrator?
     // todo - load/update users from DB before login
     // todo - change user type /promotion from-to/
     private static List<User> activeUsers = new ArrayList<>();
@@ -58,7 +57,7 @@ public class UserManager {
         // add to all ActiveUsers list
         activeUsers.add(user);
 
-        // Initialize the list if it doesn't exist for the given Users.UserType
+        // Initialize the list if it doesn't exist for the given BackEnd.Users.UserType
         usersByType.putIfAbsent(user.getUserType(), new ArrayList<>());
 
         // Add to usersByType list
@@ -104,7 +103,7 @@ public class UserManager {
     }
 
     public static void displayActiveUsers() {
-        System.out.println("Active Users:");
+        System.out.println("Active BackEnd.Users:");
         for (User user : activeUsers) {
             System.out.println(user.getUserType() + " - " +  user.getUsername() + " - " + user.getFullName());
         }
@@ -113,13 +112,13 @@ public class UserManager {
     public static void displayUsersByType(UserType userTypeToCheck) {
         if (usersByType.containsKey(userTypeToCheck) && usersByType.get(userTypeToCheck) != null) {
 
-            System.out.println("Users with Users.UserType " + userTypeToCheck + ":");
+            System.out.println("BackEnd.Users with BackEnd.Users.UserType " + userTypeToCheck + ":");
             List<User> userList = usersByType.get(userTypeToCheck);
             for (User user : userList) {
                 System.out.println("Name: " + user.getFullName() + ", Username: " + user.getUsername());
             }
         } else {
-            System.out.println("No users found for Users.UserType: " + userTypeToCheck);
+            System.out.println("No users found for BackEnd.Users.UserType: " + userTypeToCheck);
         }
     }
 

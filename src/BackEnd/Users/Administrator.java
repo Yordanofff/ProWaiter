@@ -1,4 +1,4 @@
-package Users;
+package BackEnd.Users;
 
 public class Administrator extends User {
     public static final UserType userType = UserType.ADMIN;

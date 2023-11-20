@@ -1,4 +1,4 @@
-package Users;
+package BackEnd.Users;
 
 public abstract class User {
     private String username;
