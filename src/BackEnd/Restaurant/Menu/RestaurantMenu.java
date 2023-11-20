@@ -1,10 +1,20 @@
-package BackEnd.Restaurant;
+package BackEnd.Restaurant.Menu;
+
+import BackEnd.Restaurant.Dishes.Dish;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class RestaurantMenu {
     private List<Dish> dishes = new ArrayList<>();
+
+    public void printRestaurantMenu() {
+        // todo - create MenuBuilder for it
+        // Category:
+        // Name - Size - Price - isAvailable
+    }
+    
+    // todo - editMenuItem - choose Item and what to Edit - Name/Size/Price/Status
 
     private void loadDishesFromDB() {
         //todo - open file/DB and load dishes

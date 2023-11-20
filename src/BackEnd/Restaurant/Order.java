@@ -1,11 +1,16 @@
 package BackEnd.Restaurant;
 
+import BackEnd.Restaurant.Dishes.Dish;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Order {
+
+    // todo - make sure the Menu has the dish - isAvailable flag?
+
     private List<Dish> order = new ArrayList<>();
     private double totalPrice = 0;
 

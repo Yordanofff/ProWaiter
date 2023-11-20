@@ -1,4 +1,4 @@
-package BackEnd.Restaurant;
+package BackEnd.Restaurant.Dishes;
 
 public enum DishType {
     FOOD,

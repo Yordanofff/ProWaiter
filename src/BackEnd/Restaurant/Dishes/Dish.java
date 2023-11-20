@@ -1,4 +1,4 @@
-package BackEnd.Restaurant;
+package BackEnd.Restaurant.Dishes;
 
 public class Dish {
     // quantity will always be 1.
