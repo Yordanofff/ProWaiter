@@ -9,7 +9,7 @@ public class ConsolePrinter {
     public static final String MAGENTA = "\u001B[35m";
     public static final String CYAN = "\u001B[36m";
     public static final String WHITE = "\u001B[37m";
-    
+
     // todo - don't want to add the STATUS_COLOR options in the constructor, but I want to be able to change them globally.
     //  Might move them to a config file later on.
     public static final String STATUS_COLOR = MAGENTA;
@@ -94,5 +94,13 @@ public class ConsolePrinter {
 
     private static StringBuilder getColoredMsgInBrackets(String message, String mainColor) {
         return getColoredMsgInBrackets(message, mainColor, mainColor);
+    }
+
+    private static String getColoredMsg(String msg, String ansiColor) {
+        return ansiColor + msg + RESET;
+    }
+
+    public static String getGreenMsg(String msg) {
+        return getColoredMsg(msg, GREEN);
     }
 }

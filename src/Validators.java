@@ -1,5 +1,4 @@
 public class Validators {
-
     public static boolean isValidName(String name) {
         if (name.matches("[a-zA-Z]+")) {
             return true;
@@ -59,7 +58,7 @@ public class Validators {
         return false;
     }
 
-    private static boolean isCapitalLetterInString(String str) {
+    static boolean isCapitalLetterInString(String str) {
         for (Character character : str.toCharArray()) {
             if (Character.isUpperCase(character)) {
                 return true;
@@ -86,4 +85,22 @@ public class Validators {
         return false;
     }
 
+    private static boolean isFirstLetterCapital(String str) {
+        char firstChar = str.charAt(0);
+        return Character.isUpperCase(firstChar);
+    }
+
+    private static boolean areAllLettersStartingAtSecondLowercase(String str) {
+        for (int i = 1; i < str.length(); i++) {
+            if (Character.isUpperCase(str.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isNameWrittenCorrectly(String name) {
+        // Capitalized + all other letters lowercase
+        return isFirstLetterCapital(name) && areAllLettersStartingAtSecondLowercase(name);
+    }
 }
