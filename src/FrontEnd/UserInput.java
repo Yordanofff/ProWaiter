@@ -7,16 +7,31 @@ import java.util.Scanner;
 public class UserInput {
     static Scanner scanner = new Scanner(System.in);
 
+    public static String[] getLoginUserAndPassword() {
+        String[] userAndPassword = new String[2];
+        String userName = getUsername(false);
+        String password = getPassword(userName, false);
+        userAndPassword[0] = userName;
+        userAndPassword[1] = password;
+        return userAndPassword;
+    }
+
     private static String getUserInput(String question) {
         System.out.println(question);
         return scanner.nextLine();
     }
 
-    public static String getUsername() {
+    public static String getUsername(boolean printWarnings) {
         String username;
         while (true) {
             String question = "Please enter username: ";
             String userInput = getUserInput(question);
+
+            if (!printWarnings) {
+                // No checks when user is trying to log in.
+                username = userInput;
+                break;
+            }
 
             if (Validators.isValidUsername(userInput, User.MINIMUM_USERNAME_LENGTH)) {
                 username = userInput;
@@ -31,11 +46,21 @@ public class UserInput {
         return username.toLowerCase();
     }
 
-    public static String getPassword(String username) {
+    public static String getUsername() {
+        return getUsername(true);
+    }
+
+    public static String getPassword(String username, boolean validatePassword) {
         String password;
         while (true) {
-            String question = "Please enter a password for " + username + ": ";
+            String question = "Please enter password for user [" + username + "]: ";
             String userInput = getUserInput(question);
+
+            // Password validation not needed when the user is trying to log in.
+            if (!validatePassword) {
+                password = userInput;
+                break;
+            }
 
             if (Validators.isPasswordValid(userInput, User.MINIMUM_USERNAME_PASSWORD_LENGTH)) {
                 password = userInput;
@@ -45,6 +70,10 @@ public class UserInput {
             }
         }
         return password;
+    }
+
+    public static String getPassword(String username) {
+        return getPassword(username, true);
     }
 
     public static String getFirstName() {

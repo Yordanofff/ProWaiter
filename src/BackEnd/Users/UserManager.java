@@ -1,6 +1,7 @@
 package BackEnd.Users;
 
 import BackEnd.DB.PosgtgeSQL;
+import FrontEnd.ConsolePrinter;
 import FrontEnd.UserInput;
 
 import java.util.ArrayList;
@@ -20,6 +21,62 @@ public class UserManager {
         // todo - delete
         for (User user : getActiveUsers()) {
             System.out.println(user);
+        }
+    }
+
+    public boolean isSuccessfulLogin() {
+        String[] creds = UserInput.getLoginUserAndPassword();
+        for (User user : getActiveUsers()) {
+            if (user.getUsername().equalsIgnoreCase(creds[0]) && user.getPassword().equals(creds[1])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public User getSuccessfulLoginUser() {
+        String[] creds = UserInput.getLoginUserAndPassword();
+        for (User user : getActiveUsers()) {
+            if (user.getUsername().equalsIgnoreCase(creds[0]) && user.getPassword().equals(creds[1])) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    public static User getTheLoginUserIfUsernameAndPasswordAreCorrect() {
+        String[] creds = UserInput.getLoginUserAndPassword();
+
+        boolean usernameAndPasswordCorrect = false;
+        User currentUser = null;
+        for (User user : getActiveUsers()) {
+            if (user.getUsername().equalsIgnoreCase(creds[0]) && user.getPassword().equals(creds[1])) {
+                usernameAndPasswordCorrect = true;
+                currentUser = user;
+                break;
+            }
+        }
+
+        if (usernameAndPasswordCorrect) {
+            // This will return the user - never null
+            return currentUser;
+        }
+
+        printErrorMsgIfUserOrPasswordIsWrong(creds[0]);
+        return null;
+    }
+
+    private static void printErrorMsgIfUserOrPasswordIsWrong(String username) {
+        boolean usernameFound = false;
+        for (User user : getActiveUsers()) {
+            if (user.getUsername().equalsIgnoreCase(username)) {
+                usernameFound = true;
+                ConsolePrinter.printError("Wrong password for user [" + username + "]");
+                break;
+            }
+        }
+        if (!usernameFound) {
+            ConsolePrinter.printError("User [" + username + "] doesn't exist.");
         }
     }
 

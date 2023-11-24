@@ -1,5 +1,9 @@
 package FrontEnd;
 
+import BackEnd.Users.User;
+import BackEnd.Users.UserManager;
+import BackEnd.Users.UserType;
+
 import java.util.*;
 
 public class MenuBuilder {
@@ -56,8 +60,23 @@ public class MenuBuilder {
     public static void LoginMenuAction(int option) {
         // Call methods to run
         switch (option) {
-            case 1 -> System.out.println("Action 1");
+            case 1 -> UserLoginMenuAction();
             case 2 -> buildAdminMenu();
+        }
+    }
+
+    public static void UserLoginMenuAction() {
+        User user = UserManager.getTheLoginUserIfUsernameAndPasswordAreCorrect();
+        if (user != null) {
+            System.out.println("Hello " + user.getFullName());
+            // todo - create the Menus for the different types Admin Menu / Cook Menu / Waiter Menu
+            if (user.getUserType() == UserType.ADMIN) {
+                System.out.println("Opening Admin panel");
+            } else if (user.getUserType() == UserType.KITCHEN) {
+                System.out.println("Opening Kitchen panel");
+            } else if (user.getUserType() == UserType.WAITER){
+                System.out.println("Opening Waiter panel");
+            }
         }
     }
 
