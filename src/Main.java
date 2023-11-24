@@ -1,4 +1,5 @@
 import BackEnd.Users.UserManager;
+import FrontEnd.UserInterface;
 
 public class Main {
     public static void main(String[] args) {
@@ -10,7 +11,7 @@ public class Main {
         int activeUsers = UserManager.getActiveUserCount();  // todo - move getUsers in UserManager
 //        System.out.println("Active now: " + activeUsers);
 //
-//        UserInterface.startApp();
+        UserInterface.startApp();
 //
 //        activeUsers = UserManager.getActiveUserCount();  // todo - move getUsers in UserManager
 //        System.out.println("Active now: " + activeUsers);

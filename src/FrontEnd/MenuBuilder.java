@@ -178,9 +178,20 @@ public class MenuBuilder {
         printMiddleMenuLine(frameLength, menuTopQuestion);
         printHorizontalLine(frameLength);
 
+        // The first element will be [0 - Exit] or [0 - Log Out] etc.. Don't print it in the top part.
+        boolean isZeroElement = true;
         for (String menuOptionRow : menuOptions) {
+            if (isZeroElement) {
+                isZeroElement = false;
+                continue;
+            }
             printMiddleMenuLine(frameLength, menuOptionRow);
         }
+
+        printHorizontalLine(frameLength);
+
+        // Print the [0 - Exit] or [0 - Log Out] - at the bottom of the list below another separator
+        printMiddleMenuLine(frameLength, menuOptions.get(0));
 
         printHorizontalLine(frameLength);
     }
