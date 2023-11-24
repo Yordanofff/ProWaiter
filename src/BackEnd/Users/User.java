@@ -1,6 +1,9 @@
 package BackEnd.Users;
 
+import java.util.UUID;
+
 public abstract class User {
+    private UUID id;
     private String username;
     private String firstName;
     private String lastName;
@@ -15,9 +18,11 @@ public abstract class User {
         this.username = username;
         this.password = password;
         this.userType = userType;
+        this.id = UUID.randomUUID();
     }
 
     public User() {
+        this.id = UUID.randomUUID();
     }
 
     public String getFirstName() {
@@ -62,5 +67,25 @@ public abstract class User {
 
     public String getFullName() {
         return this.getFirstName() + " " + this.getLastName();
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", userType=" + userType +
+                ", password='" + password + '\'' +
+                '}';
     }
 }
