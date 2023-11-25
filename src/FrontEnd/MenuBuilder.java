@@ -11,6 +11,9 @@ public class MenuBuilder {
     static final int MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU = 5;
     static final String MENU_SEPARATOR = " - ";  // With spaces if required.
 
+    static final String midCross = "┼";
+    static final String topCross = "┬";
+    static final String bottomCross = "┴";
     static final String topLeftCorner = "┌";
     static final String bottomLeftCorner = "└";
     static final String midLeft = "├";
@@ -23,10 +26,11 @@ public class MenuBuilder {
 
     public static void buildLoginMenu() {
         String[] menuOptions = new String[]{"Login"};
+        String frameLabel = "";  // No frame label on the Login Menu page.
         String topMenuLabel = "Please Login with your credentials:";
         String optionZeroText = "Exit";
         String optionZeroMsg = "GoodBye!";
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, MenuBuilder::LoginMenuAction);
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::LoginMenuAction);
     }
 
     public static void LoginMenuAction(int option) {
@@ -53,10 +57,11 @@ public class MenuBuilder {
 
     public static void buildAdminMenu(User user) {
         String[] menuOptions = new String[]{"User Management", "Menu Management", "Order management"};
-        String topMenuLabel = "[" + user.getUserType() + "] Hello, " + user.getFullName() + "!";
+        String frameLabel = "[" + user.getUserType() + "]";
+        String topMenuLabel = "Hello, " + user.getFullName() + "!";
         String optionZeroText = "Log out";
         String optionZeroMsg = "Logging out...";
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, MenuBuilder::AdminMenuAction);
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction);
     }
 
     public static void AdminMenuAction(int option) {
@@ -70,10 +75,11 @@ public class MenuBuilder {
 
     public static void buildUserManagementMenu() {
         String[] menuOptions = new String[]{"View all users", "Add user", "Edit user", "Delete user"};
-        String topMenuLabel = "Hello admin!";  // todo - user.type + name
+        String frameLabel = "[ADMIN]"; // todo
+        String topMenuLabel = "Hello admin!";  // todo - user.name
         String optionZeroText = "Go back";
         String optionZeroMsg = "Going back to main admin menu..."; // todo - user.type..
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, MenuBuilder::UserManagementMenuAction);
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction);
     }
 
     public static void UserManagementMenuAction(int option) {
@@ -90,10 +96,11 @@ public class MenuBuilder {
     public static void buildKitchenMenu(User user) {
         // todo - ready should only show orders with status "Cooking"
         String[] menuOptions = new String[]{"Show orders", "Set status: cooking", "Set status: ready"};
-        String topMenuLabel = "[" + user.getUserType() + "] Hello, " + user.getFullName() + "!";
+        String frameLabel = "[" + user.getUserType() + "]";
+        String topMenuLabel = "Hello, " + user.getFullName() + "!";
         String optionZeroText = "Log out";
         String optionZeroMsg = "Logging out...";
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, MenuBuilder::KitchenMenuAction);
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction);
     }
 
     public static void KitchenMenuAction(int option) {
@@ -109,10 +116,11 @@ public class MenuBuilder {
     public static void buildWaiterMenu(User user) {
         // todo - ready should only show orders with status "Cooking"
         String[] menuOptions = new String[]{"Show orders", "Show ready orders", "Add order", "Add to order", "Remove from order", "Set status: served"};
-        String topMenuLabel = "[" + user.getUserType() + "] Hello, " + user.getFullName() + "!";
+        String frameLabel = "[" + user.getUserType() + "]";
+        String topMenuLabel = "Hello, " + user.getFullName() + "!";
         String optionZeroText = "Log out";
         String optionZeroMsg = "Logging out...";
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, MenuBuilder::WaiterMenuAction);
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction);
     }
 
     public static void WaiterMenuAction(int option) {
@@ -124,9 +132,9 @@ public class MenuBuilder {
         }
     }
 
-    public static void buildMenu(String[] menuOptions, String topMenuLabel, String optionZeroText, String optionZeroMsg, MenuAction menuAction) {
+    public static void buildMenu(String[] menuOptions, String topMenuLabel, String optionZeroText, String optionZeroMsg, String frameLabel, MenuAction menuAction) {
         while (true) {
-            int selectedOption = printMenuAndGetUsersChoice(menuOptions, topMenuLabel, optionZeroText);
+            int selectedOption = printMenuAndGetUsersChoice(menuOptions, topMenuLabel, optionZeroText, frameLabel);
 
             // Exit if 0
             if (selectedOption == 0) {
@@ -145,7 +153,7 @@ public class MenuBuilder {
         }
     }
 
-    private static int printMenuAndGetUsersChoice(String[] menuOptions, String topMenuQuestion, String optionZeroText) {
+    private static int printMenuAndGetUsersChoice(String[] menuOptions, String topMenuQuestion, String optionZeroText, String frameLabel) {
         // Creating HashMap with numbers and options. + Adding Exit/Logout/Go Back
         HashMap<Integer, String> menuOptionsWithNumbers = generateHashMapMenuOptionsWithNumbers(menuOptions, optionZeroText);
 
@@ -153,7 +161,7 @@ public class MenuBuilder {
         List<String> dataToPrint = getMenuOptionsWithSameLengthOfMaxDigitLength(menuOptionsWithNumbers);
 
         // Printing the options in a frame
-        printMenuOptionsInFrameNew(topMenuQuestion, dataToPrint);
+        printMenuOptionsInFrameNew(topMenuQuestion, dataToPrint, frameLabel);
 
         // Returning the user selection
         return getUserInputFrom0toNumber(menuOptions.length);
@@ -282,14 +290,28 @@ public class MenuBuilder {
         return str.replaceAll("\u001B\\[[;\\d]*m", "").length();
     }
 
-    public static void printMenuOptionsInFrameNew(String menuTopQuestion, List<String> menuOptions) {
+    /**
+     * ┌────────── [ADMIN] ───────────┐
+     * │     Hello, Ivo Yordanov!     │
+     * ├──────────────────────────────┤
+     * │     1 - User Management      │
+     * │     2 - Menu Management      │
+     * │     3 - Order management     │
+     * ├──────────────────────────────┤
+     * │     0 - Log out              │
+     * └──────────────────────────────┘
+     * @param menuTopQuestion "Hello, Ivo Yordanov!"
+     * @param menuOptions - List of Strings with all Options: ["0 - Log out", "1 - User Management", ..]
+     * @param frameLabel - [ADMIN]
+     */
+    public static void printMenuOptionsInFrameNew(String menuTopQuestion, List<String> menuOptions, String frameLabel) {
 
         int longestRowWithData = getTheNumberOfSymbolsInTheLongestString(menuTopQuestion, menuOptions);
 
         // Add the minimum spaces on both sides of the string + 2 symbols for the frame (left + right side)
         int frameLength = longestRowWithData + (MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU * 2) + 2;
 
-        System.out.println(getTopLineOfMenu(frameLength));
+        System.out.println(getTopLineOfMenu(frameLength, frameLabel));
         printMiddleMenuLine(frameLength, menuTopQuestion, SideWall);
         System.out.println(getMidLine(frameLength));
 
@@ -310,7 +332,6 @@ public class MenuBuilder {
 
         System.out.println(getBottomLine(frameLength));
     }
-
 
     private static void printElementsTable(List<String> myList, int[] maxColumnLengths) {
         int numSpacesAroundEachColumnWord = 2;
@@ -337,19 +358,18 @@ public class MenuBuilder {
         System.out.println("_".repeat(frameLength));
     }
 
-
     private static String getTopLineOfMenu(int length, String label) {
         int numDashesEachSide = length - label.length() - 2 - 2; // 2 for the spaces, 2 for the corners
         if (label.isEmpty()) {
             return getGreenLine(length, topLeftCorner, topRightCorner);
         }
-        String dashesSide = topBottom.repeat(numDashesEachSide / 2);
-        String spacesAfterLabel = " ";
-        if (numDashesEachSide % 2 == 0) {
-            spacesAfterLabel = "  ";
+        String dashesBefore = topBottom.repeat(numDashesEachSide / 2);
+        String dashesAfter = topBottom.repeat(numDashesEachSide / 2);
+        if (label.length() % 2 != 0) {
+            dashesAfter = topBottom.repeat((numDashesEachSide / 2) + 1);
         }
-        return ConsolePrinter.getGreenMsg(topLeftCorner + dashesSide + " ")
-                + label + ConsolePrinter.getGreenMsg(spacesAfterLabel + dashesSide + topRightCorner);
+        return ConsolePrinter.getGreenMsg(topLeftCorner + dashesBefore + " ")
+                + label + ConsolePrinter.getGreenMsg(" " + dashesAfter + topRightCorner);
     }
 
     private static String getTopLineOfMenu(int length) {
