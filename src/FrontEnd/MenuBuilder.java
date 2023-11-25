@@ -20,20 +20,78 @@ public class MenuBuilder {
         buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, MenuBuilder::LoginMenuAction);
     }
 
-    public static void buildAdminMenu() {
+    public static void buildAdminMenu(User user) {
         String[] menuOptions = new String[]{"User Management", "Menu Management", "Order management"};
-        String topMenuLabel = "Hello admin!";
+        String topMenuLabel = "[" + user.getUserType() + "] Hello, " + user.getFullName() + "!";
         String optionZeroText = "Log out";
         String optionZeroMsg = "Logging out...";
         buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, MenuBuilder::AdminMenuAction);
     }
 
+    public static void AdminMenuAction(int option) {
+        // Call methods to run
+        switch (option) {
+            case 1 -> buildUserManagementMenu();
+            case 2 -> System.out.println("Admin Action 2");
+            case 3 -> System.out.println("Admin Action 3");
+        }
+    }
+
     public static void buildUserManagementMenu() {
         String[] menuOptions = new String[]{"View all users", "Add user", "Edit user", "Delete user"};
-        String topMenuLabel = "Hello admin!";
+        String topMenuLabel = "Hello admin!";  // todo - user.type + name
+        String optionZeroText = "Go back";
+        String optionZeroMsg = "Going back to main admin menu..."; // todo - user.type..
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, MenuBuilder::UserManagementMenuAction);
+    }
+
+    public static void UserManagementMenuAction(int option) {
+        // Call methods to run
+        switch (option) {
+            // todo
+            case 1 -> System.out.println(".. call method - view all users");
+            case 2 -> System.out.println(".. call method - add user");
+            case 3 -> System.out.println(".. call method - edit user");
+            case 4 -> System.out.println(".. call method - Delete user");
+        }
+    }
+
+
+    public static void buildKitchenMenu(User user) {
+        // todo - ready should only show orders with status "Cooking"
+        String[] menuOptions = new String[]{"Show orders", "Set status: cooking", "Set status: ready"};
+        String topMenuLabel = "[" + user.getUserType() + "] Hello, " + user.getFullName() + "!";
         String optionZeroText = "Log out";
         String optionZeroMsg = "Logging out...";
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, MenuBuilder::AdminMenuAction);
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, MenuBuilder::KitchenMenuAction);
+    }
+
+    public static void KitchenMenuAction(int option) {
+        // Call methods to run
+        switch (option) {
+            // todo
+            case 1 -> System.out.println("Showing orders..");
+            case 2 -> System.out.println("Showing orders.. + user input - select order - status cooking");
+            case 3 -> System.out.println("Showing orders.. + user input - select order - status ready");
+        }
+    }
+
+    public static void buildWaiterMenu(User user) {
+        // todo - ready should only show orders with status "Cooking"
+        String[] menuOptions = new String[]{"Show orders", "Show ready orders", "Add order", "Add to order", "Remove from order", "Set status: served"};
+        String topMenuLabel = "[" + user.getUserType() + "] Hello, " + user.getFullName() + "!";
+        String optionZeroText = "Log out";
+        String optionZeroMsg = "Logging out...";
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, MenuBuilder::WaiterMenuAction);
+    }
+
+    public static void WaiterMenuAction(int option) {
+        // Call methods to run
+        switch (option) {
+            // todo
+            case 1 -> System.out.println(".. waiter option 1");
+            case 2 -> System.out.println(".. waiter option 2");
+        }
     }
 
 
@@ -71,25 +129,16 @@ public class MenuBuilder {
     public static void UserLoginMenuAction() {
         User user = UserManager.getTheLoginUserIfUsernameAndPasswordAreCorrect();
         if (user != null) {
-            System.out.println("Hello " + user.getFullName());
             // todo - create the Menus for the different types Admin Menu / Cook Menu / Waiter Menu
             if (user.getUserType() == UserType.ADMIN) {
-                System.out.println("Opening Admin panel");
-                buildAdminMenu();
+                System.out.println("Opening Admin panel...");
+                buildAdminMenu(user);
             } else if (user.getUserType() == UserType.KITCHEN) {
-                System.out.println("Opening Kitchen panel");
-            } else if (user.getUserType() == UserType.WAITER){
-                System.out.println("Opening Waiter panel");
+                System.out.println("Opening Kitchen panel...");
+                buildKitchenMenu(user);
+            } else if (user.getUserType() == UserType.WAITER) {
+                System.out.println("Opening Waiter panel...");
             }
-        }
-    }
-
-    public static void AdminMenuAction(int option) {
-        // Call methods to run
-        switch (option) {
-            case 1 -> System.out.println("Admin Action 1");
-            case 2 -> System.out.println("Admin Action 2");
-            case 3 -> System.out.println("Admin Action 3");
         }
     }
 

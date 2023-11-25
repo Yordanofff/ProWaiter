@@ -40,4 +40,10 @@ public class PosgtgeSQL {
         dao.addUser(user);
     }
 
+    public void printDBTables() {
+        List<String> tables = dao.getDBTables();
+        for (String table:tables) {
+            System.out.println(table);
+        }
+    }
 }
