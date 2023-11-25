@@ -30,11 +30,10 @@ public class DataAccessObject {
      * various places.
      *
      * @param sqlCode a String containing the SQL code you want to
-     * execute.  Can have placeholders, e.g., "INSERT INTO accounts
-     * (id, balance) VALUES (?, ?)".
-     *
-     * @param args String Varargs to fill in the SQL code's
-     * placeholders.
+     *                execute.  Can have placeholders, e.g., "INSERT INTO accounts
+     *                (id, balance) VALUES (?, ?)".
+     * @param args    String Varargs to fill in the SQL code's
+     *                placeholders.
      * @return Integer Number of rows updated, or -1 if an error is thrown.
      */
     public Integer runSQL(String sqlCode, String... args) {
@@ -78,7 +77,7 @@ public class DataAccessObject {
                     // this simple example we classify the argument
                     // types as "integers" and "everything else"
                     // (a.k.a. strings).
-                    for (int i=0; i<args.length; i++) {
+                    for (int i = 0; i < args.length; i++) {
                         int place = i + 1;
                         String arg = args[i];
 
@@ -103,7 +102,7 @@ public class DataAccessObject {
                         System.out.printf("\n%s.%s:\n    '%s'\n", callerClass, callerMethod, pstmt);  // todo
 
                         while (rs.next()) {
-                            for (int i=1; i <= colCount; i++) {
+                            for (int i = 1; i <= colCount; i++) {
                                 String name = rsmeta.getColumnName(i);
                                 String type = rsmeta.getColumnTypeName(i);
 
@@ -144,7 +143,7 @@ public class DataAccessObject {
                         System.out.printf("retryable exception occurred:\n    sql state = [%s]\n    message = [%s]\n    retry counter = %s\n", e.getSQLState(), e.getMessage(), retryCount);
                         connection.rollback();
                         retryCount++;
-                        int sleepMillis = (int)(Math.pow(2, retryCount) * 100) + rand.nextInt(100);
+                        int sleepMillis = (int) (Math.pow(2, retryCount) * 100) + rand.nextInt(100);
                         System.out.printf("Hit 40001 transaction retry error, sleeping %s milliseconds\n", sleepMillis);
                         try {
                             Thread.sleep(sleepMillis);
@@ -182,13 +181,13 @@ public class DataAccessObject {
      * @param connection Connection
      */
     private void forceRetry(Connection connection) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("SELECT 1")){
+        try (PreparedStatement statement = connection.prepareStatement("SELECT 1")) {
             statement.executeQuery();
         }
     }
 
     public void addUser(User user) {
-        try (Connection connection = ds.getConnection()){
+        try (Connection connection = ds.getConnection()) {
             String sql = "INSERT INTO users (id, username, firstName, lastName, userType, password) VALUES (?, ?, ?, ?, ?, ?)";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 // Set parameters for the prepared statement
@@ -211,7 +210,7 @@ public class DataAccessObject {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users LIMIT ?";
 
-        try (Connection connection = ds.getConnection()){
+        try (Connection connection = ds.getConnection()) {
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setInt(1, limit);
@@ -256,10 +255,30 @@ public class DataAccessObject {
                 ")");
     }
 
+    public List<String> getDBTables() {
+        List<String> tables = new ArrayList<>();
+        String sql = "SHOW TABLES;";
+
+        try (Connection connection = ds.getConnection()) {
+
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        tables.add(resultSet.getString("table_name"));
+                    }
+
+                }
+            }
+        } catch (SQLException e) {
+            // todo
+            System.out.printf("BasicExampleDAO.bulkInsertRandomAccountData ERROR: { state => %s, cause => %s, message => %s }\n",
+                    e.getSQLState(), e.getCause(), e.getMessage());
+        }
+
+        return tables;
+    }
 }
-
-
-
 
 
 //    /**
@@ -271,9 +290,6 @@ public class DataAccessObject {
 //            runSQL("SELECT crdb_internal.force_retry('1s':::INTERVAL)");
 //        }
 //    }
-
-
-
 
 
 //    /**
@@ -296,29 +312,20 @@ public class DataAccessObject {
 //    }
 
 
-
-
-
-
-
-
-
-
-
 ///**
- //     * Get the account balance for one account.
- //     *
- //     * We skip using the retry logic in 'runSQL()' here for the
- //     * following reasons:
- //     *
- //     * 1. Since this is a single read ("SELECT"), we don't expect any
- //     *    transaction conflicts to handle
- //     *
- //     * 2. We need to return the balance as an integer
- //     *
- //     * @param id (UUID)
- //     * @return balance (int)
- //     */
+//     * Get the account balance for one account.
+//     *
+//     * We skip using the retry logic in 'runSQL()' here for the
+//     * following reasons:
+//     *
+//     * 1. Since this is a single read ("SELECT"), we don't expect any
+//     *    transaction conflicts to handle
+//     *
+//     * 2. We need to return the balance as an integer
+//     *
+//     * @param id (UUID)
+//     * @return balance (int)
+//     */
 //    public BigDecimal getAccountBalance(UUID id) {
 //        BigDecimal balance = BigDecimal.valueOf(0);
 //
@@ -339,7 +346,6 @@ public class DataAccessObject {
 //
 //        return balance;
 //    }
-
 
 
 //    /**
@@ -400,9 +406,6 @@ public class DataAccessObject {
 //    }
 
 
-
-
-
 //    /**
 //     * Read out a subset of accounts from the data store.
 //     *
@@ -420,9 +423,6 @@ public class DataAccessObject {
 //    public void createAccountsTable() {
 //        runSQL("CREATE TABLE IF NOT EXISTS accounts (id UUID PRIMARY KEY, balance int8)");
 //    }
-
-
-
 
 
 //    /**

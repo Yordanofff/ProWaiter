@@ -2,6 +2,7 @@ import BackEnd.Users.UserManager;
 import FrontEnd.UserInterface;
 
 public class Main {
+    // todo create abstract class for DB
     public static void main(String[] args) {
         runApp();
     }

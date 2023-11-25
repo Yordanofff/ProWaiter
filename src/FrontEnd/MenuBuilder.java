@@ -12,20 +12,24 @@ public class MenuBuilder {
     static final String MENU_LINE_SYMBOL = "-";
     static Scanner scanner = new Scanner(System.in);
 
-    public static void main(String[] args) {
-        buildLoginMenu();
-    }
-
     public static void buildLoginMenu() {
-        String[] menuOptions = new String[]{"Login", "InnerMenu"};
-        String topMenuLabel = "Please choose one of the options below:";
+        String[] menuOptions = new String[]{"Login"};
+        String topMenuLabel = "Please Login with your credentials:";
         String optionZeroText = "Exit";
-        String optionZeroMsg = "Bye bye";
+        String optionZeroMsg = "GoodBye!";
         buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, MenuBuilder::LoginMenuAction);
     }
 
     public static void buildAdminMenu() {
-        String[] menuOptions = new String[]{"Admin option 1", "Admin option 2", "Admin option 3"};
+        String[] menuOptions = new String[]{"User Management", "Menu Management", "Order management"};
+        String topMenuLabel = "Hello admin!";
+        String optionZeroText = "Log out";
+        String optionZeroMsg = "Logging out...";
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, MenuBuilder::AdminMenuAction);
+    }
+
+    public static void buildUserManagementMenu() {
+        String[] menuOptions = new String[]{"View all users", "Add user", "Edit user", "Delete user"};
         String topMenuLabel = "Hello admin!";
         String optionZeroText = "Log out";
         String optionZeroMsg = "Logging out...";
@@ -61,7 +65,6 @@ public class MenuBuilder {
         // Call methods to run
         switch (option) {
             case 1 -> UserLoginMenuAction();
-            case 2 -> buildAdminMenu();
         }
     }
 
@@ -72,6 +75,7 @@ public class MenuBuilder {
             // todo - create the Menus for the different types Admin Menu / Cook Menu / Waiter Menu
             if (user.getUserType() == UserType.ADMIN) {
                 System.out.println("Opening Admin panel");
+                buildAdminMenu();
             } else if (user.getUserType() == UserType.KITCHEN) {
                 System.out.println("Opening Kitchen panel");
             } else if (user.getUserType() == UserType.WAITER){

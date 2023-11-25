@@ -13,6 +13,8 @@ public class UserManager {
     // todo - part of BackEnd.Users.Administrator?
     // todo - load/update users from DB before login
     // todo - change user type /promotion from-to/
+    // TODO - MINIMIZE CALLS TO THE DB. Caching? If user is created from one computer but needs to be logged in from
+    //  another? Or user is deleted..? Every machine will need to connect to the DB to make sure it has the latest information.
     private static List<User> activeUsers = new ArrayList<>();
     private static Map<UserType, List<User>> usersByType = new HashMap<>();
     private static final PosgtgeSQL db = new PosgtgeSQL();
@@ -22,26 +24,6 @@ public class UserManager {
         for (User user : getActiveUsers()) {
             System.out.println(user);
         }
-    }
-
-    public boolean isSuccessfulLogin() {
-        String[] creds = UserInput.getLoginUserAndPassword();
-        for (User user : getActiveUsers()) {
-            if (user.getUsername().equalsIgnoreCase(creds[0]) && user.getPassword().equals(creds[1])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public User getSuccessfulLoginUser() {
-        String[] creds = UserInput.getLoginUserAndPassword();
-        for (User user : getActiveUsers()) {
-            if (user.getUsername().equalsIgnoreCase(creds[0]) && user.getPassword().equals(creds[1])) {
-                return user;
-            }
-        }
-        return null;
     }
 
     public static User getTheLoginUserIfUsernameAndPasswordAreCorrect() {
