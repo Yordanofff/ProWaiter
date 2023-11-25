@@ -1,16 +1,22 @@
 import BackEnd.Users.UserManager;
+import FrontEnd.MenuBuilder;
 import FrontEnd.UserInterface;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     // todo create abstract class for DB
     public static void main(String[] args) {
-        runApp();
+//        runApp();
+        testTable();
+
     }
 
     public static void testTable() {
         List<String> userDataToPrint = new ArrayList<>();
-        String description = "Col1, Col2, Col3, Col4";
-        userDataToPrint.add("Hello, this is, row1 - title, another cola");
+        String description = "Col1f, Col2, Col3, Col4";
+        userDataToPrint.add("Hellotftftyftdtrdtyf, this is, row1 - title, another cola");
         userDataToPrint.add("Hello, this is, , ");
         userDataToPrint.add("Hello2, , row2, ");
 

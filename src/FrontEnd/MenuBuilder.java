@@ -338,38 +338,21 @@ public class MenuBuilder {
         int numSpacesAroundEachColumnWord = 2;
         int[] maxColumnLengths = getMaxColumnLengths(rowsWithCommaSeparatedColumns);
         int maxNumberOfSymbolsAllRows = getMaxNumberOfSymbolsAllRows(maxColumnLengths);
-        int numberOfColumns = maxColumnLengths.length; // todo
+        int numberOfColumns = maxColumnLengths.length;
         int numAddedSpaces = numberOfColumns * 2 * numSpacesAroundEachColumnWord;
 
         // top frame len = maxColumnLength + (numberOfColumns +1) (1 symbol each column + sides) + numAddedSpaces
         int frameLength = maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
 
-        System.out.println(getTopLineOfMenu(frameLength, frameLabel)); // todo - add bottom |
-
+        System.out.println(getTopLineOfMenu(frameLength, frameLabel));
+        System.out.println(getTopLineTableEndingUpDown(frameLength, maxColumnLengths));
         printMiddleMenuLineTable(Description, maxColumnLengths, numSpacesAroundEachColumnWord);
-        System.out.println(getMidLine(frameLength)); // todo - add bottom |
+        System.out.println(getMidLineTable(frameLength, maxColumnLengths));
 
         for (String row : rowsWithCommaSeparatedColumns) {
             printMiddleMenuLineTable(row, maxColumnLengths, numSpacesAroundEachColumnWord);
         }
-        System.out.println(getBottomLine(frameLength));
-
-//        // The first element will be [0 - Exit] or [0 - Log Out] etc.. Don't print it in the top part.
-//        boolean isZeroElement = true;
-//        for (String menuOptionRow : rowsWithCommaSeparatedColumns) {
-//            if (isZeroElement) {
-//                isZeroElement = false;
-//                continue;
-//            }
-//            printMiddleMenuLine(frameLength, menuOptionRow, SideWall);
-//        }
-//
-//        System.out.println(getMidLine(frameLength));
-//
-//        // Print the [0 - Exit] or [0 - Log Out] - at the bottom of the list below another separator
-//        printMiddleMenuLine(frameLength, rowsWithCommaSeparatedColumns.get(0), SideWall);
-//
-//        System.out.println(getBottomLine(frameLength));
+        System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
     }
 
     // │  Hello   │  this is  │  row1 - title  │  another column  │
@@ -422,6 +405,10 @@ public class MenuBuilder {
         System.out.println("_".repeat(frameLength));
     }
 
+    private static String getTopLineOfMenuTable(int length, int[] maxColumnLengths) {
+        return getGreenLineTable(length, topLeftCorner, topRightCorner, topCross, maxColumnLengths);
+    }
+
     private static String getTopLineOfMenu(int length, String label) {
         int numDashesEachSide = length - label.length() - 2 - 2; // 2 for the spaces, 2 for the corners
         if (label.isEmpty()) {
@@ -442,6 +429,35 @@ public class MenuBuilder {
 
     private static String getGreenLine(int length, String mostLeftSymbol, String mostRightSymbol) {
         return ConsolePrinter.getGreenMsg(mostLeftSymbol + topBottom.repeat(length - 2) + mostRightSymbol);
+    }
+
+    // ├────────────────────────┬───────────┬────────────────┬────────────────┤
+    private static String getTopLineTableEndingUpDown(int length, int[] maxColumnLengths) {
+        return getGreenLineTable(length, midLeft, midRight, topCross, maxColumnLengths);
+    }
+
+    private static String getGreenLineTable(int length, String mostLeftSymbol, String mostRightSymbol, String crossSymbol, int[] maxColumnLengths) {
+        String toReturn = "";
+        toReturn += mostLeftSymbol;
+        for (int i = 0; i < maxColumnLengths.length; i++) {
+            int numBottomSymbols = maxColumnLengths[i] + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU - 1;
+            toReturn += topBottom.repeat(numBottomSymbols);
+            if (i != maxColumnLengths.length - 1) {
+                toReturn += crossSymbol;
+            }
+        }
+        toReturn += mostRightSymbol;
+        return ConsolePrinter.getGreenMsg(toReturn);
+    }
+
+    // └──────────┴───────────┴────────────────┴────────────────┘
+    private static String getBottomLineTable(int length, int[] maxColumnLengths) {
+        return getGreenLineTable(length, bottomLeftCorner, bottomRightCorner, bottomCross, maxColumnLengths);
+    }
+
+    // ├──────────┼───────────┼────────────────┼────────────────┤
+    private static String getMidLineTable(int length, int[] maxColumnLengths) {
+        return getGreenLineTable(length, midLeft, midRight, midCross, maxColumnLengths);
     }
 
     private static String getMidLine(int length) {
