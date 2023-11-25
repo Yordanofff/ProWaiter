@@ -235,7 +235,6 @@ public class MenuBuilder {
         return dataToPrint;
     }
 
-
     /**
      * |      0 - Exit                                   |
      * |      1 - Login                                  |
@@ -300,9 +299,10 @@ public class MenuBuilder {
      * ├──────────────────────────────┤
      * │     0 - Log out              │
      * └──────────────────────────────┘
+     *
      * @param menuTopQuestion "Hello, Ivo Yordanov!"
-     * @param menuOptions - List of Strings with all Options: ["0 - Log out", "1 - User Management", ..]
-     * @param frameLabel - [ADMIN]
+     * @param menuOptions     - List of Strings with all Options: ["0 - Log out", "1 - User Management", ..]
+     * @param frameLabel      - [ADMIN]
      */
     public static void printMenuOptionsInFrameNew(String menuTopQuestion, List<String> menuOptions, String frameLabel) {
 
@@ -331,6 +331,70 @@ public class MenuBuilder {
         printMiddleMenuLine(frameLength, menuOptions.get(0), SideWall);
 
         System.out.println(getBottomLine(frameLength));
+    }
+
+    public static void printMenuOptionsInFrameNewTable(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String Description) {
+
+        int numSpacesAroundEachColumnWord = 2;
+        int[] maxColumnLengths = getMaxColumnLengths(rowsWithCommaSeparatedColumns);
+        int maxNumberOfSymbolsAllRows = getMaxNumberOfSymbolsAllRows(maxColumnLengths);
+        int numberOfColumns = maxColumnLengths.length; // todo
+        int numAddedSpaces = numberOfColumns * 2 * numSpacesAroundEachColumnWord;
+
+        // top frame len = maxColumnLength + (numberOfColumns +1) (1 symbol each column + sides) + numAddedSpaces
+        int frameLength = maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
+
+        System.out.println(getTopLineOfMenu(frameLength, frameLabel)); // todo - add bottom |
+
+        printMiddleMenuLineTable(Description, maxColumnLengths, numSpacesAroundEachColumnWord);
+        System.out.println(getMidLine(frameLength)); // todo - add bottom |
+
+        for (String row : rowsWithCommaSeparatedColumns) {
+            printMiddleMenuLineTable(row, maxColumnLengths, numSpacesAroundEachColumnWord);
+        }
+        System.out.println(getBottomLine(frameLength));
+
+//        // The first element will be [0 - Exit] or [0 - Log Out] etc.. Don't print it in the top part.
+//        boolean isZeroElement = true;
+//        for (String menuOptionRow : rowsWithCommaSeparatedColumns) {
+//            if (isZeroElement) {
+//                isZeroElement = false;
+//                continue;
+//            }
+//            printMiddleMenuLine(frameLength, menuOptionRow, SideWall);
+//        }
+//
+//        System.out.println(getMidLine(frameLength));
+//
+//        // Print the [0 - Exit] or [0 - Log Out] - at the bottom of the list below another separator
+//        printMiddleMenuLine(frameLength, rowsWithCommaSeparatedColumns.get(0), SideWall);
+//
+//        System.out.println(getBottomLine(frameLength));
+    }
+
+    // │  Hello   │  this is  │  row1 - title  │  another column  │
+    private static void printMiddleMenuLineTable(String row, int[] maxColumnLengths, int numSpacesAroundEachColumnWord) {
+
+        // Green frame, white letters like everywhere.
+        String[] elements = getRowElementsTrimmed(row);
+        int elementsLength = elements.length;
+
+        StringBuilder toPrint = new StringBuilder("");
+
+        for (int i = 0; i < elementsLength; i++) {
+            String currentElement = elements[i];
+
+            int maxLengthCurrentPosition = maxColumnLengths[i];
+
+            toPrint.append(ConsolePrinter.getGreenMsg(SideWall) + " ".repeat(numSpacesAroundEachColumnWord) + currentElement +
+                    " ".repeat(maxLengthCurrentPosition - currentElement.length() + numSpacesAroundEachColumnWord));
+
+            // Add end of frame symbol
+            if (i == elementsLength - 1) {
+                toPrint.append(ConsolePrinter.getGreenMsg(SideWall));
+            }
+        }
+        System.out.println(toPrint);
     }
 
     private static void printElementsTable(List<String> myList, int[] maxColumnLengths) {
@@ -365,7 +429,7 @@ public class MenuBuilder {
         }
         String dashesBefore = topBottom.repeat(numDashesEachSide / 2);
         String dashesAfter = topBottom.repeat(numDashesEachSide / 2);
-        if (label.length() % 2 != 0) {
+        if ((label.length() % 2 == 1 && length % 2 == 0) || (label.length() % 2 == 0 && length % 2 == 1)) {
             dashesAfter = topBottom.repeat((numDashesEachSide / 2) + 1);
         }
         return ConsolePrinter.getGreenMsg(topLeftCorner + dashesBefore + " ")
@@ -388,7 +452,6 @@ public class MenuBuilder {
         return getGreenLine(length, bottomLeftCorner, bottomRightCorner);
     }
 
-
     private static int getMaxNumberOfSymbolsAllRows(int[] maxColumnLengths) {
         int n = 0;
         for (int el : maxColumnLengths) {
@@ -396,7 +459,6 @@ public class MenuBuilder {
         }
         return n;
     }
-
 
     private static int[] getMaxColumnLengths(List<String> myList) {
         int numberOfColumns = getNumberOfElements(myList);
@@ -425,65 +487,8 @@ public class MenuBuilder {
     }
 
     private static int getNumberOfElements(List<String> myList) {
-
         String[] elements = myList.get(0).split(sep);
         return elements.length;
 
     }
 }
-
-
-// todo - will be deleted on the next commit.
-//static final String MENU_LINE_SYMBOL = "-";
-
-//    private static void printMiddleMenuLine(int frameLength, String rowData) {
-//        printMiddleMenuLine(frameLength, rowData, "|");
-//    }
-//
-//    private static void printHorizontalLine(int frameLength) {
-//        String coloredFrameHorizontal = ConsolePrinter.getGreenMsg(MENU_LINE_SYMBOL.repeat(frameLength));
-//        System.out.println(coloredFrameHorizontal);
-//    }
-
-//    /**
-//     * This method will be used to print the menu options. Adds a frame that will be surrounded
-//     * by at least MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU spaces (for the longest word) and more for the rest.
-//     * ===============================================
-//     * |     menuTopQuestion                         |
-//     * ===============================================
-//     * |     1 - menuOptions 1                       |
-//     * |     2 - menuOptions 2                       |
-//     * |     3 - menuOptions 3 ...                   |
-//     * ===============================================
-//     *
-//     * @param menuTopQuestion - Top menu question
-//     * @param menuOptions     - List of options
-//     */
-//    public static void printMenuOptionsInFrame(String menuTopQuestion, List<String> menuOptions) {
-//
-//        int longestRowWithData = getTheNumberOfSymbolsInTheLongestString(menuTopQuestion, menuOptions);
-//
-//        // Add the minimum spaces on both sides of the string + 2 symbols for the frame (left + right side)
-//        int frameLength = longestRowWithData + (MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU * 2) + 2;
-//
-//        printHorizontalLine(frameLength);
-//        printMiddleMenuLine(frameLength, menuTopQuestion);
-//        printHorizontalLine(frameLength);
-//
-//        // The first element will be [0 - Exit] or [0 - Log Out] etc.. Don't print it in the top part.
-//        boolean isZeroElement = true;
-//        for (String menuOptionRow : menuOptions) {
-//            if (isZeroElement) {
-//                isZeroElement = false;
-//                continue;
-//            }
-//            printMiddleMenuLine(frameLength, menuOptionRow);
-//        }
-//
-//        printHorizontalLine(frameLength);
-//
-//        // Print the [0 - Exit] or [0 - Log Out] - at the bottom of the list below another separator
-//        printMiddleMenuLine(frameLength, menuOptions.get(0));
-//
-//        printHorizontalLine(frameLength);
-//    }
