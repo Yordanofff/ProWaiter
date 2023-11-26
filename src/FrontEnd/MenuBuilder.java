@@ -336,14 +336,11 @@ public class MenuBuilder {
     public static void printMenuOptionsInFrameNewTable(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames) {
 
         int numSpacesAroundEachColumnWord = 2;
-        int[] maxColumnLengths = getBiggest(rowsWithCommaSeparatedColumns, columnNames);
+        int[] maxColumnLengths = getBiggestColumnNames(rowsWithCommaSeparatedColumns, columnNames);
+        int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
 
+        // This sums up the longest word in each column
         int maxNumberOfSymbolsAllRows = getMaxNumberOfSymbolsAllRows(maxColumnLengths);
-
-        int numberOfColumns = maxColumnLengths.length;
-        if (getNumberOfColumns(columnNames) > numberOfColumns) {
-            numberOfColumns = getNumberOfColumns(columnNames);
-        }
 
         int numAddedSpaces = numberOfColumns * 2 * numSpacesAroundEachColumnWord;
 
@@ -352,42 +349,68 @@ public class MenuBuilder {
 
         System.out.println(getTopLineOfMenu(frameLength, frameLabel));
         System.out.println(getTopLineTableEndingUpDown(frameLength, maxColumnLengths));
+        columnNames = addExtraSeparatorsToLength(columnNames, numberOfColumns);
         printMiddleMenuLineTable(columnNames, maxColumnLengths, numSpacesAroundEachColumnWord);
         System.out.println(getMidLineTable(frameLength, maxColumnLengths));
 
         for (String row : rowsWithCommaSeparatedColumns) {
+            row = addExtraSeparatorsToLength(row, numberOfColumns);
             printMiddleMenuLineTable(row, maxColumnLengths, numSpacesAroundEachColumnWord);
         }
         System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
     }
 
-    private static int[] getBiggest(List<String> rowsWithCommaSeparatedColumns, String columnNames) {
-        int[] maxColumnLengths = getMaxColumnLengths(rowsWithCommaSeparatedColumns);
+    private static String addExtraSeparatorsToLength(String columnNames, int numberOfColumns) {
+        // Add extra , to the columns so that it prints walls on right side if columns are more than column names.
+        if (numberOfColumns > columnNames.split(sep).length) {
+            int diff = numberOfColumns - columnNames.split(sep).length;
+            columnNames += ", ".repeat(diff);
+        }
+        return columnNames;
+    }
 
+    private static int getMaxNumberOfColumns(int[] maxColumnLengths, String columnNames) {
+        int numberOfColumns = maxColumnLengths.length;
+        if (getNumberOfColumns(columnNames) > numberOfColumns) {
+            numberOfColumns = getNumberOfColumns(columnNames);
+        }
+        return numberOfColumns;
+    }
+
+    private static int[] getBiggestColumnNames(List<String> rowsWithCommaSeparatedColumns, String columnNames) {
+        int[] maxColumnLengths = getMaxColumnLengths(rowsWithCommaSeparatedColumns);
         // Get the length of the elements in the columnNames
         int[] maxColumnLengthDescription = getMaxColumnLength(columnNames);
-
         maxColumnLengths = getBiggest(maxColumnLengths, maxColumnLengthDescription);
-
         return maxColumnLengths;
     }
 
-    private static int[] getBiggest(int[] first, int[] second) {
-        if (first.length > second.length) {
-            return first;
-        } else if (first.length < second.length) {
-            return second;
+    private static int[] getBiggest(int[] array1, int[] array2) {
+        int maxLength = Math.max(array1.length, array2.length);
+        int[] result = new int[maxLength];
+
+        for (int i = 0; i < maxLength; i++) {
+            int value1 = (i < array1.length) ? array1[i] : 0; // Use 0 if array1 is shorter
+            int value2 = (i < array2.length) ? array2[i] : 0; // Use 0 if array2 is shorter
+
+            result[i] = Math.max(value1, value2);
         }
 
-        int[] biggest = new int[first.length];
-        for (int i = 0; i < first.length; i++) {
-            if (first[i] > second[i]) {
-                biggest[i] = first[i];
-            } else {
-                biggest[i] = second[i];
-            }
+        return result;
+    }
+
+    private static int[] getLastXElements(int[] sourceArray, int x) {
+        // Ensure x is not greater than the length of the source array
+        x = Math.min(x, sourceArray.length);
+
+        int[] resultArray = new int[x];
+
+        // Copy the last x elements from the source array to the result array
+        for (int i = 0; i < x; i++) {
+            resultArray[i] = sourceArray[sourceArray.length - x + i];
         }
-        return biggest;
+
+        return resultArray;
     }
 
     // │  Hello   │  this is  │  row1 - title  │  another column  │
@@ -403,9 +426,9 @@ public class MenuBuilder {
             String currentElement = elements[i];
 
             int maxLengthCurrentPosition = maxColumnLengths[i];
-
-            toPrint.append(ConsolePrinter.getGreenMsg(SideWall) + " ".repeat(numSpacesAroundEachColumnWord) + currentElement +
-                    " ".repeat(maxLengthCurrentPosition - currentElement.length() + numSpacesAroundEachColumnWord));
+            int count = maxLengthCurrentPosition - currentElement.length() + numSpacesAroundEachColumnWord;
+            toPrint.append(ConsolePrinter.getGreenMsg(SideWall) + " ".repeat(numSpacesAroundEachColumnWord) +
+                    currentElement + " ".repeat(count));
 
             // Add end of frame symbol
             if (i == elementsLength - 1) {
