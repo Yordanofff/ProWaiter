@@ -1,4 +1,7 @@
 package BackEnd.Users;
+
+import BackEnd.DB.PosgtgeSQL;
+import FrontEnd.ConsolePrinter;
 import FrontEnd.UserInput;
 
 import java.util.ArrayList;
@@ -10,18 +13,61 @@ public class UserManager {
     // todo - part of BackEnd.Users.Administrator?
     // todo - load/update users from DB before login
     // todo - change user type /promotion from-to/
+    // TODO - MINIMIZE CALLS TO THE DB. Caching? If user is created from one computer but needs to be logged in from
+    //  another? Or user is deleted..? Every machine will need to connect to the DB to make sure it has the latest information.
     private static List<User> activeUsers = new ArrayList<>();
     private static Map<UserType, List<User>> usersByType = new HashMap<>();
+    private static final PosgtgeSQL db = new PosgtgeSQL();
+
+    public static void printAllUsers() {
+        // todo - delete
+        for (User user : getActiveUsers()) {
+            System.out.println(user);
+        }
+    }
+
+    public static User getTheLoginUserIfUsernameAndPasswordAreCorrect() {
+        String[] creds = UserInput.getLoginUserAndPassword();
+
+        boolean usernameAndPasswordCorrect = false;
+        User currentUser = null;
+        for (User user : getActiveUsers()) {
+            if (user.getUsername().equalsIgnoreCase(creds[0]) && user.getPassword().equals(creds[1])) {
+                usernameAndPasswordCorrect = true;
+                currentUser = user;
+                break;
+            }
+        }
+
+        if (usernameAndPasswordCorrect) {
+            // This will return the user - never null
+            return currentUser;
+        }
+
+        printErrorMsgIfUserOrPasswordIsWrong(creds[0]);
+        return null;
+    }
+
+    private static void printErrorMsgIfUserOrPasswordIsWrong(String username) {
+        boolean usernameFound = false;
+        for (User user : getActiveUsers()) {
+            if (user.getUsername().equalsIgnoreCase(username)) {
+                usernameFound = true;
+                ConsolePrinter.printError("Wrong password for user [" + username + "]");
+                break;
+            }
+        }
+        if (!usernameFound) {
+            ConsolePrinter.printError("User [" + username + "] doesn't exist.");
+        }
+    }
 
     public static int getActiveUserCount() {
-        if (activeUsers == null) {
-            return 0;
-        }
-        return activeUsers.size();
+        return getActiveUsers().size();
     }
 
     public static List<User> getActiveUsers() {
-        return activeUsers;
+        return db.getUsers(10);
     }
 
     public static Map<UserType, List<User>> getUsersByType() {
@@ -47,21 +93,22 @@ public class UserManager {
         }
 
         String password = UserInput.getPassword(userName);
-
         // Set common fields
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setUsername(userName);
         user.setPassword(password);
 
+        db.addUser(user);
+
         // add to all ActiveUsers list
-        activeUsers.add(user);
+//        activeUsers.add(user);
 
         // Initialize the list if it doesn't exist for the given BackEnd.Users.UserType
-        usersByType.putIfAbsent(user.getUserType(), new ArrayList<>());
+//        usersByType.putIfAbsent(user.getUserType(), new ArrayList<>());
 
         // Add to usersByType list
-        usersByType.get(user.getUserType()).add(user);
+//        usersByType.get(user.getUserType()).add(user);
 
         // todo - need to write users in DB/File and get all users from there on startup.
     }
@@ -105,7 +152,7 @@ public class UserManager {
     public static void displayActiveUsers() {
         System.out.println("Active BackEnd.Users:");
         for (User user : activeUsers) {
-            System.out.println(user.getUserType() + " - " +  user.getUsername() + " - " + user.getFullName());
+            System.out.println(user.getUserType() + " - " + user.getUsername() + " - " + user.getFullName());
         }
     }
 

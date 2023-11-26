@@ -21,10 +21,11 @@ public class UserInterface {
 
         int activeUsers = UserManager.getActiveUserCount();
 
-        if (activeUsers != 0) {
+        if (activeUsers == 0) {
             ConsolePrinter.printWarning("No users found. Creating the initial Admin account.");
             UserManager.addAdmin();
         } else {
+            // todo
             // print login menu
             MenuBuilder.buildLoginMenu();
         }
