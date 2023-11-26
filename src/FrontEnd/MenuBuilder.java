@@ -333,12 +333,18 @@ public class MenuBuilder {
         System.out.println(getBottomLine(frameLength));
     }
 
-    public static void printMenuOptionsInFrameNewTable(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String Description) {
+    public static void printMenuOptionsInFrameNewTable(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames) {
 
         int numSpacesAroundEachColumnWord = 2;
-        int[] maxColumnLengths = getMaxColumnLengths(rowsWithCommaSeparatedColumns);
+        int[] maxColumnLengths = getBiggest(rowsWithCommaSeparatedColumns, columnNames);
+
         int maxNumberOfSymbolsAllRows = getMaxNumberOfSymbolsAllRows(maxColumnLengths);
+
         int numberOfColumns = maxColumnLengths.length;
+        if (getNumberOfColumns(columnNames) > numberOfColumns) {
+            numberOfColumns = getNumberOfColumns(columnNames);
+        }
+
         int numAddedSpaces = numberOfColumns * 2 * numSpacesAroundEachColumnWord;
 
         // top frame len = maxColumnLength + (numberOfColumns +1) (1 symbol each column + sides) + numAddedSpaces
@@ -346,13 +352,42 @@ public class MenuBuilder {
 
         System.out.println(getTopLineOfMenu(frameLength, frameLabel));
         System.out.println(getTopLineTableEndingUpDown(frameLength, maxColumnLengths));
-        printMiddleMenuLineTable(Description, maxColumnLengths, numSpacesAroundEachColumnWord);
+        printMiddleMenuLineTable(columnNames, maxColumnLengths, numSpacesAroundEachColumnWord);
         System.out.println(getMidLineTable(frameLength, maxColumnLengths));
 
         for (String row : rowsWithCommaSeparatedColumns) {
             printMiddleMenuLineTable(row, maxColumnLengths, numSpacesAroundEachColumnWord);
         }
         System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+    }
+
+    private static int[] getBiggest(List<String> rowsWithCommaSeparatedColumns, String columnNames) {
+        int[] maxColumnLengths = getMaxColumnLengths(rowsWithCommaSeparatedColumns);
+
+        // Get the length of the elements in the columnNames
+        int[] maxColumnLengthDescription = getMaxColumnLength(columnNames);
+
+        maxColumnLengths = getBiggest(maxColumnLengths, maxColumnLengthDescription);
+
+        return maxColumnLengths;
+    }
+
+    private static int[] getBiggest(int[] first, int[] second) {
+        if (first.length > second.length) {
+            return first;
+        } else if (first.length < second.length) {
+            return second;
+        }
+
+        int[] biggest = new int[first.length];
+        for (int i = 0; i < first.length; i++) {
+            if (first[i] > second[i]) {
+                biggest[i] = first[i];
+            } else {
+                biggest[i] = second[i];
+            }
+        }
+        return biggest;
     }
 
     // │  Hello   │  this is  │  row1 - title  │  another column  │
@@ -477,7 +512,7 @@ public class MenuBuilder {
     }
 
     private static int[] getMaxColumnLengths(List<String> myList) {
-        int numberOfColumns = getNumberOfElements(myList);
+        int numberOfColumns = getNumberOfColumns(myList);
         int[] elementsLength = new int[numberOfColumns];
         for (String row : myList) {
 
@@ -493,6 +528,21 @@ public class MenuBuilder {
         return elementsLength;
     }
 
+    private static int[] getMaxColumnLength(String row) {
+        int numberOfColumns = getNumberOfColumns(row);
+        int[] elementsLength = new int[numberOfColumns];
+
+        String[] elements = getRowElementsTrimmed(row);
+
+        for (int i = 0; i < elements.length; i++) {
+            int currentElementLength = elements[i].length();
+            if (elementsLength[i] < currentElementLength) {
+                elementsLength[i] = currentElementLength;
+            }
+        }
+        return elementsLength;
+    }
+
     private static String[] getRowElementsTrimmed(String row) {
         // Create elements - trimmed - single row
         String[] elements = row.split(sep);
@@ -502,9 +552,17 @@ public class MenuBuilder {
         return elements;
     }
 
-    private static int getNumberOfElements(List<String> myList) {
-        String[] elements = myList.get(0).split(sep);
-        return elements.length;
+    private static int getNumberOfColumns(List<String> myList) {
+        if (myList.isEmpty()) {
+            return 0;
+        }
 
+        String[] firstRow = myList.get(0).split(sep);
+        return firstRow.length;
+    }
+
+    private static int getNumberOfColumns(String myString) {
+        String[] row = myString.split(sep);
+        return row.length;
     }
 }
