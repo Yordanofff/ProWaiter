@@ -24,7 +24,7 @@ public class MenuBuilder {
     static final String SideWall = "│";
     static Scanner scanner = new Scanner(System.in);
 
-    public static void buildLoginMenu() {
+    public static void LoginMenu() {
         String[] menuOptions = new String[]{"Login"};
         String frameLabel = "";  // No frame label on the Login Menu page.
         String topMenuLabel = "Please Login with your credentials:";
@@ -46,16 +46,16 @@ public class MenuBuilder {
             UserType userType = user.getUserType();
             System.out.println("Opening [" + userType + "] panel...");
             if (userType == UserType.ADMIN) {
-                buildAdminMenu(user);
+                AdminMenu(user);
             } else if (userType == UserType.KITCHEN) {
-                buildKitchenMenu(user);
+                KitchenMenu(user);
             } else if (userType == UserType.WAITER) {
-                buildWaiterMenu(user);
+                WaiterMenu(user);
             }
         }
     }
 
-    public static void buildAdminMenu(User user) {
+    public static void AdminMenu(User user) {
         String[] menuOptions = new String[]{"User Management", "Menu Management", "Order management"};
         String frameLabel = "[" + user.getUserType() + "]";
         String topMenuLabel = "Hello, " + user.getFullName() + "!";
@@ -67,33 +67,172 @@ public class MenuBuilder {
     public static void AdminMenuAction(int option) {
         // Call methods to run
         switch (option) {
-            case 1 -> buildUserManagementMenu();
-            case 2 -> System.out.println("Admin Action 2");
-            case 3 -> System.out.println("Admin Action 3");
+            case 1 -> UserManagementMenu();
+            case 2 -> System.out.println("Menu Management"); // todo
+            case 3 -> System.out.println("Order management");  // todo
         }
     }
 
-    public static void buildUserManagementMenu() {
+    public static void UserManagementMenu() {
         String[] menuOptions = new String[]{"View all users", "Add user", "Edit user", "Delete user"};
         String frameLabel = "[ADMIN]"; // todo
         String topMenuLabel = "Hello admin!";  // todo - user.name
         String optionZeroText = "Go back";
         String optionZeroMsg = "Going back to main admin menu..."; // todo - user.type..
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction);
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::UserManagementMenuAction);
     }
 
     public static void UserManagementMenuAction(int option) {
-        // Call methods to run
         switch (option) {
-            // todo
-            case 1 -> UserManager.printAllUsers();
-            case 2 -> System.out.println(".. call method - add user");
-            case 3 -> System.out.println(".. call method - edit user");
-            case 4 -> System.out.println(".. call method - Delete user");
+            case 1 -> printAllUsers();
+            case 2 -> addUserMenu();
+            case 3 -> editUserMenu();
+            case 4 -> deleteUserMenuSelectUserType();
         }
     }
 
-    public static void buildKitchenMenu(User user) {
+    public static void editUserMenu() {
+        // todo - print all users - select user.. then
+        //  print user details - print another menu 1.2.3.4 - options what to change + UserInput prompt for that.
+    }
+
+    public static void printAllUsers() {
+        List<String> userDataToPrint;
+        List<User> activeUsers = UserManager.getActiveUsers();
+
+        String columnNames = "Username, Full Name, Id";
+        for (UserType userType : UserType.values()) {
+
+            // Empty the users list for each new type
+            userDataToPrint = new ArrayList<>();
+
+            for (User user : activeUsers) {
+                if (user.getUserType() == userType) {
+                    String userDataSingleString = (user.getUsername() + sep + user.getFullName() + sep + user.getId().toString());
+                    userDataToPrint.add(userDataSingleString);
+                }
+            }
+            MenuBuilder.printMenuOptionsInFrameTable(userDataToPrint, userType.toString(), columnNames);
+            System.out.println();  // Space below
+        }
+    }
+
+    public static void deleteUserMenuSelectUserType() {
+        String[] userTypeNames = getUserTypeNames();
+
+        String frameLabel = "Select User Type";  // No frame label on the Login Menu page.
+        String topMenuLabel = "Please choose the type of User that you want to delete:";
+        String optionZeroText = "Cancel";
+        String optionZeroMsg = "Canceled.";
+        buildMenu(userTypeNames, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::deleteUserMenuAction);
+    }
+
+    public static void deleteUserMenuAction(int option) {
+        // todo - any better/clever way to do this?
+        // Will need to add new UserTypes to this list if new types
+        switch (option) {
+            case 1 -> deleteUserMenuPrintUsers(UserType.ADMIN);
+            case 2 -> deleteUserMenuPrintUsers(UserType.WAITER);
+            case 3 -> deleteUserMenuPrintUsers(UserType.KITCHEN);
+            default ->
+                    ConsolePrinter.printError("UserType not implemented. Add UserType in MenuBuilder/deleteUserMenuAction");
+        }
+    }
+
+    private static void deleteUserMenuPrintUsers(UserType userType) {
+        String[] usersArrayByType = UserManager.getUsersArrayByType(userType);
+        int numberOfUsers = usersArrayByType.length;
+        HashMap<Integer, String> usersArrayByTypeNumbered = mapNumbersToItems(usersArrayByType, 1);
+
+        List<String> userDataToPrint = createListWithCommaSeparatedValues(usersArrayByTypeNumbered);
+
+        String columnNames = "Index, Username, Full Name, Id";
+        MenuBuilder.printMenuOptionsInFrameTable(userDataToPrint, userType.toString(), columnNames, "Cancel");
+
+        ConsolePrinter.printQuestion("Enter the [index] of the user you want to delete: ");
+        int selection = getUserInputFrom0toNumber(numberOfUsers);
+
+        // Exit if 0
+        if (selection == 0) {
+            System.out.println("Canceled.");
+            return;
+        }
+
+        int columnNumberWithUsername = 0;  // the username is the first column in the String part of the hashmap.
+        String selectedUserName = getStringForInteger(usersArrayByTypeNumbered, selection, columnNumberWithUsername); // username is unique
+
+        boolean confirmed = UserInput.getConfirmation("Are you sure you want to delete user [" + selectedUserName + "]");
+        if (confirmed) {
+            if (UserManager.deleteUserName(selectedUserName)) {
+                System.out.println("Username deleted: " + selectedUserName);
+            }
+        } else {
+            System.out.println("Cancelling..");
+        }
+    }
+
+    private static String getStringForInteger(HashMap<Integer, String> map, int key, int columnToReturn) {
+        String data = map.get(key);
+        String[] columns = data.split(sep);
+        return columns[columnToReturn];
+    }
+
+    private static List<String> createListWithCommaSeparatedValues(Map<Integer, String> map) {
+        List<String> resultList = new ArrayList<>();
+
+        for (Map.Entry<Integer, String> entry : map.entrySet()) {
+            String commaSeparatedValue = entry.getKey() + sep + entry.getValue();
+            resultList.add(commaSeparatedValue);
+        }
+
+        return resultList;
+    }
+
+    private static HashMap<Integer, String> mapNumbersToItems(String[] items, int startingNumber) {
+        // Using LinkedHashMap to keep the order as they were added.
+        HashMap<Integer, String> itemsWithNumbers = new LinkedHashMap<>();
+
+        for (int i = startingNumber; i < items.length + startingNumber; i++) {
+            itemsWithNumbers.put(i, items[i - 1]);
+        }
+
+        return itemsWithNumbers;
+    }
+
+    public static void addUserMenu() {
+        String[] userTypeNames = getUserTypeNames();
+
+        String frameLabel = "Select User Type";  // No frame label on the Login Menu page.
+        String topMenuLabel = "Please choose the type of User that you want to create:";
+        String optionZeroText = "Cancel";
+        String optionZeroMsg = "Canceled.";
+        buildMenu(userTypeNames, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::addUserMenuAction);
+    }
+
+    public static void addUserMenuAction(int option) {
+        // todo - any better/clever way to do this?
+        // Will need to add new UserTypes to this list if new types
+        switch (option) {
+            case 1 -> UserManager.addAdmin();
+            case 2 -> UserManager.addWaiter();
+            case 3 -> UserManager.addCook();
+            default ->
+                    ConsolePrinter.printError("UserType not implemented. Add UserType in MenuBuilder/addUserMenuAction");
+        }
+    }
+
+    private static String[] getUserTypeNames() {
+        UserType[] userTypes = UserType.values();
+        String[] userTypeNames = new String[userTypes.length];
+
+        // Populate the String array with enum names
+        for (int i = 0; i < userTypes.length; i++) {
+            userTypeNames[i] = userTypes[i].name();
+        }
+        return userTypeNames;
+    }
+
+    public static void KitchenMenu(User user) {
         // todo - ready should only show orders with status "Cooking"
         String[] menuOptions = new String[]{"Show orders", "Set status: cooking", "Set status: ready"};
         String frameLabel = "[" + user.getUserType() + "]";
@@ -113,7 +252,7 @@ public class MenuBuilder {
         }
     }
 
-    public static void buildWaiterMenu(User user) {
+    public static void WaiterMenu(User user) {
         // todo - ready should only show orders with status "Cooking"
         String[] menuOptions = new String[]{"Show orders", "Show ready orders", "Add order", "Add to order", "Remove from order", "Set status: served"};
         String frameLabel = "[" + user.getUserType() + "]";
@@ -161,7 +300,7 @@ public class MenuBuilder {
         List<String> dataToPrint = getMenuOptionsWithSameLengthOfMaxDigitLength(menuOptionsWithNumbers);
 
         // Printing the options in a frame
-        printMenuOptionsInFrameNew(topMenuQuestion, dataToPrint, frameLabel);
+        printMenuOptionsInFrame(topMenuQuestion, dataToPrint, frameLabel);
 
         // Returning the user selection
         return getUserInputFrom0toNumber(menuOptions.length);
@@ -242,10 +381,20 @@ public class MenuBuilder {
      * @param frameLength - longest row data + min spaces on each side + 2
      * @param rowData     - the actual data that needs to be printed "0 - Exit"
      */
-    private static void printMiddleMenuLine(int frameLength, String rowData, String sideSymbol) {
-        String coloredFrameAndSpacesBeginningOfRow = ConsolePrinter.getGreenMsg(sideSymbol + " ".repeat(MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU));
+    private static void printMiddleMenuLine(int frameLength, String rowData, String sideSymbol, int numberOfSymbolsFromLeftWall) {
+        String coloredFrameAndSpacesBeginningOfRow = ConsolePrinter.getGreenMsg(sideSymbol + " ".repeat(numberOfSymbolsFromLeftWall));
         System.out.print(coloredFrameAndSpacesBeginningOfRow + rowData);
-        System.out.println(ConsolePrinter.getGreenMsg(" ".repeat(getNumberOfRemainingSpacesToTheEndOfTheFrame(frameLength, rowData)) + sideSymbol));
+        if (numberOfSymbolsFromLeftWall == MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU) {
+            System.out.println(ConsolePrinter.getGreenMsg(" ".repeat(getNumberOfRemainingSpacesToTheEndOfTheFrame(frameLength, rowData)) + sideSymbol));
+        } else {
+            int diff = MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU - numberOfSymbolsFromLeftWall;
+            frameLength = frameLength + diff;  // add more spaces when printing the frame so that the right wall is in the correct place.
+            System.out.println(ConsolePrinter.getGreenMsg(" ".repeat(getNumberOfRemainingSpacesToTheEndOfTheFrame(frameLength, rowData)) + sideSymbol));
+        }
+    }
+
+    private static void printMiddleMenuLine(int frameLength, String rowData, String sideSymbol) {
+        printMiddleMenuLine(frameLength, rowData, sideSymbol, MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU);
     }
 
     private static int getNumberOfRemainingSpacesToTheEndOfTheFrame(int frameLength, String rowData) {
@@ -304,7 +453,7 @@ public class MenuBuilder {
      * @param menuOptions     - List of Strings with all Options: ["0 - Log out", "1 - User Management", ..]
      * @param frameLabel      - [ADMIN]
      */
-    public static void printMenuOptionsInFrameNew(String menuTopQuestion, List<String> menuOptions, String frameLabel) {
+    public static void printMenuOptionsInFrame(String menuTopQuestion, List<String> menuOptions, String frameLabel) {
 
         int longestRowWithData = getTheNumberOfSymbolsInTheLongestString(menuTopQuestion, menuOptions);
 
@@ -333,7 +482,7 @@ public class MenuBuilder {
         System.out.println(getBottomLine(frameLength));
     }
 
-    public static void printMenuOptionsInFrameNewTable(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames) {
+    public static void printMenuOptionsInFrameTable(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText) {
 
         int numSpacesAroundEachColumnWord = 2;
         int[] maxColumnLengths = getBiggestColumnNames(rowsWithCommaSeparatedColumns, columnNames);
@@ -357,7 +506,18 @@ public class MenuBuilder {
             row = addExtraSeparatorsToLength(row, numberOfColumns);
             printMiddleMenuLineTable(row, maxColumnLengths, numSpacesAroundEachColumnWord);
         }
-        System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+        if (zeroOptionText.isEmpty()) {
+            System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+        } else {
+            System.out.println(getBottomLineTableContinuingDownCorners(frameLength, maxColumnLengths));
+            zeroOptionText = "0 - " + zeroOptionText;
+            printMiddleMenuLine(frameLength, zeroOptionText, SideWall, numSpacesAroundEachColumnWord);
+            System.out.println(getBottomLine(frameLength));
+        }
+    }
+
+    public static void printMenuOptionsInFrameTable(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames) {
+        printMenuOptionsInFrameTable(rowsWithCommaSeparatedColumns, frameLabel, columnNames, "");
     }
 
     private static String addExtraSeparatorsToLength(String columnNames, int numberOfColumns) {
@@ -413,7 +573,7 @@ public class MenuBuilder {
         return resultArray;
     }
 
-    // │  Hello   │  this is  │  row1 - title  │  another column  │
+    // │  column 1  │  column 2  │  column 3  │  column 4  │
     private static void printMiddleMenuLineTable(String row, int[] maxColumnLengths, int numSpacesAroundEachColumnWord) {
 
         // Green frame, white letters like everywhere.
@@ -467,6 +627,7 @@ public class MenuBuilder {
         return getGreenLineTable(length, topLeftCorner, topRightCorner, topCross, maxColumnLengths);
     }
 
+    // ┌────────── [ADMIN] ───────────┐
     private static String getTopLineOfMenu(int length, String label) {
         int numDashesEachSide = length - label.length() - 2 - 2; // 2 for the spaces, 2 for the corners
         if (label.isEmpty()) {
@@ -481,6 +642,7 @@ public class MenuBuilder {
                 + label + ConsolePrinter.getGreenMsg(" " + dashesAfter + topRightCorner);
     }
 
+    // ┌──────────────────────────────┐
     private static String getTopLineOfMenu(int length) {
         return getTopLineOfMenu(length, "");
     }
@@ -513,15 +675,22 @@ public class MenuBuilder {
         return getGreenLineTable(length, bottomLeftCorner, bottomRightCorner, bottomCross, maxColumnLengths);
     }
 
+    // ├──────────┴───────────┴────────────────┴────────────────┤
+    private static String getBottomLineTableContinuingDownCorners(int length, int[] maxColumnLengths) {
+        return getGreenLineTable(length, midLeft, midRight, bottomCross, maxColumnLengths);
+    }
+
     // ├──────────┼───────────┼────────────────┼────────────────┤
     private static String getMidLineTable(int length, int[] maxColumnLengths) {
         return getGreenLineTable(length, midLeft, midRight, midCross, maxColumnLengths);
     }
 
+    // ├──────────────────────────────┤
     private static String getMidLine(int length) {
         return getGreenLine(length, midLeft, midRight);
     }
 
+    // └──────────────────────────────┘
     private static String getBottomLine(int length) {
         return getGreenLine(length, bottomLeftCorner, bottomRightCorner);
     }

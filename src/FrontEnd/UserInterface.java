@@ -27,7 +27,7 @@ public class UserInterface {
         } else {
             // todo
             // print login menu
-            MenuBuilder.buildLoginMenu();
+            MenuBuilder.LoginMenu();
         }
     }
 
