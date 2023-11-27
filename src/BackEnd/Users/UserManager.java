@@ -159,5 +159,30 @@ public class UserManager {
         }
     }
 
+    public static String[] getUsersArrayByType(UserType userType) {
+        List<User> activeUsers = UserManager.getActiveUsers();
+        String[] usersOfType = new String[getNumberOfUsersByType(userType)];
+        int counter = 0;
+        for (User user : activeUsers) {
+            if (user.getUserType() == userType) {
+                String userDataSingleString = (user.getUsername() + ", " + user.getFullName() + ", " + user.getId().toString());
+                usersOfType[counter] = userDataSingleString;
+                counter++;
+            }
+        }
+        return usersOfType;
+    }
+
+    private static int getNumberOfUsersByType(UserType userType) {
+        List<User> activeUsers = UserManager.getActiveUsers();
+        int numberOfUsers = 0;
+        for (User user : activeUsers) {
+            if (user.getUserType() == userType) {
+                numberOfUsers += 1;
+            }
+        }
+        return numberOfUsers;
+    }
+
 }
 
