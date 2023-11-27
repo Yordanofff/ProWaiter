@@ -206,6 +206,21 @@ public class DataAccessObject {
         }
     }
 
+    public void deleteUserByUsername(String username) {
+        try (Connection connection = ds.getConnection()) {
+            String sql = "DELETE FROM users WHERE username = ?";
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                // Set parameter for the prepared statement
+                statement.setString(1, username);
+
+                // Execute the update
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle the exception according to your application's error handling strategy
+        }
+    }
+
     public List<User> getUsers(int limit) {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users LIMIT ?";
