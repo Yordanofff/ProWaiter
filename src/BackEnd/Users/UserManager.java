@@ -19,13 +19,6 @@ public class UserManager {
     private static Map<UserType, List<User>> usersByType = new HashMap<>();
     private static final PosgtgeSQL db = new PosgtgeSQL();
 
-    public static void printAllUsers() {
-        // todo - delete
-        for (User user : getActiveUsers()) {
-            System.out.println(user);
-        }
-    }
-
     public static User getTheLoginUserIfUsernameAndPasswordAreCorrect() {
         String[] creds = UserInput.getLoginUserAndPassword();
 
@@ -93,6 +86,7 @@ public class UserManager {
         }
 
         String password = UserInput.getPassword(userName);
+
         // Set common fields
         user.setFirstName(firstName);
         user.setLastName(lastName);
@@ -101,16 +95,6 @@ public class UserManager {
 
         db.addUser(user);
 
-        // add to all ActiveUsers list
-//        activeUsers.add(user);
-
-        // Initialize the list if it doesn't exist for the given BackEnd.Users.UserType
-//        usersByType.putIfAbsent(user.getUserType(), new ArrayList<>());
-
-        // Add to usersByType list
-//        usersByType.get(user.getUserType()).add(user);
-
-        // todo - need to write users in DB/File and get all users from there on startup.
     }
 
     public static boolean isInitialAdminAccountCreated() {
