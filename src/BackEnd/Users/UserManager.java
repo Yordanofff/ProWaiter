@@ -1,6 +1,6 @@
 package BackEnd.Users;
 
-import BackEnd.DB.PosgtgeSQL;
+import BackEnd.DB.PostgreSQL;
 import FrontEnd.ConsolePrinter;
 import FrontEnd.UserInput;
 
@@ -17,7 +17,7 @@ public class UserManager {
     //  another? Or user is deleted..? Every machine will need to connect to the DB to make sure it has the latest information.
     private static List<User> activeUsers = new ArrayList<>();
     private static Map<UserType, List<User>> usersByType = new HashMap<>();
-    private static final PosgtgeSQL db = new PosgtgeSQL();
+    private static final PostgreSQL db = new PostgreSQL();
 
     public static User getTheLoginUserIfUsernameAndPasswordAreCorrect() {
         String[] creds = UserInput.getLoginUserAndPassword();
