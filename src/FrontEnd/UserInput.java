@@ -1,7 +1,9 @@
 package FrontEnd;
 
 import BackEnd.Users.User;
+import BackEnd.Users.UserManager;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class UserInput {
@@ -26,6 +28,10 @@ public class UserInput {
         while (true) {
             String question = "Please enter username: ";
             String userInput = getUserInput(question);
+            if (isUserNameAlreadyInDB(userInput)) {
+                ConsolePrinter.printError("Username [" + userInput + "] already exist!");
+                continue;
+            }
 
             if (!printWarnings) {
                 // No checks when user is trying to log in.
@@ -48,6 +54,16 @@ public class UserInput {
 
     public static String getUsername() {
         return getUsername(true);
+    }
+
+    private static boolean isUserNameAlreadyInDB(String userName) {
+        List<User> activeUsers = UserManager.getActiveUsers();
+        for (User user : activeUsers) {
+            if (user.getUsername().equalsIgnoreCase(userName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static String getPassword(String username, boolean validatePassword) {
@@ -108,5 +124,12 @@ public class UserInput {
 
     public static String capitalize(String str) {
         return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
+    }
+
+    public static boolean getConfirmation(String message) {
+        ConsolePrinter.printQuestion(message + " (yes/no): ");
+
+        String confirmation = scanner.nextLine().trim().toLowerCase();
+        return confirmation.equals("yes");
     }
 }
