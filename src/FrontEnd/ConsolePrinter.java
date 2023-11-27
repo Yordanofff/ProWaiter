@@ -33,6 +33,10 @@ public class ConsolePrinter {
         System.out.println(BLUE + "[INFO] " + message + RESET);
     }
 
+    public static void printQuestion(String message) {
+        System.out.println(getColoredMsgInBrackets(message, BLUE, YELLOW));
+    }
+
     public static void printSuccess(String message) {
         System.out.println(GREEN + "[SUCCESS] " + message + RESET);
     }
