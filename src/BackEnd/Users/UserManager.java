@@ -122,14 +122,14 @@ public class UserManager {
         addUser(waiter);
     }
 
-    public void removeUser(User user) {
-        // todo - delete user from DB/File --> Don't delete - set user as "non active"
-        if (user.getUsername().equalsIgnoreCase("admin")) {
-            throw new RuntimeException("The admin account cannot be removed.");
+    public static boolean deleteUserName(String userName) {
+        if (userName.equalsIgnoreCase("admin")) {
+            // Don't allow deletion of the main admin account.
+            ConsolePrinter.printError("The account cannot be deleted: [admin]");
+            return false;
         } else {
-            activeUsers.remove(user);
-            usersByType.get(user.getUserType()).remove(user);
-            System.out.println(user.getUsername() + " has logged out.");
+            db.deleteUserByUsername(userName);
+            return true;
         }
     }
 
