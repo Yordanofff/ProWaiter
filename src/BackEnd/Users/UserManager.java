@@ -1,6 +1,6 @@
 package BackEnd.Users;
 
-import BackEnd.DB.PosgtgeSQL;
+import BackEnd.DB.PostgreSQL;
 import FrontEnd.ConsolePrinter;
 import FrontEnd.UserInput;
 
@@ -17,14 +17,7 @@ public class UserManager {
     //  another? Or user is deleted..? Every machine will need to connect to the DB to make sure it has the latest information.
     private static List<User> activeUsers = new ArrayList<>();
     private static Map<UserType, List<User>> usersByType = new HashMap<>();
-    private static final PosgtgeSQL db = new PosgtgeSQL();
-
-    public static void printAllUsers() {
-        // todo - delete
-        for (User user : getActiveUsers()) {
-            System.out.println(user);
-        }
-    }
+    private static final PostgreSQL db = new PostgreSQL();
 
     public static User getTheLoginUserIfUsernameAndPasswordAreCorrect() {
         String[] creds = UserInput.getLoginUserAndPassword();
@@ -93,6 +86,7 @@ public class UserManager {
         }
 
         String password = UserInput.getPassword(userName);
+
         // Set common fields
         user.setFirstName(firstName);
         user.setLastName(lastName);
@@ -101,16 +95,6 @@ public class UserManager {
 
         db.addUser(user);
 
-        // add to all ActiveUsers list
-//        activeUsers.add(user);
-
-        // Initialize the list if it doesn't exist for the given BackEnd.Users.UserType
-//        usersByType.putIfAbsent(user.getUserType(), new ArrayList<>());
-
-        // Add to usersByType list
-//        usersByType.get(user.getUserType()).add(user);
-
-        // todo - need to write users in DB/File and get all users from there on startup.
     }
 
     public static boolean isInitialAdminAccountCreated() {
@@ -138,14 +122,14 @@ public class UserManager {
         addUser(waiter);
     }
 
-    public void removeUser(User user) {
-        // todo - delete user from DB/File --> Don't delete - set user as "non active"
-        if (user.getUsername().equalsIgnoreCase("admin")) {
-            throw new RuntimeException("The admin account cannot be removed.");
+    public static boolean deleteUserName(String userName) {
+        if (userName.equalsIgnoreCase("admin")) {
+            // Don't allow deletion of the main admin account.
+            ConsolePrinter.printError("The account cannot be deleted: [admin]");
+            return false;
         } else {
-            activeUsers.remove(user);
-            usersByType.get(user.getUserType()).remove(user);
-            System.out.println(user.getUsername() + " has logged out.");
+            db.deleteUserByUsername(userName);
+            return true;
         }
     }
 
@@ -173,6 +157,31 @@ public class UserManager {
         for (UserType type : UserType.values()) {
             displayUsersByType(type);
         }
+    }
+
+    public static String[] getUsersArrayByType(UserType userType) {
+        List<User> activeUsers = UserManager.getActiveUsers();
+        String[] usersOfType = new String[getNumberOfUsersByType(userType)];
+        int counter = 0;
+        for (User user : activeUsers) {
+            if (user.getUserType() == userType) {
+                String userDataSingleString = (user.getUsername() + ", " + user.getFullName() + ", " + user.getId().toString());
+                usersOfType[counter] = userDataSingleString;
+                counter++;
+            }
+        }
+        return usersOfType;
+    }
+
+    private static int getNumberOfUsersByType(UserType userType) {
+        List<User> activeUsers = UserManager.getActiveUsers();
+        int numberOfUsers = 0;
+        for (User user : activeUsers) {
+            if (user.getUserType() == userType) {
+                numberOfUsers += 1;
+            }
+        }
+        return numberOfUsers;
     }
 
 }

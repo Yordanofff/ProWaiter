@@ -5,9 +5,9 @@ import org.postgresql.ds.PGSimpleDataSource;
 
 import java.util.List;
 
-public class PosgtgeSQL {
+public class PostgreSQL {
     private DataAccessObject dao;
-    public PosgtgeSQL() {
+    public PostgreSQL() {
         init();
     }
 
@@ -40,9 +40,13 @@ public class PosgtgeSQL {
         dao.addUser(user);
     }
 
+    public void deleteUserByUsername(String userName) {
+        dao.deleteUserByUsername(userName);
+    }
+
     public void printDBTables() {
         List<String> tables = dao.getDBTables();
-        for (String table:tables) {
+        for (String table : tables) {
             System.out.println(table);
         }
     }
