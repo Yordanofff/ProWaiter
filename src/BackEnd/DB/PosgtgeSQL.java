@@ -40,6 +40,10 @@ public class PosgtgeSQL {
         dao.addUser(user);
     }
 
+    public void deleteUserByUsername(String userName) {
+        dao.deleteUserByUsername(userName);
+    }
+
     public void printDBTables() {
         List<String> tables = dao.getDBTables();
         for (String table:tables) {
