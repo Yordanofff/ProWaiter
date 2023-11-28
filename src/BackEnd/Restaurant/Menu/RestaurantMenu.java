@@ -25,10 +25,31 @@ public class RestaurantMenu {
         }
     }
 
-    public void removeDish(Dish dish) {
-        // todo: removing dishes will be by selecting the dish number in the menu (should have all data about the dish)
-        // todo: mark as not-available? - re-add later on/tomorrow?
-        dishes.remove(dish);
+    public static void setDishesFromDB() {
+        // To be run when the app starts + if the user wants to update (if other users have updated it)
+        // Reason is to lower down DB calls
+        List<Dish> allDishes = DBOperations.getAllDishesFromRestaurantMenuItems();
+        setDishes(allDishes);
+    }
+
+    public static void removeDish(Dish dish) {
+        if (isDishAlreadyInMenu(dish)) {
+            dishes.remove(dish);
+            boolean result = DBOperations.removeDishFromRestaurantMenuItems(dish);
+            if (result) {
+                ConsolePrinter.printInfo("Dish [" + dish.getName() + "] removed successfully.");
+            }
+        } else {
+            ConsolePrinter.printError("Dish [" + dish.getName() + "] not found in the Restaurant Menu!");
+        }
+    }
+
+    public static void removeDishName(String dishName) {
+        Dish dishToRemove = getDishFromDishName(dishName);
+        if (dishToRemove == null) {
+            return;
+        }
+        removeDish(dishToRemove);
     }
 
     public static Dish getDishFromDishName(String dishName) {
