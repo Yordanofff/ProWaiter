@@ -1,6 +1,6 @@
 package BackEnd.Users;
 
-import BackEnd.DB.PostgreSQL;
+import BackEnd.DB.DBOperations;
 import FrontEnd.ConsolePrinter;
 import FrontEnd.UserInput;
 
@@ -17,7 +17,6 @@ public class UserManager {
     //  another? Or user is deleted..? Every machine will need to connect to the DB to make sure it has the latest information.
     private static List<User> activeUsers = new ArrayList<>();
     private static Map<UserType, List<User>> usersByType = new HashMap<>();
-    private static final PostgreSQL db = new PostgreSQL();
 
     public static User getTheLoginUserIfUsernameAndPasswordAreCorrect() {
         String[] creds = UserInput.getLoginUserAndPassword();
@@ -60,7 +59,7 @@ public class UserManager {
     }
 
     public static List<User> getActiveUsers() {
-        return db.getUsers(10);
+        return DBOperations.getUsers(10);
     }
 
     public static Map<UserType, List<User>> getUsersByType() {
@@ -93,7 +92,7 @@ public class UserManager {
         user.setUsername(userName);
         user.setPassword(password);
 
-        db.addUser(user);
+        DBOperations.addUser(user);
 
     }
 
@@ -128,7 +127,7 @@ public class UserManager {
             ConsolePrinter.printError("The account cannot be deleted: [admin]");
             return false;
         } else {
-            db.deleteUserByUsername(userName);
+            DBOperations.deleteUserByUsername(userName);
             return true;
         }
     }

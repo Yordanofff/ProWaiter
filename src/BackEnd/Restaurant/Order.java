@@ -1,78 +1,41 @@
 package BackEnd.Restaurant;
 
 import BackEnd.Restaurant.Dishes.Dish;
+import BackEnd.Restaurant.Menu.RestaurantMenu;
+import FrontEnd.ConsolePrinter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Order {
-
-    // todo - make sure the Menu has the dish - isAvailable flag?
-
-    private List<Dish> order = new ArrayList<>();
+    private List<Dish> orderedDishes;
     private double totalPrice = 0;
 
     // Keep incrementing the number on each new order, so we have total number of orders.
     private static int orderNumber = 0;
+    boolean isPaid;
 
     public Order() {
         orderNumber += 1;
+        this.isPaid = false;
+        this.orderedDishes = new ArrayList<>();
     }
 
-    public Map<Integer, String> getCombinedItems(){
-        // todo - to be tested.... should not have the same item name in the menu! Kameniza 250ml/ Kameniza 500ml. Or include bottle size?
-        // Map with number of items in the order (before printing the receipt)
-        Map<Integer, String> combinedItems = new HashMap<>();
-        for (Dish dish : order) {
-            int quantity = 1; // Since quantity will always be 1
-            String itemName = dish.getName();
-
-            // Check if the item is already in the map
-            if (combinedItems.containsValue(itemName)) {
-                // If yes, find the entry with the same item name and increment the quantity
-                for (Map.Entry<Integer, String> entry : combinedItems.entrySet()) {
-                    if (entry.getValue().equals(itemName)) {
-                        quantity = entry.getKey() + 1;
-                        break;
-                    }
-                }
-            }
-
-            // Update or add the entry in the map
-            combinedItems.put(quantity, itemName);
-
+    public void addDish(Dish dish) {
+        if (!isDishInMenu(dish)) {
+            ConsolePrinter.printWarning("The item [" + dish.getName() + "] is not in the Restaurant Menu!");
         }
-
-        return combinedItems;
-    }
-
-    public void printReceipt() {
-        // todo create MenuBuilder for receipts. Use getCombinedItems ?
-
-        System.out.println("Order number: " + orderNumber);
-
-        for (Dish dish : order) {
-            System.out.println("Dish | Amount | Single Price | Total Price");
-
-        }
-
-        System.out.println("Total: " + getTotalPrice());
-    }
-
-    public void addDishToOrder(Dish dish) {
-        order.add(dish);
+        orderedDishes.add(dish);
         setTotalPrice(getTotalPrice() + dish.getPrice());
     }
 
-    public void removeDishFromOrder(Dish dish) {
-        order.remove(dish);
+    public void removeDish(Dish dish) {
+        orderedDishes.remove(dish);
         setTotalPrice(getTotalPrice() - dish.getPrice());
     }
 
-    public List<Dish> getOrder() {
-        return order;
+    public List<Dish> getOrderedDishes() {
+        return orderedDishes;
     }
 
     public int getOrderNumber() {
@@ -83,7 +46,17 @@ public class Order {
         return totalPrice;
     }
 
-    public void setTotalPrice(double totalPrice) {
+    private void setTotalPrice(double totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    private boolean isDishInMenu(Dish dish){
+        List<Dish> allRestaurantMenuDishes = RestaurantMenu.getDishes();
+        for (Dish restaurantDish: allRestaurantMenuDishes             ) {
+            if (restaurantDish.getName().equalsIgnoreCase(dish.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

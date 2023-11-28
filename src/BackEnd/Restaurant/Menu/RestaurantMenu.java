@@ -1,32 +1,28 @@
 package BackEnd.Restaurant.Menu;
 
-import BackEnd.Restaurant.Dishes.Dish;
+import BackEnd.DB.DBOperations;
+import BackEnd.Restaurant.Dishes.*;
+import FrontEnd.ConsolePrinter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class RestaurantMenu {
-    private List<Dish> dishes = new ArrayList<>();
+    //  Static fields, as the data will be the same for all.
+    private static List<Dish> dishes = new ArrayList<>();
 
-    public void printRestaurantMenu() {
-        // todo - create MenuBuilder for it
-        // Category:
-        // Name - Size - Price - isAvailable
-    }
-    
-    // todo - editMenuItem - choose Item and what to Edit - Name/Size/Price/Status
-
-    private void loadDishesFromDB() {
-        //todo - open file/DB and load dishes
+    @Override
+    public String toString() {
+        return "RestaurantMenu{" +
+                "dishes=" + dishes +
+                '}';
     }
 
-    private void saveDishesToDB() {
-        // todo
-    }
-
-    public void addDish(Dish dish) {
-        // todo - check if already in?
-        dishes.add(dish);
+    public static void addDish(Dish dish) {
+        if (!isDishAlreadyInMenu(dish)) {
+            dishes.add(dish);
+            DBOperations.addDishToRestaurantMenuItems(dish);
+        }
     }
 
     public void removeDish(Dish dish) {
@@ -35,11 +31,65 @@ public class RestaurantMenu {
         dishes.remove(dish);
     }
 
-    public List<Dish> getDishes() {
+    public static Dish getDishFromDishName(String dishName) {
+        for (Dish dish : getDishes()) {
+            if (dish.getName().equalsIgnoreCase(dishName)) {
+                return dish;
+            }
+        }
+        ConsolePrinter.printError("Dish [" + dishName + "] not found in the Restaurant Menu!");
+        return null;
+    }
+
+    public static List<Dish> getDishes() {
+        // Populate the dishes list when the app starts.
+        if (dishes.isEmpty()) {
+            setDishesFromDB();
+        }
         return dishes;
     }
 
-    public void setDishes(List<Dish> dishes) {
-        this.dishes = dishes;
+    public static List<Food> getFood() {
+        List<Food> allFood = new ArrayList<>();
+        for (Dish dish : getDishes()) {
+            if (dish.getDishType() == DishType.FOOD) {
+                allFood.add((Food) dish);
+            }
+        }
+        return allFood;
+    }
+
+    public static List<Drink> getDrink() {
+        List<Drink> allDrink = new ArrayList<>();
+        for (Dish dish : getDishes()) {
+            if (dish.getDishType() == DishType.DRINK) {
+                allDrink.add((Drink) dish);
+            }
+        }
+        return allDrink;
+    }
+
+    public static List<Dessert> getDesert() {
+        List<Dessert> allDesert = new ArrayList<>();
+        for (Dish dish : getDishes()) {
+            if (dish.getDishType() == DishType.DESSERT) {
+                allDesert.add((Dessert) dish);
+            }
+        }
+        return allDesert;
+    }
+
+    private static void setDishes(List<Dish> newDishes) {
+        dishes = newDishes;
+    }
+
+    private static boolean isDishAlreadyInMenu(Dish dish) {
+        for (Dish dishInMenu : getDishes()) {
+            if (dishInMenu.getName().equalsIgnoreCase(dish.getName())) {
+                ConsolePrinter.printError("Dish [" + dish.getName() + "] already in the menu.");
+                return true;
+            }
+        }
+        return false;
     }
 }
