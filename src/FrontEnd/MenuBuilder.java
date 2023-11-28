@@ -25,19 +25,24 @@ public class MenuBuilder {
     static Scanner scanner = new Scanner(System.in);
 
     public static void LoginMenu() {
-        String[] menuOptions = new String[]{"Login"};
+        // todo - if enough time - add another option to change the color of the menu.
+        String[] menuOptions = new String[]{"Login", "About"};
         String frameLabel = "";  // No frame label on the Login Menu page.
         String topMenuLabel = "Please Login with your credentials:";
         String optionZeroText = "Exit";
         String optionZeroMsg = "GoodBye!";
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::LoginMenuAction);
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> LoginMenuAction(option), null);
     }
 
     public static void LoginMenuAction(int option) {
         // Call methods to run
         switch (option) {
             case 1 -> UserLoginMenuAction();
+            case 2 -> aboutPage();
         }
+    }
+    private static void aboutPage() {
+        ConsolePrinter.printQuestion("\nHello, we are [Ivaylo Yordanov] and [Ivaylo Staykov] and we love coding.\n\nWe really hope that you'll like our project.\n");
     }
 
     public static void UserLoginMenuAction() {
@@ -61,28 +66,29 @@ public class MenuBuilder {
         String topMenuLabel = "Hello, " + user.getFullName() + "!";
         String optionZeroText = "Log out";
         String optionZeroMsg = "Logging out...";
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction);
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::AdminMenuAction, user);
     }
 
-    public static void AdminMenuAction(int option) {
+    public static void AdminMenuAction(int option, User user) {
         // Call methods to run
         switch (option) {
-            case 1 -> UserManagementMenu();
+            case 1 -> UserManagementMenu(user);
             case 2 -> System.out.println("Menu Management"); // todo
             case 3 -> System.out.println("Order management");  // todo
         }
     }
 
-    public static void UserManagementMenu() {
+    public static void UserManagementMenu(User user) {
         String[] menuOptions = new String[]{"View all users", "Add user", "Edit user", "Delete user"};
-        String frameLabel = "[ADMIN]"; // todo
-        String topMenuLabel = "Hello admin!";  // todo - user.name
+        String frameLabel = "[" + user.getUserType().toString() + "]";  // Allowing MANAGER class to be added later on and not having to change this.
+        String topMenuLabel = "User Management";
         String optionZeroText = "Go back";
-        String optionZeroMsg = "Going back to main admin menu..."; // todo - user.type..
+        String optionZeroMsg = "Going back to main [" + user.getUserType() + "] menu...";
         buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::UserManagementMenuAction);
     }
 
-    public static void UserManagementMenuAction(int option) {
+    public static void UserManagementMenuAction(int option, User user) {
+        // todo - use user somewhere?
         switch (option) {
             case 1 -> printAllUsers();
             case 2 -> addUserMenu();
@@ -124,7 +130,7 @@ public class MenuBuilder {
         String topMenuLabel = "Please choose the type of User that you want to delete:";
         String optionZeroText = "Cancel";
         String optionZeroMsg = "Canceled.";
-        buildMenu(userTypeNames, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::deleteUserMenuAction);
+        buildMenu(userTypeNames, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> deleteUserMenuAction(option), null);
     }
 
     public static void deleteUserMenuAction(int option) {
@@ -206,7 +212,7 @@ public class MenuBuilder {
         String topMenuLabel = "Please choose the type of User that you want to create:";
         String optionZeroText = "Cancel";
         String optionZeroMsg = "Canceled.";
-        buildMenu(userTypeNames, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::addUserMenuAction);
+        buildMenu(userTypeNames, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> addUserMenuAction(option), null);
     }
 
     public static void addUserMenuAction(int option) {
@@ -239,13 +245,12 @@ public class MenuBuilder {
         String topMenuLabel = "Hello, " + user.getFullName() + "!";
         String optionZeroText = "Log out";
         String optionZeroMsg = "Logging out...";
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction);
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::KitchenMenuAction);
     }
 
-    public static void KitchenMenuAction(int option) {
-        // Call methods to run
+    public static void KitchenMenuAction(int option, User user) {
+        // todo - use user somewhere?
         switch (option) {
-            // todo
             case 1 -> System.out.println("Showing orders..");
             case 2 -> System.out.println("Showing orders.. + user input - select order - status cooking");
             case 3 -> System.out.println("Showing orders.. + user input - select order - status ready");
@@ -259,19 +264,19 @@ public class MenuBuilder {
         String topMenuLabel = "Hello, " + user.getFullName() + "!";
         String optionZeroText = "Log out";
         String optionZeroMsg = "Logging out...";
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction);
+//        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction); // use this if user data is needed in WaiterMenuAction
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> WaiterMenuAction(option), user);  // lambda function to ignore the user.
+
     }
 
     public static void WaiterMenuAction(int option) {
-        // Call methods to run
         switch (option) {
-            // todo
             case 1 -> System.out.println(".. waiter option 1");
             case 2 -> System.out.println(".. waiter option 2");
         }
     }
 
-    public static void buildMenu(String[] menuOptions, String topMenuLabel, String optionZeroText, String optionZeroMsg, String frameLabel, MenuAction menuAction) {
+    public static void buildMenu(String[] menuOptions, String topMenuLabel, String optionZeroText, String optionZeroMsg, String frameLabel, MenuAction menuAction, User user) {
         while (true) {
             int selectedOption = printMenuAndGetUsersChoice(menuOptions, topMenuLabel, optionZeroText, frameLabel);
 
@@ -282,7 +287,7 @@ public class MenuBuilder {
             }
 
             // Executing the selected option
-            menuAction.execute(selectedOption);
+            menuAction.execute(selectedOption, user);
 
             // pause
             System.out.print("Press any key to continue..: ");
@@ -290,6 +295,10 @@ public class MenuBuilder {
 
             System.out.println();
         }
+    }
+
+    public static void buildMenu(String[] menuOptions, String topMenuLabel, String optionZeroText, String optionZeroMsg, String frameLabel, MenuAction menuAction) {
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, menuAction, null);
     }
 
     private static int printMenuAndGetUsersChoice(String[] menuOptions, String topMenuQuestion, String optionZeroText, String frameLabel) {
