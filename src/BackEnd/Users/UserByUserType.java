@@ -6,7 +6,7 @@ public class UserByUserType {
         User user = switch (userType) {
             case ADMIN -> new Administrator(firstName, lastName, username, password);
             case WAITER -> new Waiter(firstName, lastName, username, password);
-            case KITCHEN -> new Cook(firstName, lastName, username, password);
+            case COOK -> new Cook(firstName, lastName, username, password);
         };
 
         // Assign a unique ID

@@ -47,7 +47,7 @@ public class MenuBuilder {
             System.out.println("Opening [" + userType + "] panel...");
             if (userType == UserType.ADMIN) {
                 AdminMenu(user);
-            } else if (userType == UserType.KITCHEN) {
+            } else if (userType == UserType.COOK) {
                 KitchenMenu(user);
             } else if (userType == UserType.WAITER) {
                 WaiterMenu(user);
@@ -133,7 +133,7 @@ public class MenuBuilder {
         switch (option) {
             case 1 -> deleteUserMenuPrintUsers(UserType.ADMIN);
             case 2 -> deleteUserMenuPrintUsers(UserType.WAITER);
-            case 3 -> deleteUserMenuPrintUsers(UserType.KITCHEN);
+            case 3 -> deleteUserMenuPrintUsers(UserType.COOK);
             default ->
                     ConsolePrinter.printError("UserType not implemented. Add UserType in MenuBuilder/deleteUserMenuAction");
         }
