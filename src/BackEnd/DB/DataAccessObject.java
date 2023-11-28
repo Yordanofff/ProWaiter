@@ -1,5 +1,7 @@
 package BackEnd.DB;
 
+import BackEnd.Restaurant.Dishes.Dish;
+import BackEnd.Restaurant.Dishes.DishType;
 import BackEnd.Users.User;
 import BackEnd.Users.UserByUserType;
 import BackEnd.Users.UserType;
@@ -269,6 +271,73 @@ public class DataAccessObject {
                 "password VARCHAR(255) NOT NULL" +
                 ")");
     }
+
+    public void createRestaurantMenuTableIfNotExist() {
+        runSQL("CREATE TABLE IF NOT EXISTS restaurantMenuItems (" +
+                "name VARCHAR(255) NOT NULL," +
+                "price REAL," +
+                "dishType VARCHAR(50) NOT NULL)");
+    }
+
+    public void addDishToRestaurantMenuItems(Dish dish) {
+        try (Connection connection = ds.getConnection()) {
+            String sql = "INSERT INTO restaurantMenuItems (name, price, dishType) VALUES (?, ?, ?)";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+                preparedStatement.setString(1, dish.getName());
+                preparedStatement.setDouble(2, dish.getPrice());
+                preparedStatement.setString(3, dish.getDishType().toString());
+
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle the exception according to your application's error handling strategy
+        }
+    }
+
+    public boolean removeDishFromRestaurantMenuItems(Dish dish) {
+        try (Connection connection = ds.getConnection()) {
+            String sql = "DELETE FROM restaurantMenuItems WHERE name = ?";
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                // Set parameter for the prepared statement
+                statement.setString(1, dish.getName());
+
+                // Execute the update
+                int rowsAffected = statement.executeUpdate();
+                return rowsAffected > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle the exception according to your application's error handling strategy
+            return false;
+        }
+    }
+
+    public List<Dish> getAllDishesFromRestaurantMenuItems() {
+        List<Dish> dishes = new ArrayList<>();
+        String sql = "SELECT * FROM restaurantMenuItems";
+        try (Connection connection = ds.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+//                statement.setInt(1, limit);
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        String name = resultSet.getString("name");
+                        double price = resultSet.getDouble("price");
+                        DishType dishType = DishType.valueOf(resultSet.getString("dishType"));
+                        Dish dish = new Dish(name, price, dishType);
+                        dishes.add(dish);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            // todo
+            System.out.printf("BasicExampleDAO.bulkInsertRandomAccountData ERROR: { state => %s, cause => %s, message => %s }\n",
+                    e.getSQLState(), e.getCause(), e.getMessage());
+        }
+        return dishes;
+    }
+
 
     public List<String> getDBTables() {
         List<String> tables = new ArrayList<>();
