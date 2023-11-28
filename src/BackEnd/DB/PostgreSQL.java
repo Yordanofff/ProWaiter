@@ -1,12 +1,15 @@
 package BackEnd.DB;
 
+import BackEnd.Restaurant.Dishes.Dish;
 import BackEnd.Users.User;
+import FrontEnd.ConsolePrinter;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import java.util.List;
 
 public class PostgreSQL {
     private DataAccessObject dao;
+
     public PostgreSQL() {
         init();
     }
@@ -28,8 +31,8 @@ public class PostgreSQL {
 
         // Create the accounts table if it doesn't exist
         dao.createUserTableIfNotExist();
-
-        // todo - create Menu + Orders
+        dao.createRestaurantMenuTableIfNotExist();
+        // todo - create Orders
     }
 
     public List<User> getUsers(int limit) {
@@ -49,5 +52,18 @@ public class PostgreSQL {
         for (String table : tables) {
             System.out.println(table);
         }
+    }
+
+    public void addDishToRestaurantMenuItems(Dish dish) {
+        dao.addDishToRestaurantMenuItems(dish);
+        ConsolePrinter.printInfo("Dish [" + dish.getName() + "] was added to the Restaurant Menu!");
+    }
+
+    public List<Dish> getAllDishesFromRestaurantMenuItems() {
+        return dao.getAllDishesFromRestaurantMenuItems();
+    }
+
+    public boolean removeDishFromRestaurantMenuItems(Dish dish) {
+        return dao.removeDishFromRestaurantMenuItems(dish);
     }
 }
