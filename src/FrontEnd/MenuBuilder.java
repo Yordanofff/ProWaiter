@@ -1,5 +1,7 @@
 package FrontEnd;
 
+import BackEnd.Restaurant.Dishes.Dish;
+import BackEnd.Restaurant.Menu.RestaurantMenu;
 import BackEnd.Users.User;
 import BackEnd.Users.UserManager;
 import BackEnd.Users.UserType;
@@ -41,6 +43,7 @@ public class MenuBuilder {
             case 2 -> aboutPage();
         }
     }
+
     private static void aboutPage() {
         ConsolePrinter.printQuestion("\nHello, we are [Ivaylo Yordanov] and [Ivaylo Staykov] and we love coding.\n\nWe really hope that you'll like our project.\n");
     }
@@ -259,21 +262,115 @@ public class MenuBuilder {
 
     public static void WaiterMenu(User user) {  // orders menu?
         // todo - ready should only show orders with status "Cooking"
-        String[] menuOptions = new String[]{"Show orders", "Show ready orders", "Add order", "Add to order", "Remove from order", "Set status: served"};
+        String[] menuOptions = new String[]{"Restaurant Menu Options", "Orders Menu Options"};
         String frameLabel = "[" + user.getUserType() + "]";
         String topMenuLabel = "Hello, " + user.getFullName() + "!";
         String optionZeroText = "Log out";
         String optionZeroMsg = "Logging out...";
-//        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction); // use this if user data is needed in WaiterMenuAction
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> WaiterMenuAction(option), user);  // lambda function to ignore the user.
-
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction); // use this if user data is needed in WaiterMenuAction
+//        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> WaiterMenuAction(option), user);  // lambda function to ignore the user.
     }
 
-    public static void WaiterMenuAction(int option) {
+    public static void WaiterMenuAction(int option, User user) {
         switch (option) {
-            case 1 -> System.out.println(".. waiter option 1");
-            case 2 -> System.out.println(".. waiter option 2");
+            case 1 -> restaurantMenuItemsMenu(user);
+            case 2 -> ordersMenu(user);
         }
+    }
+
+    public static void restaurantMenuItemsMenu(User user) {
+        String[] menuOptions = new String[]{"Print Restaurant Menu", "Add new item", "Delete item"};
+        String frameLabel = "[" + user.getUserType() + "]";
+        String topMenuLabel = "Restaurant Menu Options";
+        String optionZeroText = "Log out";
+        String optionZeroMsg = "Logging out...";
+//        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction); // use this if user data is needed in WaiterMenuAction
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> RestaurantMenuItemsMenuOptions(option), user);  // lambda function to ignore the user.
+    }
+    public static void RestaurantMenuItemsMenuOptions(int option) {
+        switch (option) {
+            case 1 -> printRestaurantMenu();
+            case 2 -> addNewItemToRestaurantMenu();
+            case 3 -> deleteItemFromRestaurantMenu();
+        }
+    }
+
+    public static void printRestaurantMenu() {
+        List<String> allFoodCommaSeparated = createDishListWithCommaSeparatedValues(RestaurantMenu.getFood());
+        List<String> allDrinkCommaSeparated = createDishListWithCommaSeparatedValues(RestaurantMenu.getDrink());
+        List<String> allDessertCommaSeparated = createDishListWithCommaSeparatedValues(RestaurantMenu.getDesert());
+        printMenuOptionsInFrameTable(allFoodCommaSeparated,"Food", "Name, Price");
+        printMenuOptionsInFrameTable(allDrinkCommaSeparated,"Drinks", "Name, Price");
+        printMenuOptionsInFrameTable(allDessertCommaSeparated,"Food", "Name, Price", "Go Back");
+        // todo - create new Menu type that will print a single menu with all items and zeroOptionText at the bottom.
+    }
+
+    public static List<String> createDishListWithCommaSeparatedValues(List<Dish> dishes, boolean getType) {
+        List<String> commaSeparatedList = new ArrayList<>();
+        String result;
+        for (Dish dish: dishes             ) {
+            String name = dish.getName();
+            double price = dish.getPrice();
+
+            if (getType){
+                String type = dish.getDishType().toString();
+                result = name + sep + price + sep + type;
+            } else {
+                result = name + sep + price;
+            }
+            commaSeparatedList.add(result);
+        }
+        return commaSeparatedList;
+    }
+    public static List<String> createDishListWithCommaSeparatedValues(List<Dish> dishes) {
+        return createDishListWithCommaSeparatedValues(dishes, false);
+    }
+
+    public static void addNewItemToRestaurantMenu() {
+        // todo
+    }
+
+    public static void deleteItemFromRestaurantMenu() {
+        List<String> allDishesCommaSeparated = createDishListWithCommaSeparatedValues(RestaurantMenu.getDishes(), true);
+        printMenuOptionsInFrameTable(allDishesCommaSeparated,"All Dishes", "Name, Price, Type");
+        ConsolePrinter.printQuestion("Enter the name of the item you would like to remove: ");
+        // todo - decide either add numbers infron of each item in the menu and ask for an integer or ask for the name.
+    }
+
+    public static void ordersMenu(User user) {
+        String[] menuOptions = new String[]{"New order", "Show open orders", "Show completed orders"};
+        String frameLabel = "[" + user.getUserType() + "]";
+        String topMenuLabel = "Restaurant Menu Options";
+        String optionZeroText = "Log out";
+        String optionZeroMsg = "Logging out...";
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> ordersMenuOptions(option), user);  // lambda function to ignore the user.
+    }
+
+    public static void ordersMenuOptions(int option) {
+        switch (option) {
+            case 1 -> createNewOrder();
+            case 2 -> showOpenOrders();
+            case 3 -> showClosedOrders();
+        }
+    }
+    public static void createNewOrder() {
+        // todo
+    }
+
+    public static void showOpenOrders() {
+        // print all open orders - table/order number ? Add numbers infront - ask for order selection
+        // go to viewSingleOpenOrder() - decide what to use - int number in menu/table number/option number ?
+        // todo
+    }
+
+    public static void viewSingleOpenOrder() {
+        // View occupied tables/orders - add option to view order
+        // "Add item to order", "Remove item from order", "Set status: served"
+        // todo
+    }
+
+    public static void showClosedOrders() {
+        // todo
     }
 
     public static void buildMenu(String[] menuOptions, String topMenuLabel, String optionZeroText, String optionZeroMsg, String frameLabel, MenuAction menuAction, User user) {
