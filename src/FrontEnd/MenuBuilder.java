@@ -25,6 +25,7 @@ public class MenuBuilder {
     static Scanner scanner = new Scanner(System.in);
 
     public static void LoginMenu() {
+        // todo - if enough time - add another option to change the color of the menu.
         String[] menuOptions = new String[]{"Login", "About"};
         String frameLabel = "";  // No frame label on the Login Menu page.
         String topMenuLabel = "Please Login with your credentials:";
@@ -79,7 +80,7 @@ public class MenuBuilder {
 
     public static void UserManagementMenu(User user) {
         String[] menuOptions = new String[]{"View all users", "Add user", "Edit user", "Delete user"};
-        String frameLabel = user.getUserType().toString();  // Allowing MANAGER class to be added later on and not having to change this.
+        String frameLabel = "[" + user.getUserType().toString() + "]";  // Allowing MANAGER class to be added later on and not having to change this.
         String topMenuLabel = "User Management";
         String optionZeroText = "Go back";
         String optionZeroMsg = "Going back to main [" + user.getUserType() + "] menu...";

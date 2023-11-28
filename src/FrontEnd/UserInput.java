@@ -23,20 +23,22 @@ public class UserInput {
         return scanner.nextLine();
     }
 
-    public static String getUsername(boolean printWarnings) {
+    public static String getUsername(boolean isCreatingNewUser) {
         String username;
         while (true) {
             String question = "Please enter username: ";
             String userInput = getUserInput(question);
-            if (isUserNameAlreadyInDB(userInput)) {
-                ConsolePrinter.printError("Username [" + userInput + "] already exist!");
-                continue;
-            }
 
-            if (!printWarnings) {
+            if (!isCreatingNewUser) {
                 // No checks when user is trying to log in.
                 username = userInput;
                 break;
+            }
+
+            // Re-run the loop if the username already exists.
+            if (isUserNameAlreadyInDB(userInput)) {
+                ConsolePrinter.printError("Username [" + userInput + "] already exist!");
+                continue;
             }
 
             if (Validators.isValidUsername(userInput, User.MINIMUM_USERNAME_LENGTH)) {
