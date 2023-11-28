@@ -25,7 +25,7 @@ public class MenuBuilder {
     static Scanner scanner = new Scanner(System.in);
 
     public static void LoginMenu() {
-        String[] menuOptions = new String[]{"Login"};
+        String[] menuOptions = new String[]{"Login", "About"};
         String frameLabel = "";  // No frame label on the Login Menu page.
         String topMenuLabel = "Please Login with your credentials:";
         String optionZeroText = "Exit";
@@ -37,7 +37,11 @@ public class MenuBuilder {
         // Call methods to run
         switch (option) {
             case 1 -> UserLoginMenuAction();
+            case 2 -> aboutPage();
         }
+    }
+    private static void aboutPage() {
+        ConsolePrinter.printQuestion("\nHello, we are [Ivaylo Yordanov] and [Ivaylo Staykov] and we love coding.\n\nWe really hope that you'll like our project.\n");
     }
 
     public static void UserLoginMenuAction() {
