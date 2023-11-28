@@ -5,7 +5,7 @@ public class Dish {
     private String name;
     private double price;
     private DishType dishType;
-    private int size;  // todo - grams for food ? ml for drinks? Not added in the Constructor
+//    private int size;  // todo - grams for food ? ml for drinks? Not added in the Constructor
 
     public Dish(String name, double price, DishType dishType) {
         this.name = name;
@@ -13,8 +13,17 @@ public class Dish {
         this.dishType = dishType;
     }
 
-    public Dish(){
+    public Dish(DishType dishType) {
+        this.dishType = dishType;
+    }
 
+    @Override
+    public String toString() {
+        return "Dish{" +
+                "name='" + name + '\'' +
+                ", price=" + price +
+                ", dishType=" + dishType +
+                "} \n";
     }
 
     public String getName() {

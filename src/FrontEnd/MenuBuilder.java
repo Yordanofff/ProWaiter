@@ -257,7 +257,7 @@ public class MenuBuilder {
         }
     }
 
-    public static void WaiterMenu(User user) {
+    public static void WaiterMenu(User user) {  // orders menu?
         // todo - ready should only show orders with status "Cooking"
         String[] menuOptions = new String[]{"Show orders", "Show ready orders", "Add order", "Add to order", "Remove from order", "Set status: served"};
         String frameLabel = "[" + user.getUserType() + "]";
