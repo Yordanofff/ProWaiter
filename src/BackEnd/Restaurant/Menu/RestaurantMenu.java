@@ -70,31 +70,31 @@ public class RestaurantMenu {
         return dishes;
     }
 
-    public static List<Food> getFood() {
-        List<Food> allFood = new ArrayList<>();
+    public static List<Dish> getFood() {
+        List<Dish> allFood = new ArrayList<>();
         for (Dish dish : getDishes()) {
             if (dish.getDishType() == DishType.FOOD) {
-                allFood.add((Food) dish);
+                allFood.add(dish);
             }
         }
         return allFood;
     }
 
-    public static List<Drink> getDrink() {
-        List<Drink> allDrink = new ArrayList<>();
+    public static List<Dish> getDrink() {
+        List<Dish> allDrink = new ArrayList<>();
         for (Dish dish : getDishes()) {
             if (dish.getDishType() == DishType.DRINK) {
-                allDrink.add((Drink) dish);
+                allDrink.add(dish);
             }
         }
         return allDrink;
     }
 
-    public static List<Dessert> getDesert() {
-        List<Dessert> allDesert = new ArrayList<>();
+    public static List<Dish> getDesert() {
+        List<Dish> allDesert = new ArrayList<>();
         for (Dish dish : getDishes()) {
             if (dish.getDishType() == DishType.DESSERT) {
-                allDesert.add((Dessert) dish);
+                allDesert.add(dish);
             }
         }
         return allDesert;
