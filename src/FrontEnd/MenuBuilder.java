@@ -334,10 +334,55 @@ public class MenuBuilder {
     }
 
     public static void deleteItemFromRestaurantMenu() {
-        List<String> allDishesCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getDishes(), true);
-        printMenuOptionsInFrameTable(allDishesCommaSeparated, "All Dishes", "Name, Price, Type");
-        ConsolePrinter.printQuestion("Enter the name of the item you would like to remove: ");
-        // todo - decide either add numbers infron of each item in the menu and ask for an integer or ask for the name.
+        List<String> allFoodCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllFood(), false, true, 1);
+        List<String> allDrinkCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDrink(), false, true, allFoodCommaSeparated.size() + 1);
+        List<String> allDessertCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDesert(), false, true, allFoodCommaSeparated.size() + allDrinkCommaSeparated.size() + 1);
+
+        List<String> allDishesCommaSeparated = getMergedLists(allFoodCommaSeparated, allDrinkCommaSeparated, allDessertCommaSeparated);
+
+        String columnNames = "Index, Name, Price";
+
+        int[] maxColumnLengths = getBiggest(allFoodCommaSeparated, allDrinkCommaSeparated, allDessertCommaSeparated, columnNames);
+
+        printMenuOptionsInFrameTableRestaurantMenu(allFoodCommaSeparated, "Food", columnNames, "", maxColumnLengths);
+        printMenuOptionsInFrameTableRestaurantMenu(allDrinkCommaSeparated, "Drinks", "", "", maxColumnLengths);
+        printMenuOptionsInFrameTableRestaurantMenu(allDessertCommaSeparated, "Deserts", "", "Go Back", maxColumnLengths);
+
+        ConsolePrinter.printQuestion("Enter the index of the item that you wish to delete: ");
+
+        int selection = getUserInputFrom0toNumber(allDishesCommaSeparated.size());
+
+        if (selection == 0) {
+            System.out.println("Going back..");
+            return;
+        }
+
+        String dishName = getDishNameFromIndex(selection, allDishesCommaSeparated);
+
+        boolean confirmed = UserInput.getConfirmation("Are you sure you want to delete [" + dishName + "]");
+        if (confirmed) {
+            RestaurantMenu.removeDishName(dishName);
+            // msg will be printed from the RestaurantMenu
+        } else {
+            System.out.println("Cancelling..");
+        }
+    }
+
+    private static List<String> getMergedLists(List<String> l1, List<String> l2, List<String> l3) {
+        List<String> mergedList = new ArrayList<>();
+        mergedList.addAll(l1);
+        mergedList.addAll(l2);
+        mergedList.addAll(l3);
+        return mergedList;
+    }
+
+    public static String getDishNameFromIndex(int index, List<String> allDishesCommaSeparated) {
+        for (String row : allDishesCommaSeparated) {
+            if (Integer.parseInt(row.split(",")[0]) == index) {
+                return row.split(",")[1].strip();
+            }
+        }
+        return null;
     }
 
     public static void ordersMenu(User user) {

@@ -33,7 +33,7 @@ public class RestaurantMenu {
     }
 
     public static void removeDish(Dish dish) {
-        if (isDishAlreadyInMenu(dish)) {
+        if (isDishAlreadyInMenu(dish, false)) {
             dishes.remove(dish);
             boolean result = DBOperations.removeDishFromRestaurantMenuItems(dish);
             if (result) {
@@ -104,7 +104,7 @@ public class RestaurantMenu {
         dishes = newDishes;
     }
 
-    private static boolean isDishAlreadyInMenu(Dish dish) {
+    private static boolean isDishAlreadyInMenu(Dish dish, boolean printError) {
         for (Dish dishInMenu : getDishes()) {
             if (dishInMenu.getName().equalsIgnoreCase(dish.getName())) {
                 ConsolePrinter.printError("Dish [" + dish.getName() + "] already in the menu.");
@@ -114,17 +114,25 @@ public class RestaurantMenu {
         return false;
     }
 
-    public static List<String> joinDishToString(List<Dish> dishes, boolean addDishType, boolean addNumbers, int startNumber){
+    private static boolean isDishAlreadyInMenu(Dish dish) {
+        return isDishAlreadyInMenu(dish, true);
+    }
+    public static List<String> joinDishToString(List<Dish> dishes, boolean addDishType, boolean addNumbers, int startNumber) {
         List<String> result = new ArrayList<>();
-        for (Dish dish: dishes             ) {
+        String dataToAdd = "";
+
+        for (Dish dish : dishes) {
+            dataToAdd = "";
             if (addNumbers) {
-                result.add(startNumber + ", ");
-                startNumber ++;
+                dataToAdd += startNumber + ", ";
+                startNumber++;
             }
-            result.add(dish.getName() + ", " + dish.getPrice());
+            dataToAdd += dish.getName() + ", " + dish.getPrice();
             if (addDishType) {
-                result.add(", " + dish.getDishType());
+                dataToAdd += ", " + dish.getDishType();
+
             }
+            result.add(dataToAdd);
         }
         return result;
     }
