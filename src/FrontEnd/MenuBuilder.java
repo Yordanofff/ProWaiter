@@ -1,6 +1,6 @@
 package FrontEnd;
 
-import BackEnd.Restaurant.Dishes.Dish;
+import BackEnd.Restaurant.Dishes.*;
 import BackEnd.Restaurant.Menu.RestaurantMenu;
 import BackEnd.Users.User;
 import BackEnd.Users.UserManager;
@@ -76,7 +76,7 @@ public class MenuBuilder {
         // Call methods to run
         switch (option) {
             case 1 -> UserManagementMenu(user);
-            case 2 -> System.out.println("Menu Management"); // todo
+            case 2 -> restaurantMenuItemsMenu(user);
             case 3 -> System.out.println("Order management");  // todo
         }
     }
@@ -127,7 +127,7 @@ public class MenuBuilder {
     }
 
     public static void deleteUserMenuSelectUserType() {
-        String[] userTypeNames = getUserTypeNames();
+        String[] userTypeNames = UserManager.getUserTypeNames();
 
         String frameLabel = "Select User Type";  // No frame label on the Login Menu page.
         String topMenuLabel = "Please choose the type of User that you want to delete:";
@@ -209,7 +209,7 @@ public class MenuBuilder {
     }
 
     public static void addUserMenu() {
-        String[] userTypeNames = getUserTypeNames();
+        String[] userTypeNames = UserManager.getUserTypeNames();
 
         String frameLabel = "Select User Type";  // No frame label on the Login Menu page.
         String topMenuLabel = "Please choose the type of User that you want to create:";
@@ -228,17 +228,6 @@ public class MenuBuilder {
             default ->
                     ConsolePrinter.printError("UserType not implemented. Add UserType in MenuBuilder/addUserMenuAction");
         }
-    }
-
-    private static String[] getUserTypeNames() {
-        UserType[] userTypes = UserType.values();
-        String[] userTypeNames = new String[userTypes.length];
-
-        // Populate the String array with enum names
-        for (int i = 0; i < userTypes.length; i++) {
-            userTypeNames[i] = userTypes[i].name();
-        }
-        return userTypeNames;
     }
 
     public static void KitchenMenu(User user) {
@@ -284,14 +273,13 @@ public class MenuBuilder {
         String topMenuLabel = "Restaurant Menu Options";
         String optionZeroText = "Log out";
         String optionZeroMsg = "Logging out...";
-//        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction); // use this if user data is needed in WaiterMenuAction
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> RestaurantMenuItemsMenuOptions(option), user);  // lambda function to ignore the user.
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::RestaurantMenuItemsMenuOptions, user); // use this if user data is needed in WaiterMenuAction
     }
 
-    public static void RestaurantMenuItemsMenuOptions(int option) {
+    public static void RestaurantMenuItemsMenuOptions(int option, User user) {
         switch (option) {
             case 1 -> printRestaurantMenu();
-            case 2 -> addNewItemToRestaurantMenu();
+            case 2 -> addNewItemToRestaurantMenu(user);
             case 3 -> deleteItemFromRestaurantMenu();
         }
     }
@@ -312,13 +300,37 @@ public class MenuBuilder {
         int selection = getUserInputFrom0toNumber(0);
 
         if (selection == 0) {
-            System.out.println("Going back.");
+            System.out.println("Going back..");
         }
         // todo - press any key to exit?
     }
 
-    public static void addNewItemToRestaurantMenu() {
-        // todo
+    public static void addNewItemToRestaurantMenu(User user) {
+        String[] dishTypeNames = Dish.getDishTypeNames();
+
+        String frameLabel = "[" + user.getUserType() + "]";
+        String topMenuLabel = "Select the type of Dish you would like to add: ";
+        String optionZeroText = "Back";
+        String optionZeroMsg = "Going back..";
+//        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction); // use this if user data is needed in WaiterMenuAction
+        buildMenu(dishTypeNames, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> addNewItemToRestaurantMenuAction(option), user);  // lambda function to ignore the user.
+    }
+
+    public static void addNewItemToRestaurantMenuAction(int option) {
+        switch (option) {
+            case 1 -> addNewItemToRestaurantMenuDish(Food.dishType);
+            case 2 -> addNewItemToRestaurantMenuDish(Drink.dishType);
+            case 3 -> addNewItemToRestaurantMenuDish(Dessert.dishType);
+            default ->
+                    ConsolePrinter.printError("DishType not implemented. Add UserType in MenuBuilder/addNewItemToRestaurantMenuAction");
+        }
+    }
+
+    public static void addNewItemToRestaurantMenuDish(DishType dishType) {
+        String dishName = UserInput.getUserInput("Please enter [" + dishType + "] name:");
+        double dishPrice = UserInput.getDoubleInput("Please enter price for [" + dishName + "]: ");
+        Dish dish = new Dish(dishName, dishPrice, dishType);
+        RestaurantMenu.addDish(dish);
     }
 
     public static void deleteItemFromRestaurantMenu() {

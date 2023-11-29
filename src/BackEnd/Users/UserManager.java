@@ -183,5 +183,16 @@ public class UserManager {
         return numberOfUsers;
     }
 
+    public static String[] getUserTypeNames() {
+        UserType[] userTypes = UserType.values();
+        String[] userTypeNames = new String[userTypes.length];
+
+        // Populate the String array with enum names
+        for (int i = 0; i < userTypes.length; i++) {
+            userTypeNames[i] = userTypes[i].name();
+        }
+        return userTypeNames;
+    }
+
 }
 

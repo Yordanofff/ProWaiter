@@ -114,9 +114,13 @@ public class RestaurantMenu {
         return false;
     }
 
-    public static List<String> joinDishToString(List<Dish> dishes, boolean addDishType){
+    public static List<String> joinDishToString(List<Dish> dishes, boolean addDishType, boolean addNumbers, int startNumber){
         List<String> result = new ArrayList<>();
         for (Dish dish: dishes             ) {
+            if (addNumbers) {
+                result.add(startNumber + ", ");
+                startNumber ++;
+            }
             result.add(dish.getName() + ", " + dish.getPrice());
             if (addDishType) {
                 result.add(", " + dish.getDishType());
@@ -124,4 +128,9 @@ public class RestaurantMenu {
         }
         return result;
     }
+
+    public static List<String> joinDishToString(List<Dish> dishes, boolean addDishType) {
+        return joinDishToString(dishes, addDishType, false, 0);
+    }
+
 }

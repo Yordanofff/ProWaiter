@@ -56,7 +56,7 @@ public class PostgreSQL {
 
     public void addDishToRestaurantMenuItems(Dish dish) {
         dao.addDishToRestaurantMenuItems(dish);
-        ConsolePrinter.printInfo("Dish [" + dish.getName() + "] was added to the Restaurant Menu!");
+        ConsolePrinter.printInfo("[" + dish.getDishType() + "] [" + dish.getName() + "] was added to the Restaurant Menu!");
     }
 
     public List<Dish> getAllDishesFromRestaurantMenuItems() {

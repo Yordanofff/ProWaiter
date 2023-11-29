@@ -18,9 +18,30 @@ public class UserInput {
         return userAndPassword;
     }
 
-    private static String getUserInput(String question) {
+    public static String getUserInput(String question) {
         System.out.println(question);
         return scanner.nextLine();
+    }
+
+    public static double getDoubleInput(String question) {
+        double result = 0;
+        boolean validInput = false;
+        String input = null;
+
+        while (!validInput) {
+            try {
+                ConsolePrinter.printQuestion(question);
+                input = scanner.nextLine();
+
+                // Attempt to parse the input as a double
+                result = Double.parseDouble(input);
+                validInput = true;
+            } catch (NumberFormatException e) {
+                ConsolePrinter.printError("Invalid input [" + input + "]. Please enter a valid double or integer.");
+            }
+        }
+
+        return result;
     }
 
     public static String getUsername(boolean isCreatingNewUser) {
