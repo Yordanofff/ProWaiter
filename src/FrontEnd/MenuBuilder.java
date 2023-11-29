@@ -1,6 +1,6 @@
 package FrontEnd;
 
-import BackEnd.Restaurant.Dishes.Dish;
+import BackEnd.Restaurant.Dishes.*;
 import BackEnd.Restaurant.Menu.RestaurantMenu;
 import BackEnd.Users.User;
 import BackEnd.Users.UserManager;
@@ -76,7 +76,7 @@ public class MenuBuilder {
         // Call methods to run
         switch (option) {
             case 1 -> UserManagementMenu(user);
-            case 2 -> System.out.println("Menu Management"); // todo
+            case 2 -> restaurantMenuItemsMenu(user);
             case 3 -> System.out.println("Order management");  // todo
         }
     }
@@ -127,7 +127,7 @@ public class MenuBuilder {
     }
 
     public static void deleteUserMenuSelectUserType() {
-        String[] userTypeNames = getUserTypeNames();
+        String[] userTypeNames = UserManager.getUserTypeNames();
 
         String frameLabel = "Select User Type";  // No frame label on the Login Menu page.
         String topMenuLabel = "Please choose the type of User that you want to delete:";
@@ -209,7 +209,7 @@ public class MenuBuilder {
     }
 
     public static void addUserMenu() {
-        String[] userTypeNames = getUserTypeNames();
+        String[] userTypeNames = UserManager.getUserTypeNames();
 
         String frameLabel = "Select User Type";  // No frame label on the Login Menu page.
         String topMenuLabel = "Please choose the type of User that you want to create:";
@@ -228,17 +228,6 @@ public class MenuBuilder {
             default ->
                     ConsolePrinter.printError("UserType not implemented. Add UserType in MenuBuilder/addUserMenuAction");
         }
-    }
-
-    private static String[] getUserTypeNames() {
-        UserType[] userTypes = UserType.values();
-        String[] userTypeNames = new String[userTypes.length];
-
-        // Populate the String array with enum names
-        for (int i = 0; i < userTypes.length; i++) {
-            userTypeNames[i] = userTypes[i].name();
-        }
-        return userTypeNames;
     }
 
     public static void KitchenMenu(User user) {
@@ -284,57 +273,116 @@ public class MenuBuilder {
         String topMenuLabel = "Restaurant Menu Options";
         String optionZeroText = "Log out";
         String optionZeroMsg = "Logging out...";
-//        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction); // use this if user data is needed in WaiterMenuAction
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> RestaurantMenuItemsMenuOptions(option), user);  // lambda function to ignore the user.
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::RestaurantMenuItemsMenuOptions, user); // use this if user data is needed in WaiterMenuAction
     }
-    public static void RestaurantMenuItemsMenuOptions(int option) {
+
+    public static void RestaurantMenuItemsMenuOptions(int option, User user) {
         switch (option) {
             case 1 -> printRestaurantMenu();
-            case 2 -> addNewItemToRestaurantMenu();
+            case 2 -> addNewItemToRestaurantMenu(user);
             case 3 -> deleteItemFromRestaurantMenu();
         }
     }
 
     public static void printRestaurantMenu() {
-        List<String> allFoodCommaSeparated = createDishListWithCommaSeparatedValues(RestaurantMenu.getFood());
-        List<String> allDrinkCommaSeparated = createDishListWithCommaSeparatedValues(RestaurantMenu.getDrink());
-        List<String> allDessertCommaSeparated = createDishListWithCommaSeparatedValues(RestaurantMenu.getDesert());
-        printMenuOptionsInFrameTable(allFoodCommaSeparated,"Food", "Name, Price");
-        printMenuOptionsInFrameTable(allDrinkCommaSeparated,"Drinks", "Name, Price");
-        printMenuOptionsInFrameTable(allDessertCommaSeparated,"Food", "Name, Price", "Go Back");
-        // todo - create new Menu type that will print a single menu with all items and zeroOptionText at the bottom.
-    }
+        List<String> allFoodCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllFood(), false);
+        List<String> allDrinkCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDrink(), false);
+        List<String> allDessertCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDesert(), false);
 
-    public static List<String> createDishListWithCommaSeparatedValues(List<Dish> dishes, boolean getType) {
-        List<String> commaSeparatedList = new ArrayList<>();
-        String result;
-        for (Dish dish: dishes             ) {
-            String name = dish.getName();
-            double price = dish.getPrice();
+        String columnNames = "Name, Price";
 
-            if (getType){
-                String type = dish.getDishType().toString();
-                result = name + sep + price + sep + type;
-            } else {
-                result = name + sep + price;
-            }
-            commaSeparatedList.add(result);
+        int[] maxColumnLengths = getBiggest(allFoodCommaSeparated, allDrinkCommaSeparated, allDessertCommaSeparated, columnNames);
+
+        printMenuOptionsInFrameTableRestaurantMenu(allFoodCommaSeparated, "Food", columnNames, "", maxColumnLengths);
+        printMenuOptionsInFrameTableRestaurantMenu(allDrinkCommaSeparated, "Drinks", "", "", maxColumnLengths);
+        printMenuOptionsInFrameTableRestaurantMenu(allDessertCommaSeparated, "Deserts", "", "Go Back", maxColumnLengths);
+
+        int selection = getUserInputFrom0toNumber(0);
+
+        if (selection == 0) {
+            System.out.println("Going back..");
         }
-        return commaSeparatedList;
-    }
-    public static List<String> createDishListWithCommaSeparatedValues(List<Dish> dishes) {
-        return createDishListWithCommaSeparatedValues(dishes, false);
+        // todo - press any key to exit?
     }
 
-    public static void addNewItemToRestaurantMenu() {
-        // todo
+    public static void addNewItemToRestaurantMenu(User user) {
+        String[] dishTypeNames = Dish.getDishTypeNames();
+
+        String frameLabel = "[" + user.getUserType() + "]";
+        String topMenuLabel = "Select the type of Dish you would like to add: ";
+        String optionZeroText = "Back";
+        String optionZeroMsg = "Going back..";
+//        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction); // use this if user data is needed in WaiterMenuAction
+        buildMenu(dishTypeNames, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> addNewItemToRestaurantMenuAction(option), user);  // lambda function to ignore the user.
+    }
+
+    public static void addNewItemToRestaurantMenuAction(int option) {
+        switch (option) {
+            case 1 -> addNewItemToRestaurantMenuDish(Food.dishType);
+            case 2 -> addNewItemToRestaurantMenuDish(Drink.dishType);
+            case 3 -> addNewItemToRestaurantMenuDish(Dessert.dishType);
+            default ->
+                    ConsolePrinter.printError("DishType not implemented. Add UserType in MenuBuilder/addNewItemToRestaurantMenuAction");
+        }
+    }
+
+    public static void addNewItemToRestaurantMenuDish(DishType dishType) {
+        String dishName = UserInput.getUserInput("Please enter [" + dishType + "] name:");
+        double dishPrice = UserInput.getDoubleInput("Please enter price for [" + dishName + "]: ");
+        Dish dish = new Dish(dishName, dishPrice, dishType);
+        RestaurantMenu.addDish(dish);
     }
 
     public static void deleteItemFromRestaurantMenu() {
-        List<String> allDishesCommaSeparated = createDishListWithCommaSeparatedValues(RestaurantMenu.getDishes(), true);
-        printMenuOptionsInFrameTable(allDishesCommaSeparated,"All Dishes", "Name, Price, Type");
-        ConsolePrinter.printQuestion("Enter the name of the item you would like to remove: ");
-        // todo - decide either add numbers infron of each item in the menu and ask for an integer or ask for the name.
+        List<String> allFoodCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllFood(), false, true, 1);
+        List<String> allDrinkCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDrink(), false, true, allFoodCommaSeparated.size() + 1);
+        List<String> allDessertCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDesert(), false, true, allFoodCommaSeparated.size() + allDrinkCommaSeparated.size() + 1);
+
+        List<String> allDishesCommaSeparated = getMergedLists(allFoodCommaSeparated, allDrinkCommaSeparated, allDessertCommaSeparated);
+
+        String columnNames = "Index, Name, Price";
+
+        int[] maxColumnLengths = getBiggest(allFoodCommaSeparated, allDrinkCommaSeparated, allDessertCommaSeparated, columnNames);
+
+        printMenuOptionsInFrameTableRestaurantMenu(allFoodCommaSeparated, "Food", columnNames, "", maxColumnLengths);
+        printMenuOptionsInFrameTableRestaurantMenu(allDrinkCommaSeparated, "Drinks", "", "", maxColumnLengths);
+        printMenuOptionsInFrameTableRestaurantMenu(allDessertCommaSeparated, "Deserts", "", "Go Back", maxColumnLengths);
+
+        ConsolePrinter.printQuestion("Enter the index of the item that you wish to delete: ");
+
+        int selection = getUserInputFrom0toNumber(allDishesCommaSeparated.size());
+
+        if (selection == 0) {
+            System.out.println("Going back..");
+            return;
+        }
+
+        String dishName = getDishNameFromIndex(selection, allDishesCommaSeparated);
+
+        boolean confirmed = UserInput.getConfirmation("Are you sure you want to delete [" + dishName + "]");
+        if (confirmed) {
+            RestaurantMenu.removeDishName(dishName);
+            // msg will be printed from the RestaurantMenu
+        } else {
+            System.out.println("Cancelling..");
+        }
+    }
+
+    private static List<String> getMergedLists(List<String> l1, List<String> l2, List<String> l3) {
+        List<String> mergedList = new ArrayList<>();
+        mergedList.addAll(l1);
+        mergedList.addAll(l2);
+        mergedList.addAll(l3);
+        return mergedList;
+    }
+
+    public static String getDishNameFromIndex(int index, List<String> allDishesCommaSeparated) {
+        for (String row : allDishesCommaSeparated) {
+            if (Integer.parseInt(row.split(",")[0]) == index) {
+                return row.split(",")[1].strip();
+            }
+        }
+        return null;
     }
 
     public static void ordersMenu(User user) {
@@ -353,6 +401,7 @@ public class MenuBuilder {
             case 3 -> showClosedOrders();
         }
     }
+
     public static void createNewOrder() {
         // todo
     }
@@ -626,6 +675,73 @@ public class MenuBuilder {
         printMenuOptionsInFrameTable(rowsWithCommaSeparatedColumns, frameLabel, columnNames, "");
     }
 
+    /**
+     * ┌──────────────────┬─────────┐
+     * │  Name            │  Price  │
+     * └──────────────────┴─────────┘
+     * ┌─────────── Food ───────────┐
+     * ├──────────────────┬─────────┤
+     * │  Pizza           │  12.99  │
+     * │  Burger          │  8.49   │
+     * │  Salad           │  6.99   │
+     * └──────────────────┴─────────┘
+     * ┌────────── Drinks ──────────┐
+     * ├──────────────────┬─────────┤
+     * │  Iced Tea        │  1.99   │
+     * │  Soda            │  2.49   │
+     * │  Smoothie        │  4.95   │
+     * └──────────────────┴─────────┘
+     * ┌───────── Deserts ──────────┐
+     * ├──────────────────┬─────────┤
+     * │  Ice Cream       │  3.5    │
+     * │  Cheesecake      │  6.75   │
+     * │  Chocolate Cake  │  5.99   │
+     * ├──────────────────┴─────────┤
+     * │  0 - Go Back               │
+     * └────────────────────────────┘
+     *
+     * @param rowsWithCommaSeparatedColumns Pizza, 12.99 ; Burger, 8.49 ...etc
+     * @param frameLabel                    Food
+     * @param columnNames                   Name, Price (When empty - not printing)
+     * @param zeroOptionText                0, Go Back
+     * @param maxColumnLengths              [14, 5] - the longest word on the left/right column or more columns
+     */
+    public static void printMenuOptionsInFrameTableRestaurantMenu(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText, int[] maxColumnLengths) {
+        int numSpacesAroundEachColumnWord = 2;
+        int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
+
+        // This sums up the longest word in each column
+        int maxNumberOfSymbolsAllRows = getMaxNumberOfSymbolsAllRows(maxColumnLengths);
+
+        int numAddedSpaces = numberOfColumns * 2 * numSpacesAroundEachColumnWord;
+
+        // top frame len = maxColumnLength + (numberOfColumns +1) (1 symbol each column + sides) + numAddedSpaces
+        int frameLength = maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
+
+        if (!columnNames.isEmpty()) {
+//            System.out.println(getTopLineOfMenu(frameLength));
+            System.out.println(getTopLineTable(frameLength, maxColumnLengths));
+            columnNames = addExtraSeparatorsToLength(columnNames, numberOfColumns);
+            printMiddleMenuLineTable(columnNames, maxColumnLengths, numSpacesAroundEachColumnWord);
+            System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+        }
+        System.out.println(getTopLineOfMenu(frameLength, frameLabel));
+        System.out.println(getTopLineTableEndingUpDown(frameLength, maxColumnLengths));
+
+        for (String row : rowsWithCommaSeparatedColumns) {
+            row = addExtraSeparatorsToLength(row, numberOfColumns);
+            printMiddleMenuLineTable(row, maxColumnLengths, numSpacesAroundEachColumnWord);
+        }
+        if (zeroOptionText.isEmpty()) {
+            System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+        } else {
+            System.out.println(getBottomLineTableContinuingDownCorners(frameLength, maxColumnLengths));
+            zeroOptionText = "0 - " + zeroOptionText;
+            printMiddleMenuLine(frameLength, zeroOptionText, SideWall, numSpacesAroundEachColumnWord);
+            System.out.println(getBottomLine(frameLength));
+        }
+    }
+
     private static String addExtraSeparatorsToLength(String columnNames, int numberOfColumns) {
         // Add extra , to the columns so that it prints walls on right side if columns are more than column names.
         if (numberOfColumns > columnNames.split(sep).length) {
@@ -663,6 +779,20 @@ public class MenuBuilder {
         }
 
         return result;
+    }
+
+    private static int[] getBiggest(int[] array1, int[] array2, int[] array3) {
+        int[] maxOfFirstTwo = getBiggest(array1, array2);
+        return getBiggest(maxOfFirstTwo, array3);
+    }
+
+    private static int[] getBiggest(List<String> l1, List<String> l2, List<String> l3, String columnNames) {
+        int[] maxColumnLengthsFood = getBiggestColumnNames(l1, columnNames);
+        int[] maxColumnLengthsDrink = getBiggestColumnNames(l2, columnNames);
+        int[] maxColumnLengthsDesert = getBiggestColumnNames(l3, columnNames);
+
+        int[] maxColumnLengths = getBiggest(maxColumnLengthsFood, maxColumnLengthsDrink, maxColumnLengthsDesert);
+        return maxColumnLengths;
     }
 
     private static int[] getLastXElements(int[] sourceArray, int x) {
@@ -751,6 +881,11 @@ public class MenuBuilder {
     // ┌──────────────────────────────┐
     private static String getTopLineOfMenu(int length) {
         return getTopLineOfMenu(length, "");
+    }
+
+    // ┌──────────────────┬─────────┐
+    private static String getTopLineTable(int length, int[] maxColumnLengths) {
+        return getGreenLineTable(length, topLeftCorner, topRightCorner, topCross, maxColumnLengths);
     }
 
     private static String getGreenLine(int length, String mostLeftSymbol, String mostRightSymbol) {

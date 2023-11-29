@@ -33,7 +33,7 @@ public class RestaurantMenu {
     }
 
     public static void removeDish(Dish dish) {
-        if (isDishAlreadyInMenu(dish)) {
+        if (isDishAlreadyInMenu(dish, false)) {
             dishes.remove(dish);
             boolean result = DBOperations.removeDishFromRestaurantMenuItems(dish);
             if (result) {
@@ -70,7 +70,7 @@ public class RestaurantMenu {
         return dishes;
     }
 
-    public static List<Dish> getFood() {
+    public static List<Dish> getAllFood() {
         List<Dish> allFood = new ArrayList<>();
         for (Dish dish : getDishes()) {
             if (dish.getDishType() == DishType.FOOD) {
@@ -80,7 +80,7 @@ public class RestaurantMenu {
         return allFood;
     }
 
-    public static List<Dish> getDrink() {
+    public static List<Dish> getAllDrink() {
         List<Dish> allDrink = new ArrayList<>();
         for (Dish dish : getDishes()) {
             if (dish.getDishType() == DishType.DRINK) {
@@ -90,7 +90,7 @@ public class RestaurantMenu {
         return allDrink;
     }
 
-    public static List<Dish> getDesert() {
+    public static List<Dish> getAllDesert() {
         List<Dish> allDesert = new ArrayList<>();
         for (Dish dish : getDishes()) {
             if (dish.getDishType() == DishType.DESSERT) {
@@ -104,7 +104,7 @@ public class RestaurantMenu {
         dishes = newDishes;
     }
 
-    private static boolean isDishAlreadyInMenu(Dish dish) {
+    private static boolean isDishAlreadyInMenu(Dish dish, boolean printError) {
         for (Dish dishInMenu : getDishes()) {
             if (dishInMenu.getName().equalsIgnoreCase(dish.getName())) {
                 ConsolePrinter.printError("Dish [" + dish.getName() + "] already in the menu.");
@@ -113,4 +113,32 @@ public class RestaurantMenu {
         }
         return false;
     }
+
+    private static boolean isDishAlreadyInMenu(Dish dish) {
+        return isDishAlreadyInMenu(dish, true);
+    }
+    public static List<String> joinDishToString(List<Dish> dishes, boolean addDishType, boolean addNumbers, int startNumber) {
+        List<String> result = new ArrayList<>();
+        String dataToAdd = "";
+
+        for (Dish dish : dishes) {
+            dataToAdd = "";
+            if (addNumbers) {
+                dataToAdd += startNumber + ", ";
+                startNumber++;
+            }
+            dataToAdd += dish.getName() + ", " + dish.getPrice();
+            if (addDishType) {
+                dataToAdd += ", " + dish.getDishType();
+
+            }
+            result.add(dataToAdd);
+        }
+        return result;
+    }
+
+    public static List<String> joinDishToString(List<Dish> dishes, boolean addDishType) {
+        return joinDishToString(dishes, addDishType, false, 0);
+    }
+
 }

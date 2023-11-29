@@ -49,4 +49,16 @@ public class Dish {
     public void setDishType(DishType dishType) {
         this.dishType = dishType;
     }
+
+    public static String[] getDishTypeNames() {
+        DishType[] dishTypes = DishType.values();
+
+        String[] dishTypeNames = new String[dishTypes.length];
+
+        // Populate the String array with enum names
+        for (int i = 0; i < dishTypes.length; i++) {
+            dishTypeNames[i] = dishTypes[i].name();
+        }
+        return dishTypeNames;
+    }
 }
