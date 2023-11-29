@@ -89,6 +89,31 @@ public class MenuBuilderFrameDrawers {
         return getGreenLine(length, bottomLeftCorner, bottomRightCorner);
     }
 
+    // │  column 1  │  column 2  │  column 3  │  column 4  │
+    static void printMiddleMenuLineTable(String row, int[] maxColumnLengths, int numSpacesAroundEachColumnWord) {
+
+        // Green frame, white letters like everywhere.
+        String[] elements = getRowElementsTrimmed(row);
+        int elementsLength = elements.length;
+
+        StringBuilder toPrint = new StringBuilder("");
+
+        for (int i = 0; i < elementsLength; i++) {
+            String currentElement = elements[i];
+
+            int maxLengthCurrentPosition = maxColumnLengths[i];
+            int count = maxLengthCurrentPosition - currentElement.length() + numSpacesAroundEachColumnWord;
+            toPrint.append(ConsolePrinter.getGreenMsg(SideWall) + " ".repeat(numSpacesAroundEachColumnWord) +
+                    currentElement + " ".repeat(count));
+
+            // Add end of frame symbol
+            if (i == elementsLength - 1) {
+                toPrint.append(ConsolePrinter.getGreenMsg(SideWall));
+            }
+        }
+        System.out.println(toPrint);
+    }
+
     static void printElementsTable(List<String> myList, int[] maxColumnLengths) {
         int numSpacesAroundEachColumnWord = 2;
         int maxNumberOfSymbolsAllRows = getMaxNumberOfSymbolsAllRows(maxColumnLengths);

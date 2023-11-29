@@ -576,31 +576,6 @@ public class MenuBuilder {
         return resultArray;
     }
 
-    // │  column 1  │  column 2  │  column 3  │  column 4  │
-    private static void printMiddleMenuLineTable(String row, int[] maxColumnLengths, int numSpacesAroundEachColumnWord) {
-
-        // Green frame, white letters like everywhere.
-        String[] elements = getRowElementsTrimmed(row);
-        int elementsLength = elements.length;
-
-        StringBuilder toPrint = new StringBuilder("");
-
-        for (int i = 0; i < elementsLength; i++) {
-            String currentElement = elements[i];
-
-            int maxLengthCurrentPosition = maxColumnLengths[i];
-            int count = maxLengthCurrentPosition - currentElement.length() + numSpacesAroundEachColumnWord;
-            toPrint.append(ConsolePrinter.getGreenMsg(SideWall) + " ".repeat(numSpacesAroundEachColumnWord) +
-                    currentElement + " ".repeat(count));
-
-            // Add end of frame symbol
-            if (i == elementsLength - 1) {
-                toPrint.append(ConsolePrinter.getGreenMsg(SideWall));
-            }
-        }
-        System.out.println(toPrint);
-    }
-
     static int getMaxNumberOfSymbolsAllRows(int[] maxColumnLengths) {
         int n = 0;
         for (int el : maxColumnLengths) {
