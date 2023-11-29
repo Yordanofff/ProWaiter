@@ -287,6 +287,7 @@ public class MenuBuilder {
 //        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction); // use this if user data is needed in WaiterMenuAction
         buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> RestaurantMenuItemsMenuOptions(option), user);  // lambda function to ignore the user.
     }
+
     public static void RestaurantMenuItemsMenuOptions(int option) {
         switch (option) {
             case 1 -> printRestaurantMenu();
@@ -296,34 +297,24 @@ public class MenuBuilder {
     }
 
     public static void printRestaurantMenu() {
-        List<String> allFoodCommaSeparated = createDishListWithCommaSeparatedValues(RestaurantMenu.getFood());
-        List<String> allDrinkCommaSeparated = createDishListWithCommaSeparatedValues(RestaurantMenu.getDrink());
-        List<String> allDessertCommaSeparated = createDishListWithCommaSeparatedValues(RestaurantMenu.getDesert());
-        printMenuOptionsInFrameTable(allFoodCommaSeparated,"Food", "Name, Price");
-        printMenuOptionsInFrameTable(allDrinkCommaSeparated,"Drinks", "Name, Price");
-        printMenuOptionsInFrameTable(allDessertCommaSeparated,"Food", "Name, Price", "Go Back");
-        // todo - create new Menu type that will print a single menu with all items and zeroOptionText at the bottom.
-    }
+        List<String> allFoodCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllFood(), false);
+        List<String> allDrinkCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDrink(), false);
+        List<String> allDessertCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDesert(), false);
 
-    public static List<String> createDishListWithCommaSeparatedValues(List<Dish> dishes, boolean getType) {
-        List<String> commaSeparatedList = new ArrayList<>();
-        String result;
-        for (Dish dish: dishes             ) {
-            String name = dish.getName();
-            double price = dish.getPrice();
+        String columnNames = "Name, Price";
 
-            if (getType){
-                String type = dish.getDishType().toString();
-                result = name + sep + price + sep + type;
-            } else {
-                result = name + sep + price;
-            }
-            commaSeparatedList.add(result);
+        int[] maxColumnLengths = getBiggest(allFoodCommaSeparated, allDrinkCommaSeparated, allDessertCommaSeparated, columnNames);
+
+        printMenuOptionsInFrameTableRestaurantMenu(allFoodCommaSeparated, "Food", columnNames, "", maxColumnLengths);
+        printMenuOptionsInFrameTableRestaurantMenu(allDrinkCommaSeparated, "Drinks", "", "", maxColumnLengths);
+        printMenuOptionsInFrameTableRestaurantMenu(allDessertCommaSeparated, "Deserts", "", "Go Back", maxColumnLengths);
+
+        int selection = getUserInputFrom0toNumber(0);
+
+        if (selection == 0) {
+            System.out.println("Going back.");
         }
-        return commaSeparatedList;
-    }
-    public static List<String> createDishListWithCommaSeparatedValues(List<Dish> dishes) {
-        return createDishListWithCommaSeparatedValues(dishes, false);
+        // todo - press any key to exit?
     }
 
     public static void addNewItemToRestaurantMenu() {
@@ -331,8 +322,8 @@ public class MenuBuilder {
     }
 
     public static void deleteItemFromRestaurantMenu() {
-        List<String> allDishesCommaSeparated = createDishListWithCommaSeparatedValues(RestaurantMenu.getDishes(), true);
-        printMenuOptionsInFrameTable(allDishesCommaSeparated,"All Dishes", "Name, Price, Type");
+        List<String> allDishesCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getDishes(), true);
+        printMenuOptionsInFrameTable(allDishesCommaSeparated, "All Dishes", "Name, Price, Type");
         ConsolePrinter.printQuestion("Enter the name of the item you would like to remove: ");
         // todo - decide either add numbers infron of each item in the menu and ask for an integer or ask for the name.
     }
@@ -353,6 +344,7 @@ public class MenuBuilder {
             case 3 -> showClosedOrders();
         }
     }
+
     public static void createNewOrder() {
         // todo
     }
@@ -626,6 +618,73 @@ public class MenuBuilder {
         printMenuOptionsInFrameTable(rowsWithCommaSeparatedColumns, frameLabel, columnNames, "");
     }
 
+    /**
+     * ┌──────────────────┬─────────┐
+     * │  Name            │  Price  │
+     * └──────────────────┴─────────┘
+     * ┌─────────── Food ───────────┐
+     * ├──────────────────┬─────────┤
+     * │  Pizza           │  12.99  │
+     * │  Burger          │  8.49   │
+     * │  Salad           │  6.99   │
+     * └──────────────────┴─────────┘
+     * ┌────────── Drinks ──────────┐
+     * ├──────────────────┬─────────┤
+     * │  Iced Tea        │  1.99   │
+     * │  Soda            │  2.49   │
+     * │  Smoothie        │  4.95   │
+     * └──────────────────┴─────────┘
+     * ┌───────── Deserts ──────────┐
+     * ├──────────────────┬─────────┤
+     * │  Ice Cream       │  3.5    │
+     * │  Cheesecake      │  6.75   │
+     * │  Chocolate Cake  │  5.99   │
+     * ├──────────────────┴─────────┤
+     * │  0 - Go Back               │
+     * └────────────────────────────┘
+     *
+     * @param rowsWithCommaSeparatedColumns Pizza, 12.99 ; Burger, 8.49 ...etc
+     * @param frameLabel                    Food
+     * @param columnNames                   Name, Price (When empty - not printing)
+     * @param zeroOptionText                0, Go Back
+     * @param maxColumnLengths              [14, 5] - the longest word on the left/right column or more columns
+     */
+    public static void printMenuOptionsInFrameTableRestaurantMenu(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText, int[] maxColumnLengths) {
+        int numSpacesAroundEachColumnWord = 2;
+        int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
+
+        // This sums up the longest word in each column
+        int maxNumberOfSymbolsAllRows = getMaxNumberOfSymbolsAllRows(maxColumnLengths);
+
+        int numAddedSpaces = numberOfColumns * 2 * numSpacesAroundEachColumnWord;
+
+        // top frame len = maxColumnLength + (numberOfColumns +1) (1 symbol each column + sides) + numAddedSpaces
+        int frameLength = maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
+
+        if (!columnNames.isEmpty()) {
+//            System.out.println(getTopLineOfMenu(frameLength));
+            System.out.println(getTopLineTable(frameLength, maxColumnLengths));
+            columnNames = addExtraSeparatorsToLength(columnNames, numberOfColumns);
+            printMiddleMenuLineTable(columnNames, maxColumnLengths, numSpacesAroundEachColumnWord);
+            System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+        }
+        System.out.println(getTopLineOfMenu(frameLength, frameLabel));
+        System.out.println(getTopLineTableEndingUpDown(frameLength, maxColumnLengths));
+
+        for (String row : rowsWithCommaSeparatedColumns) {
+            row = addExtraSeparatorsToLength(row, numberOfColumns);
+            printMiddleMenuLineTable(row, maxColumnLengths, numSpacesAroundEachColumnWord);
+        }
+        if (zeroOptionText.isEmpty()) {
+            System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+        } else {
+            System.out.println(getBottomLineTableContinuingDownCorners(frameLength, maxColumnLengths));
+            zeroOptionText = "0 - " + zeroOptionText;
+            printMiddleMenuLine(frameLength, zeroOptionText, SideWall, numSpacesAroundEachColumnWord);
+            System.out.println(getBottomLine(frameLength));
+        }
+    }
+
     private static String addExtraSeparatorsToLength(String columnNames, int numberOfColumns) {
         // Add extra , to the columns so that it prints walls on right side if columns are more than column names.
         if (numberOfColumns > columnNames.split(sep).length) {
@@ -663,6 +722,20 @@ public class MenuBuilder {
         }
 
         return result;
+    }
+
+    private static int[] getBiggest(int[] array1, int[] array2, int[] array3) {
+        int[] maxOfFirstTwo = getBiggest(array1, array2);
+        return getBiggest(maxOfFirstTwo, array3);
+    }
+
+    private static int[] getBiggest(List<String> l1, List<String> l2, List<String> l3, String columnNames) {
+        int[] maxColumnLengthsFood = getBiggestColumnNames(l1, columnNames);
+        int[] maxColumnLengthsDrink = getBiggestColumnNames(l2, columnNames);
+        int[] maxColumnLengthsDesert = getBiggestColumnNames(l3, columnNames);
+
+        int[] maxColumnLengths = getBiggest(maxColumnLengthsFood, maxColumnLengthsDrink, maxColumnLengthsDesert);
+        return maxColumnLengths;
     }
 
     private static int[] getLastXElements(int[] sourceArray, int x) {
@@ -751,6 +824,11 @@ public class MenuBuilder {
     // ┌──────────────────────────────┐
     private static String getTopLineOfMenu(int length) {
         return getTopLineOfMenu(length, "");
+    }
+
+    // ┌──────────────────┬─────────┐
+    private static String getTopLineTable(int length, int[] maxColumnLengths) {
+        return getGreenLineTable(length, topLeftCorner, topRightCorner, topCross, maxColumnLengths);
     }
 
     private static String getGreenLine(int length, String mostLeftSymbol, String mostRightSymbol) {

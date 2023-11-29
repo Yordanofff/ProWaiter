@@ -70,7 +70,7 @@ public class RestaurantMenu {
         return dishes;
     }
 
-    public static List<Dish> getFood() {
+    public static List<Dish> getAllFood() {
         List<Dish> allFood = new ArrayList<>();
         for (Dish dish : getDishes()) {
             if (dish.getDishType() == DishType.FOOD) {
@@ -80,7 +80,7 @@ public class RestaurantMenu {
         return allFood;
     }
 
-    public static List<Dish> getDrink() {
+    public static List<Dish> getAllDrink() {
         List<Dish> allDrink = new ArrayList<>();
         for (Dish dish : getDishes()) {
             if (dish.getDishType() == DishType.DRINK) {
@@ -90,7 +90,7 @@ public class RestaurantMenu {
         return allDrink;
     }
 
-    public static List<Dish> getDesert() {
+    public static List<Dish> getAllDesert() {
         List<Dish> allDesert = new ArrayList<>();
         for (Dish dish : getDishes()) {
             if (dish.getDishType() == DishType.DESSERT) {
@@ -112,5 +112,16 @@ public class RestaurantMenu {
             }
         }
         return false;
+    }
+
+    public static List<String> joinDishToString(List<Dish> dishes, boolean addDishType){
+        List<String> result = new ArrayList<>();
+        for (Dish dish: dishes             ) {
+            result.add(dish.getName() + ", " + dish.getPrice());
+            if (addDishType) {
+                result.add(", " + dish.getDishType());
+            }
+        }
+        return result;
     }
 }
