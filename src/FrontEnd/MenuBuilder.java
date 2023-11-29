@@ -66,40 +66,11 @@ public class MenuBuilder {
         switch (option) {
             case 1 -> UserManagementMenuBuilder.UserManagementMenu(user);
             case 2 -> RestaurantMenuBuilder.restaurantMenuItemsMenu(user);
-            case 3 -> System.out.println("Order management");  // todo
+            case 3 -> OrdersOperationsMenuBuilder.ordersMenu(user);
         }
-    }
-
-    static String getStringForInteger(HashMap<Integer, String> map, int key, int columnToReturn) {
-        String data = map.get(key);
-        String[] columns = data.split(sep);
-        return columns[columnToReturn];
-    }
-
-    static List<String> createListWithCommaSeparatedValues(Map<Integer, String> map) {
-        List<String> resultList = new ArrayList<>();
-
-        for (Map.Entry<Integer, String> entry : map.entrySet()) {
-            String commaSeparatedValue = entry.getKey() + sep + entry.getValue();
-            resultList.add(commaSeparatedValue);
-        }
-
-        return resultList;
-    }
-
-    static HashMap<Integer, String> mapNumbersToItems(String[] items, int startingNumber) {
-        // Using LinkedHashMap to keep the order as they were added.
-        HashMap<Integer, String> itemsWithNumbers = new LinkedHashMap<>();
-
-        for (int i = startingNumber; i < items.length + startingNumber; i++) {
-            itemsWithNumbers.put(i, items[i - 1]);
-        }
-
-        return itemsWithNumbers;
     }
 
     public static void KitchenMenu(User user) {
-        // todo - ready should only show orders with status "Cooking"
         String[] menuOptions = new String[]{"Show orders", "Set status: cooking", "Set status: ready"};
         String frameLabel = "[" + user.getUserType() + "]";
         String topMenuLabel = "Hello, " + user.getFullName() + "!";
@@ -118,7 +89,6 @@ public class MenuBuilder {
     }
 
     public static void WaiterMenu(User user) {  // orders menu?
-        // todo - ready should only show orders with status "Cooking"
         String[] menuOptions = new String[]{"Restaurant Menu Options", "Orders Menu Options"};
         String frameLabel = "[" + user.getUserType() + "]";
         String topMenuLabel = "Hello, " + user.getFullName() + "!";
@@ -131,16 +101,8 @@ public class MenuBuilder {
     public static void WaiterMenuAction(int option, User user) {
         switch (option) {
             case 1 -> RestaurantMenuBuilder.restaurantMenuItemsMenu(user);
-            case 2 -> ordersMenu(user);
+            case 2 -> OrdersOperationsMenuBuilder.ordersMenu(user);
         }
-    }
-
-    static List<String> getMergedLists(List<String> l1, List<String> l2, List<String> l3) {
-        List<String> mergedList = new ArrayList<>();
-        mergedList.addAll(l1);
-        mergedList.addAll(l2);
-        mergedList.addAll(l3);
-        return mergedList;
     }
 
     public static String getDishNameFromIndex(int index, List<String> allDishesCommaSeparated) {
@@ -150,43 +112,6 @@ public class MenuBuilder {
             }
         }
         return null;
-    }
-
-    public static void ordersMenu(User user) {
-        String[] menuOptions = new String[]{"New order", "Show open orders", "Show completed orders"};
-        String frameLabel = "[" + user.getUserType() + "]";
-        String topMenuLabel = "Restaurant Menu Options";
-        String optionZeroText = "Log out";
-        String optionZeroMsg = "Logging out...";
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> ordersMenuOptions(option), user);  // lambda function to ignore the user.
-    }
-
-    public static void ordersMenuOptions(int option) {
-        switch (option) {
-            case 1 -> createNewOrder();
-            case 2 -> showOpenOrders();
-            case 3 -> showClosedOrders();
-        }
-    }
-
-    public static void createNewOrder() {
-        // todo
-    }
-
-    public static void showOpenOrders() {
-        // print all open orders - table/order number ? Add numbers infront - ask for order selection
-        // go to viewSingleOpenOrder() - decide what to use - int number in menu/table number/option number ?
-        // todo
-    }
-
-    public static void viewSingleOpenOrder() {
-        // View occupied tables/orders - add option to view order
-        // "Add item to order", "Remove item from order", "Set status: served"
-        // todo
-    }
-
-    public static void showClosedOrders() {
-        // todo
     }
 
     public static void buildMenu(String[] menuOptions, String topMenuLabel, String optionZeroText, String optionZeroMsg, String frameLabel, MenuAction menuAction, User user) {
@@ -212,6 +137,107 @@ public class MenuBuilder {
 
     public static void buildMenu(String[] menuOptions, String topMenuLabel, String optionZeroText, String optionZeroMsg, String frameLabel, MenuAction menuAction) {
         buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, menuAction, null);
+    }
+
+    public static int buildMenuOrder(int[] menuOptions, String topMenuLabel, String optionZeroText, String optionZeroMsg, String frameLabel, String freeOrOccupiedTable) {
+        boolean validOption = false;
+        int selectedOption;
+        while (true) {
+            selectedOption = printMenuAndGetUsersChoiceOrder(menuOptions, topMenuLabel, optionZeroText, frameLabel, freeOrOccupiedTable);
+
+            // Exit if 0
+            if (selectedOption == 0) {
+                System.out.println(optionZeroMsg);
+                break;
+            }
+
+            if (isNumberInArray(menuOptions, selectedOption)){
+                validOption = true;
+                break;
+            }
+
+            // pause
+            System.out.print("Press any key to continue..: ");
+            scanner.nextLine();
+
+            System.out.println();
+        }
+
+        if (validOption) {
+            // Executing the selected option
+            return selectedOption;
+        }
+        return 0;
+    }
+
+    private static int printMenuAndGetUsersChoiceOrder(int[] tables, String topMenuQuestion, String optionZeroText, String frameLabel, String freeOrOccupiedTable) {
+        // Creating HashMap with numbers and table text - 1, Free table; 2, Free table ...
+        HashMap<Integer, String> menuOptionsWithNumbers = generateHashMapMenuOptionsWithNumbersOrder(tables, optionZeroText, freeOrOccupiedTable);
+
+        // Fixing spaces before the numbers, adding separator and storing all in a list.
+        List<String> dataToPrint = getMenuOptionsWithSameLengthOfMaxDigitLength(menuOptionsWithNumbers);
+
+        // Printing the options in a frame
+        printMenuOptionsInFrame(topMenuQuestion, dataToPrint, frameLabel);
+
+        // Returning the user selection
+        return getUserInputFrom0toNumberOrder(tables);
+    }
+
+    static int getUserInputFrom0toNumberOrder(int[] possibleTables) {
+        int choice;
+
+        while (true) {
+            String ans = scanner.nextLine().strip();
+
+            try {
+                choice = Integer.parseInt(ans);
+
+                if (choice == 0 || isNumberInArray(possibleTables, choice)) {
+                    break;
+                } else {
+                    ConsolePrinter.printError("Please enter a number from [" + intArrayToString(possibleTables) + "] or [0]");
+                }
+            } catch (NumberFormatException e) {
+                ConsolePrinter.printError("Invalid input [" + ans + "]! " +
+                        "Please enter an integer from [" + intArrayToString(possibleTables) + "] or [0]");
+            }
+        }
+
+        return choice;
+    }
+
+    private static boolean isNumberInArray(int[] array, int targetNumber) {
+        for (int number : array) {
+            if (number == targetNumber) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String intArrayToString(int[] array) {
+        String[] stringArray = new String[array.length];
+
+        for (int i = 0; i < array.length; i++) {
+            stringArray[i] = String.valueOf(array[i]);
+        }
+
+        return String.join(", ", stringArray);
+    }
+
+    private static HashMap<Integer, String> generateHashMapMenuOptionsWithNumbersOrder(int[] tables, String optionZeroText, String freeOrOccupiedTable) {
+        // Will add Exit as position 0.
+
+        // Using LinkedHashMap to keep the order as they were added.
+        HashMap<Integer, String> menuOptionsWithNumbers = new LinkedHashMap<>();
+        menuOptionsWithNumbers.put(0, optionZeroText);  // Exit/LogOut/Go Back
+
+        for (int table : tables) {
+            menuOptionsWithNumbers.put(table, freeOrOccupiedTable);
+        }
+
+        return menuOptionsWithNumbers;
     }
 
     private static int printMenuAndGetUsersChoice(String[] menuOptions, String topMenuQuestion, String optionZeroText, String frameLabel) {
@@ -576,31 +602,6 @@ public class MenuBuilder {
         return resultArray;
     }
 
-    // │  column 1  │  column 2  │  column 3  │  column 4  │
-    private static void printMiddleMenuLineTable(String row, int[] maxColumnLengths, int numSpacesAroundEachColumnWord) {
-
-        // Green frame, white letters like everywhere.
-        String[] elements = getRowElementsTrimmed(row);
-        int elementsLength = elements.length;
-
-        StringBuilder toPrint = new StringBuilder("");
-
-        for (int i = 0; i < elementsLength; i++) {
-            String currentElement = elements[i];
-
-            int maxLengthCurrentPosition = maxColumnLengths[i];
-            int count = maxLengthCurrentPosition - currentElement.length() + numSpacesAroundEachColumnWord;
-            toPrint.append(ConsolePrinter.getGreenMsg(SideWall) + " ".repeat(numSpacesAroundEachColumnWord) +
-                    currentElement + " ".repeat(count));
-
-            // Add end of frame symbol
-            if (i == elementsLength - 1) {
-                toPrint.append(ConsolePrinter.getGreenMsg(SideWall));
-            }
-        }
-        System.out.println(toPrint);
-    }
-
     static int getMaxNumberOfSymbolsAllRows(int[] maxColumnLengths) {
         int n = 0;
         for (int el : maxColumnLengths) {
@@ -662,5 +663,33 @@ public class MenuBuilder {
     private static int getNumberOfColumns(String myString) {
         String[] row = myString.split(sep);
         return row.length;
+    }
+
+    static String getStringForInteger(HashMap<Integer, String> map, int key, int columnToReturn) {
+        String data = map.get(key);
+        String[] columns = data.split(sep);
+        return columns[columnToReturn];
+    }
+
+    static List<String> createListWithCommaSeparatedValues(Map<Integer, String> map) {
+        List<String> resultList = new ArrayList<>();
+
+        for (Map.Entry<Integer, String> entry : map.entrySet()) {
+            String commaSeparatedValue = entry.getKey() + sep + entry.getValue();
+            resultList.add(commaSeparatedValue);
+        }
+
+        return resultList;
+    }
+
+    static HashMap<Integer, String> mapNumbersToItems(String[] items, int startingNumber) {
+        // Using LinkedHashMap to keep the order as they were added.
+        HashMap<Integer, String> itemsWithNumbers = new LinkedHashMap<>();
+
+        for (int i = startingNumber; i < items.length + startingNumber; i++) {
+            itemsWithNumbers.put(i, items[i - 1]);
+        }
+
+        return itemsWithNumbers;
     }
 }
