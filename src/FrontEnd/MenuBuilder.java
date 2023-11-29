@@ -1,28 +1,17 @@
 package FrontEnd;
 
-import BackEnd.Restaurant.Dishes.*;
-import BackEnd.Restaurant.Menu.RestaurantMenu;
 import BackEnd.Users.User;
 import BackEnd.Users.UserManager;
 import BackEnd.Users.UserType;
 
 import java.util.*;
 
+import static FrontEnd.MenuBuilderFrameDrawers.*;
+
 public class MenuBuilder {
     static final String sep = ",";  // separator for the strings when printing menus
     static final int MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU = 5;
     static final String MENU_SEPARATOR = " - ";  // With spaces if required.
-
-    static final String midCross = "┼";
-    static final String topCross = "┬";
-    static final String bottomCross = "┴";
-    static final String topLeftCorner = "┌";
-    static final String bottomLeftCorner = "└";
-    static final String midLeft = "├";
-    static final String topRightCorner = "┐";
-    static final String bottomRightCorner = "┘";
-    static final String midRight = "┤";
-    static final String topBottom = "─";
     static final String SideWall = "│";
     static Scanner scanner = new Scanner(System.in);
 
@@ -612,109 +601,7 @@ public class MenuBuilder {
         System.out.println(toPrint);
     }
 
-    private static void printElementsTable(List<String> myList, int[] maxColumnLengths) {
-        int numSpacesAroundEachColumnWord = 2;
-        int maxNumberOfSymbolsAllRows = getMaxNumberOfSymbolsAllRows(maxColumnLengths);
-        int numberOfColumns = maxColumnLengths.length; // todo
-        int numAddedSpaces = numberOfColumns * 2 * numSpacesAroundEachColumnWord;
-        // top frame len = maxColumnLength + (numberOfColumns +1) (1 symbol each column + sides) + numAddedSpaces
-        int frameLength = maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
-        System.out.println("_".repeat(frameLength));
-        for (String row : myList) {
-            String[] elements = getRowElementsTrimmed(row);
-
-            for (int i = 0; i < elements.length; i++) {
-                String currentElement = elements[i];
-                int maxLengthCurrentPosition = maxColumnLengths[i];
-
-                System.out.print("|" + " ".repeat(numSpacesAroundEachColumnWord) + currentElement +
-                        " ".repeat(maxLengthCurrentPosition - currentElement.length() + numSpacesAroundEachColumnWord));
-                if (i == elements.length - 1) {
-                    System.out.println("|");
-                }
-            }
-        }
-        System.out.println("_".repeat(frameLength));
-    }
-
-    private static String getTopLineOfMenuTable(int length, int[] maxColumnLengths) {
-        return getGreenLineTable(length, topLeftCorner, topRightCorner, topCross, maxColumnLengths);
-    }
-
-    // ┌────────── [ADMIN] ───────────┐
-    private static String getTopLineOfMenu(int length, String label) {
-        int numDashesEachSide = length - label.length() - 2 - 2; // 2 for the spaces, 2 for the corners
-        if (label.isEmpty()) {
-            return getGreenLine(length, topLeftCorner, topRightCorner);
-        }
-        String dashesBefore = topBottom.repeat(numDashesEachSide / 2);
-        String dashesAfter = topBottom.repeat(numDashesEachSide / 2);
-        if ((label.length() % 2 == 1 && length % 2 == 0) || (label.length() % 2 == 0 && length % 2 == 1)) {
-            dashesAfter = topBottom.repeat((numDashesEachSide / 2) + 1);
-        }
-        return ConsolePrinter.getGreenMsg(topLeftCorner + dashesBefore + " ")
-                + label + ConsolePrinter.getGreenMsg(" " + dashesAfter + topRightCorner);
-    }
-
-    // ┌──────────────────────────────┐
-    private static String getTopLineOfMenu(int length) {
-        return getTopLineOfMenu(length, "");
-    }
-
-    // ┌──────────────────┬─────────┐
-    private static String getTopLineTable(int length, int[] maxColumnLengths) {
-        return getGreenLineTable(length, topLeftCorner, topRightCorner, topCross, maxColumnLengths);
-    }
-
-    private static String getGreenLine(int length, String mostLeftSymbol, String mostRightSymbol) {
-        return ConsolePrinter.getGreenMsg(mostLeftSymbol + topBottom.repeat(length - 2) + mostRightSymbol);
-    }
-
-    // ├────────────────────────┬───────────┬────────────────┬────────────────┤
-    private static String getTopLineTableEndingUpDown(int length, int[] maxColumnLengths) {
-        return getGreenLineTable(length, midLeft, midRight, topCross, maxColumnLengths);
-    }
-
-    private static String getGreenLineTable(int length, String mostLeftSymbol, String mostRightSymbol, String crossSymbol, int[] maxColumnLengths) {
-        String toReturn = "";
-        toReturn += mostLeftSymbol;
-        for (int i = 0; i < maxColumnLengths.length; i++) {
-            int numBottomSymbols = maxColumnLengths[i] + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU - 1;
-            toReturn += topBottom.repeat(numBottomSymbols);
-            if (i != maxColumnLengths.length - 1) {
-                toReturn += crossSymbol;
-            }
-        }
-        toReturn += mostRightSymbol;
-        return ConsolePrinter.getGreenMsg(toReturn);
-    }
-
-    // └──────────┴───────────┴────────────────┴────────────────┘
-    private static String getBottomLineTable(int length, int[] maxColumnLengths) {
-        return getGreenLineTable(length, bottomLeftCorner, bottomRightCorner, bottomCross, maxColumnLengths);
-    }
-
-    // ├──────────┴───────────┴────────────────┴────────────────┤
-    private static String getBottomLineTableContinuingDownCorners(int length, int[] maxColumnLengths) {
-        return getGreenLineTable(length, midLeft, midRight, bottomCross, maxColumnLengths);
-    }
-
-    // ├──────────┼───────────┼────────────────┼────────────────┤
-    private static String getMidLineTable(int length, int[] maxColumnLengths) {
-        return getGreenLineTable(length, midLeft, midRight, midCross, maxColumnLengths);
-    }
-
-    // ├──────────────────────────────┤
-    private static String getMidLine(int length) {
-        return getGreenLine(length, midLeft, midRight);
-    }
-
-    // └──────────────────────────────┘
-    private static String getBottomLine(int length) {
-        return getGreenLine(length, bottomLeftCorner, bottomRightCorner);
-    }
-
-    private static int getMaxNumberOfSymbolsAllRows(int[] maxColumnLengths) {
+    static int getMaxNumberOfSymbolsAllRows(int[] maxColumnLengths) {
         int n = 0;
         for (int el : maxColumnLengths) {
             n += el;
@@ -754,7 +641,7 @@ public class MenuBuilder {
         return elementsLength;
     }
 
-    private static String[] getRowElementsTrimmed(String row) {
+    static String[] getRowElementsTrimmed(String row) {
         // Create elements - trimmed - single row
         String[] elements = row.split(sep);
         for (int i = 0; i < elements.length; i++) {
