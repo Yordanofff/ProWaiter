@@ -44,11 +44,11 @@ public class Table {
         return isOccupied;
     }
 
-    private void occupy() {
+    public void occupy() {
         isOccupied = true;
     }
 
-    private void unOccupy() {
+    public void unOccupy() {
         isOccupied = false;
     }
 }

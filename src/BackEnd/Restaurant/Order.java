@@ -68,7 +68,7 @@ public class Order {
     }
 
     public void setOrderStatus(OrderStatus orderStatus) {
-        // Don't allow setting up the order status back to Created if it's already something else.
+        // Don't allow setting up the order status back to "Created" if it's already something else.
         if ((getOrderStatus() != OrderStatus.CREATED) && (orderStatus == OrderStatus.CREATED)) {
             ConsolePrinter.printError("You can't set the order status back to [CREATED]!");
             return;

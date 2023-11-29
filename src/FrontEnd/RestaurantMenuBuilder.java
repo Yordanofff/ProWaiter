@@ -4,6 +4,7 @@ import BackEnd.Restaurant.Dishes.*;
 import BackEnd.Restaurant.Menu.RestaurantMenu;
 import BackEnd.Users.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static FrontEnd.MenuBuilder.*;
@@ -76,19 +77,9 @@ public class RestaurantMenuBuilder {
     }
 
     public static void deleteItemFromRestaurantMenu() {
-        List<String> allFoodCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllFood(), false, true, 1);
-        List<String> allDrinkCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDrink(), false, true, allFoodCommaSeparated.size() + 1);
-        List<String> allDessertCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDesert(), false, true, allFoodCommaSeparated.size() + allDrinkCommaSeparated.size() + 1);
+        printAllRestaurantDishesWithNumbers("Go Back");
 
-        List<String> allDishesCommaSeparated = getMergedLists(allFoodCommaSeparated, allDrinkCommaSeparated, allDessertCommaSeparated);
-
-        String columnNames = "Index, Name, Price";
-
-        int[] maxColumnLengths = getBiggest(allFoodCommaSeparated, allDrinkCommaSeparated, allDessertCommaSeparated, columnNames);
-
-        printMenuOptionsInFrameTableRestaurantMenu(allFoodCommaSeparated, "Food", columnNames, "", maxColumnLengths);
-        printMenuOptionsInFrameTableRestaurantMenu(allDrinkCommaSeparated, "Drinks", "", "", maxColumnLengths);
-        printMenuOptionsInFrameTableRestaurantMenu(allDessertCommaSeparated, "Deserts", "", "Go Back", maxColumnLengths);
+        List<String> allDishesCommaSeparated = getAllThreeDishesMerged();
 
         ConsolePrinter.printQuestion("Enter the index of the item that you wish to delete: ");
 
@@ -108,6 +99,51 @@ public class RestaurantMenuBuilder {
         } else {
             System.out.println("Cancelling..");
         }
+    }
+
+    public static void printAllRestaurantDishesWithNumbers(String zeroOptionText) {
+        List<List<String>> allThreeDishes = getAllThreeDishesForMenu();
+        List<String> food = allThreeDishes.get(0);
+        List<String> drink = allThreeDishes.get(1);
+        List<String> dessert = allThreeDishes.get(2);
+
+        String columnNames = "Index, Name, Price";
+
+        int[] maxColumnLengths = getBiggest(food, drink, dessert, columnNames);
+
+        printMenuOptionsInFrameTableRestaurantMenu(food, "Food", columnNames, "", maxColumnLengths);
+        printMenuOptionsInFrameTableRestaurantMenu(drink, "Drinks", "", "", maxColumnLengths);
+        printMenuOptionsInFrameTableRestaurantMenu(dessert, "Deserts", "", zeroOptionText, maxColumnLengths);
+    }
+
+    public static List<List<String>> getAllThreeDishesForMenu(){
+        List<String> allFoodCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllFood(), false, true, 1);
+        List<String> allDrinkCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDrink(), false, true, allFoodCommaSeparated.size() + 1);
+        List<String> allDessertCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDesert(), false, true, allFoodCommaSeparated.size() + allDrinkCommaSeparated.size() + 1);
+
+        List<List<String>> result = new ArrayList<>();
+        result.add(allFoodCommaSeparated);
+        result.add(allDrinkCommaSeparated);
+        result.add(allDessertCommaSeparated);
+
+        return result;
+    }
+
+    public static List<String> getAllThreeDishesMerged() {
+        List<List<String>> allThreeDishes = getAllThreeDishesForMenu();
+        List<String> food = allThreeDishes.get(0);
+        List<String> drink = allThreeDishes.get(1);
+        List<String> dessert = allThreeDishes.get(2);
+        List<String> allDishesCommaSeparated = getMergedLists(food, drink, dessert);
+        return allDishesCommaSeparated;
+    }
+
+    static List<String> getMergedLists(List<String> l1, List<String> l2, List<String> l3) {
+        List<String> mergedList = new ArrayList<>();
+        mergedList.addAll(l1);
+        mergedList.addAll(l2);
+        mergedList.addAll(l3);
+        return mergedList;
     }
 
 }
