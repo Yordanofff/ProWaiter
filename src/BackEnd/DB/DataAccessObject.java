@@ -2,6 +2,7 @@ package BackEnd.DB;
 
 import BackEnd.Restaurant.Dishes.Dish;
 import BackEnd.Restaurant.Dishes.DishType;
+import BackEnd.Restaurant.RestaurantInfo;
 import BackEnd.Users.User;
 import BackEnd.Users.UserByUserType;
 import BackEnd.Users.UserType;
@@ -272,9 +273,80 @@ public class DataAccessObject {
                 ")");
     }
 
+    public void createRestaurantInfoIfNotExist() {
+        runSQL("CREATE TABLE IF NOT EXISTS restaurantInfo (" +
+                "restaurantName VARCHAR(255) NOT NULL," +
+                "numberOfTables INT" +
+                ")");
+    }
+
+//    public RestaurantInfo getRestaurantInfoFromDB() {
+//
+//        try (Connection connection = ds.getConnection();
+//             Statement statement = connection.createStatement()) {
+//
+//            String sql = "SELECT restaurantName, numberOfTables FROM restaurantInfo";
+//
+//            try (ResultSet resultSet = statement.executeQuery(sql)) {
+//                if (resultSet.next()) {
+//                    String restaurantName = resultSet.getString("restaurantName");
+//                    int numberOfTables = resultSet.getInt("numberOfTables");
+//
+//                    return new RestaurantInfo(restaurantName, numberOfTables);
+//                }
+//            }
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace(); // Handle the exception according to your application's error handling strategy
+//        }
+//        return null;
+//    }
+
+    // Using PreparedStatement
+    public RestaurantInfo getRestaurantInfoFromDB() {
+        try (Connection connection = ds.getConnection()) {
+            String sql = "SELECT restaurantName, numberOfTables FROM restaurantInfo";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                 ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                if (resultSet.next()) {
+                    String restaurantName = resultSet.getString("restaurantName");
+                    int numberOfTables = resultSet.getInt("numberOfTables");
+
+                    return new RestaurantInfo(restaurantName, numberOfTables);
+                }
+            }
+
+        } catch (SQLException e) {
+            // Consider throwing a custom exception or logging the error for better error handling
+            e.printStackTrace();
+        }
+
+        // Consider returning a default RestaurantInfo or throwing an exception based on your application logic
+        return null;
+    }
+
+
+    public void setRestaurantInfo(RestaurantInfo restaurantInfo) {
+        try (Connection connection = ds.getConnection()) {
+            String sql = "INSERT INTO restaurantInfo (restaurantName, numberOfTables) VALUES (?, ?)";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+                preparedStatement.setString(1, restaurantInfo.getRestaurantName());
+                preparedStatement.setInt(2, restaurantInfo.getNumberOfTables());
+
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle the exception according to your application's error handling strategy
+        }
+    }
+
     public void createRestaurantMenuTableIfNotExist() {
         runSQL("CREATE TABLE IF NOT EXISTS restaurantMenuItems (" +
-                "name VARCHAR(255) NOT NULL," +
+                "name VARCHAR(255) NOT NULL UNIQUE," +
                 "price REAL," +
                 "dishType VARCHAR(50) NOT NULL)");
     }
@@ -337,7 +409,6 @@ public class DataAccessObject {
         }
         return dishes;
     }
-
 
     public List<String> getDBTables() {
         List<String> tables = new ArrayList<>();

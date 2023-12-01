@@ -117,6 +117,7 @@ public class RestaurantMenu {
     private static boolean isDishAlreadyInMenu(Dish dish) {
         return isDishAlreadyInMenu(dish, true);
     }
+
     public static List<String> joinDishToString(List<Dish> dishes, boolean addDishType, boolean addNumbers, int startNumber) {
         List<String> result = new ArrayList<>();
         String dataToAdd = "";

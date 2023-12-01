@@ -32,7 +32,7 @@ public class OrdersOperationsMenuBuilder {
 
     public static void ordersMenuOptions(int option) {
         switch (option) {
-            case 1 -> createNewOrder(new Restaurant(10));
+            case 1 -> createNewOrder(new Restaurant()); // todo - don't create restaurant here
             case 2 -> showOpenOrders();
             case 3 -> showClosedOrders();
         }

@@ -1,6 +1,7 @@
 package BackEnd.DB;
 
 import BackEnd.Restaurant.Dishes.Dish;
+import BackEnd.Restaurant.RestaurantInfo;
 import BackEnd.Users.User;
 
 import java.util.List;
@@ -35,5 +36,13 @@ public class DBOperations {
 
     public static boolean removeDishFromRestaurantMenuItems(Dish dish) {
         return database.removeDishFromRestaurantMenuItems(dish);
+    }
+
+    public static void setRestaurantInfo(RestaurantInfo restaurantInfo){
+        database.setRestaurantInfo(restaurantInfo);
+    }
+
+    public static RestaurantInfo getRestaurantInfoFromDB() {
+        return database.getRestaurantInfoFromDB();
     }
 }

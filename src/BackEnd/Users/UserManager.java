@@ -60,7 +60,7 @@ public class UserManager {
 
     public static List<User> getActiveUsers() {
         return DBOperations.getUsers(10);
-    }
+    }  // todo - remove limit ?
 
     public static Map<UserType, List<User>> getUsersByType() {
         return usersByType;
