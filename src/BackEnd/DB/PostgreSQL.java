@@ -2,6 +2,7 @@ package BackEnd.DB;
 
 import BackEnd.Restaurant.Dishes.Dish;
 import BackEnd.Restaurant.RestaurantInfo;
+import BackEnd.Restaurant.Table;
 import BackEnd.Users.User;
 import FrontEnd.ConsolePrinter;
 import org.postgresql.ds.PGSimpleDataSource;
@@ -34,7 +35,10 @@ public class PostgreSQL {
         dao.createUserTableIfNotExist();
         dao.createRestaurantMenuTableIfNotExist();
         dao.createRestaurantInfoIfNotExist();
-        // todo - create Orders/Tables
+        dao.createTablesTableIfNotExist();
+        dao.createOrderStatusesTableIfNotExist();
+        dao.createOrdersTableIfNotExist();
+        dao.createDishesTableIfNotExist();
     }
 
     public List<User> getUsers(int limit) {
@@ -75,5 +79,9 @@ public class PostgreSQL {
 
     public RestaurantInfo getRestaurantInfoFromDB() {
         return dao.getRestaurantInfoFromDB();
+    }
+
+    public List<Table> getAllTablesFromDB() {
+        return dao.getAllTablesFromDB();
     }
 }

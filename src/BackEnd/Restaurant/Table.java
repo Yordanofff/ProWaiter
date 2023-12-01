@@ -1,5 +1,9 @@
 package BackEnd.Restaurant;
 
+import BackEnd.DB.DBOperations;
+
+import java.util.List;
+
 public class Table {
     private int tableNumber;
     private Order currentOrder;
@@ -11,6 +15,12 @@ public class Table {
         this.isOccupied = false;
     }
 
+    public Table(int tableNumber, boolean isOccupied){
+        this.tableNumber = tableNumber;
+        this.isOccupied = isOccupied;
+        this.currentOrder = null;
+    }
+
     @Override
     public String toString() {
         return "Table{" +
@@ -18,6 +28,10 @@ public class Table {
                 ", currentOrder=" + currentOrder +
                 ", isOccupied=" + isOccupied +
                 "} \n";
+    }
+
+    public static List<Table> getTablesFromDB(){
+        return DBOperations.getAllTablesFromDB();
     }
 
     public void freeUpTable() {

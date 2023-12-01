@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Restaurant {
     private RestaurantInfo restaurantInfo = loadRestaurantInfo();
-    private static List<Table> tables = new ArrayList<>();
+    private List<Table> tables = initTables() ;//= new ArrayList<>();
 //    private static List<User> users = new ArrayList<>();
 
 //    public Restaurant() {
@@ -31,18 +31,17 @@ public class Restaurant {
         return restaurantInfoDB;
     }
 
-    public void initTables() {
-        // todo
+    public List<Table> initTables() {
         // Load tables from DB. If not in DB - Create new tables + write to DB.
-//        tables = Table.getTablesFromDB();
-//        if (tables.isEmpty()) {
-//            ConsolePrinter.printWarning("Tables not found in the DB.");
-//            initNewTablesFromUser();
-//            Table.saveTablesInDB(tables);
-//        } else {
-//            ConsolePrinter.printInfo("Tables loaded from DB.");
-//        }
-
+        List<Table> tablesFromDB = Table.getTablesFromDB();
+        if (tablesFromDB.isEmpty()) {
+            ConsolePrinter.printWarning("Tables not found in the DB.");
+            List<Table> newTableList = generateNewTables(restaurantInfo.getNumberOfTables());
+            // todo - write Tables to DB
+            return newTableList;
+        }
+        ConsolePrinter.printInfo("Tables loaded from DB.");
+            return tablesFromDB;
     }
 
 //
@@ -51,8 +50,8 @@ public class Restaurant {
 //        return tables;
 //    }
 
-    public static void setTables(List<Table> tables) {
-        Restaurant.tables = tables;
+    public void setTables(List<Table> tables) {
+        this.tables = tables;
     }
 
     public static List<Table> generateNewTables(int numberOfTables) {
@@ -63,7 +62,7 @@ public class Restaurant {
         return newTables;
     }
 
-    public static Table getTable(int tableNumber) {
+    public Table getTable(int tableNumber) {
         if (tableNumber > tables.size()) {
             ConsolePrinter.printError("Table [" + tableNumber + "] doesn't exist. Max table number [" + tables.size() + "]");
             return null;
@@ -76,9 +75,9 @@ public class Restaurant {
         return null; // Table not found
     }
 
-    public static List<Table> getFreeTables() {
+    public List<Table> getFreeTables() {
         List<Table> freeTables = new ArrayList<>();
-        for (Table table : tables) {
+        for (Table table : this.tables) {
             if (!table.isOccupied()) {
                 freeTables.add(table);
             }
@@ -86,7 +85,7 @@ public class Restaurant {
         return freeTables;
     }
 
-    public static List<Table> getOccupiedTables() {
+    public List<Table> getOccupiedTables() {
         List<Table> occupiedTables = new ArrayList<>();
         for (Table table : tables) {
             if (table.isOccupied()) {
@@ -104,11 +103,11 @@ public class Restaurant {
         return tables;
     }
 
-    public static int[] getFreeTablesArr() {
+    public int[] getFreeTablesArr() {
         return getTables(getFreeTables());
     }
 
-    public static int[] getOccupiedTablesArr() {
+    public int[] getOccupiedTablesArr() {
         return getTables(getOccupiedTables());
     }
 

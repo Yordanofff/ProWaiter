@@ -3,6 +3,7 @@ package BackEnd.DB;
 import BackEnd.Restaurant.Dishes.Dish;
 import BackEnd.Restaurant.Dishes.DishType;
 import BackEnd.Restaurant.RestaurantInfo;
+import BackEnd.Restaurant.Table;
 import BackEnd.Users.User;
 import BackEnd.Users.UserByUserType;
 import BackEnd.Users.UserType;
@@ -432,6 +433,68 @@ public class DataAccessObject {
         }
 
         return tables;
+    }
+
+    public void createTablesTableIfNotExist() {
+        runSQL("CREATE TABLE IF NOT EXISTS Tables (" +
+                "tableNumber INT PRIMARY KEY NOT NULL," +
+                "isOccupied BOOLEAN NOT NULL)");
+    }
+
+    public List<Table> getAllTablesFromDB() {
+        List<Table> tablesFromDB = new ArrayList<>();
+
+        try (Connection connection = ds.getConnection()) {
+            String sql = "SELECT tableNumber, isOccupied FROM Tables";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                 ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                while (resultSet.next()) {
+                    int tableNumber = resultSet.getInt("tableNumber");
+                    boolean isOccupied = resultSet.getBoolean("isOccupied");
+
+                    // Assuming you have a constructor in the Table class that takes tableNumber and isOccupied
+                    Table table = new Table(tableNumber, isOccupied);
+
+                    tablesFromDB.add(table);
+                }
+            }
+
+        } catch (SQLException e) {
+            // Consider throwing a custom exception or logging the error for better error handling
+            e.printStackTrace();
+        }
+
+        return tablesFromDB;
+    }
+
+
+    public void createOrdersTableIfNotExist() {
+        runSQL("CREATE TABLE IF NOT EXISTS Orders (" +
+                "orderNumber INT PRIMARY KEY," +
+                "tableNumber INT," +
+                "isPaid BOOLEAN," +
+                "statusID INT," +
+                "FOREIGN KEY (tableNumber) REFERENCES Tables(tableNumber)," +
+                "FOREIGN KEY (statusID) REFERENCES OrderStatuses(statusID))"
+        );
+    }
+
+    public void createOrderStatusesTableIfNotExist() {
+        runSQL("CREATE TABLE IF NOT EXISTS OrderStatuses (" +
+                "statusID INT PRIMARY KEY," +
+                "statusName VARCHAR(50) NOT NULL)"
+        );
+    }
+
+    public void createDishesTableIfNotExist() {
+        runSQL("CREATE TABLE IF NOT EXISTS Dishes (" +
+                "dishID INT PRIMARY KEY," +
+                "orderNumber INT," +
+                "dishName VARCHAR(255)," +
+                "dishPrice DECIMAL(10,2)," +
+                "FOREIGN KEY (orderNumber) REFERENCES Orders(orderNumber))");
     }
 }
 

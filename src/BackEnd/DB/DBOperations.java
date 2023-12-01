@@ -2,6 +2,7 @@ package BackEnd.DB;
 
 import BackEnd.Restaurant.Dishes.Dish;
 import BackEnd.Restaurant.RestaurantInfo;
+import BackEnd.Restaurant.Table;
 import BackEnd.Users.User;
 
 import java.util.List;
@@ -44,5 +45,9 @@ public class DBOperations {
 
     public static RestaurantInfo getRestaurantInfoFromDB() {
         return database.getRestaurantInfoFromDB();
+    }
+
+    public static List<Table> getAllTablesFromDB() {
+        return database.getAllTablesFromDB();
     }
 }

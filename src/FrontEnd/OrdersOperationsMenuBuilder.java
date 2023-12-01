@@ -108,7 +108,7 @@ public class OrdersOperationsMenuBuilder {
     }
 
     public static int tableSelection(Restaurant restaurant) {
-        int[] freeTables = Restaurant.getFreeTablesArr();
+        int[] freeTables = restaurant.getFreeTablesArr();
         String frameLabel = "Free tables"; // No frame label on the Login Menu page.
         String topMenuLabel = "Please enter a table number:";
         String optionZeroText = "Go back";
