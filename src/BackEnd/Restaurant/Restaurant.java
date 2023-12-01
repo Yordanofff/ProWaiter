@@ -8,25 +8,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Restaurant {
-    private RestaurantInfo restaurantInfo; //= getRestaurantInfoTest();
+    private RestaurantInfo restaurantInfo = loadRestaurantInfo();
     private static List<Table> tables = new ArrayList<>();
 //    private static List<User> users = new ArrayList<>();
 
-    public Restaurant() {
-        initRestaurantInfo();
-        initTables();
-    }
+//    public Restaurant() {
+//        loadRestaurantInfo();
+//        initTables();
+//    }
 
-    public void initRestaurantInfo() {
+    public RestaurantInfo loadRestaurantInfo() {
         // Load restaurantInfo from DB. If not in DB - Ask User + write to DB.
-        restaurantInfo = RestaurantInfo.getRestaurantInfoFromDB();
-        if (restaurantInfo == null) {
+        RestaurantInfo restaurantInfoDB = RestaurantInfo.getRestaurantInfoFromDB();
+        if (restaurantInfoDB == null) {
             ConsolePrinter.printWarning("RestaurantInfo not found in the DB.");
             RestaurantInfo newRestaurantInfo = new RestaurantInfo();
             setRestaurantInfo(newRestaurantInfo.getNewRestaurantInfoFromUser());
-        } else {
-            ConsolePrinter.printInfo("Restaurant info loaded from DB.");
+            return newRestaurantInfo;
         }
+
+        ConsolePrinter.printInfo("Restaurant info loaded from DB.");
+        return restaurantInfoDB;
     }
 
     public void initTables() {
