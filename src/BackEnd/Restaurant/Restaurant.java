@@ -1,5 +1,6 @@
 package BackEnd.Restaurant;
 
+import BackEnd.DB.DBOperations;
 import BackEnd.Users.User;
 import BackEnd.Users.UserManager;
 import FrontEnd.ConsolePrinter;
@@ -37,7 +38,9 @@ public class Restaurant {
         if (tablesFromDB.isEmpty()) {
             ConsolePrinter.printWarning("Tables not found in the DB.");
             List<Table> newTableList = generateNewTables(restaurantInfo.getNumberOfTables());
-            // todo - write Tables to DB
+            if (DBOperations.writeTablesToDB(newTableList)) {
+                ConsolePrinter.printInfo("New tables successfully written to the database.");
+            }
             return newTableList;
         }
         ConsolePrinter.printInfo("Tables loaded from DB.");

@@ -50,4 +50,8 @@ public class DBOperations {
     public static List<Table> getAllTablesFromDB() {
         return database.getAllTablesFromDB();
     }
+
+    public static boolean writeTablesToDB(List<Table> tables){
+        return database.writeTablesToDB(tables);
+    }
 }

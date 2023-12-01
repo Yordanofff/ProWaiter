@@ -84,4 +84,8 @@ public class PostgreSQL {
     public List<Table> getAllTablesFromDB() {
         return dao.getAllTablesFromDB();
     }
+
+    public boolean writeTablesToDB(List<Table> tables){
+        return dao.writeTablesToDB(tables);
+    }
 }

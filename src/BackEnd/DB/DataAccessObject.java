@@ -7,6 +7,7 @@ import BackEnd.Restaurant.Table;
 import BackEnd.Users.User;
 import BackEnd.Users.UserByUserType;
 import BackEnd.Users.UserType;
+import FrontEnd.ConsolePrinter;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -467,6 +468,33 @@ public class DataAccessObject {
         }
 
         return tablesFromDB;
+    }
+
+    public boolean writeTablesToDB(List<Table> tables) {
+        if (tables == null || tables.isEmpty()) {
+            ConsolePrinter.printError("No tables to write to the database.");
+            return false;
+        }
+
+        try (Connection connection = ds.getConnection()) {
+            String sql = "INSERT INTO Tables (tableNumber, isOccupied) VALUES (?, ?)";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                for (Table table : tables) {
+                    preparedStatement.setInt(1, table.getTableNumber());
+                    preparedStatement.setBoolean(2, table.isOccupied());
+
+                    // Execute the insert statement
+                    int rowsAffected = preparedStatement.executeUpdate();
+                    return rowsAffected > 0;
+                }
+            }
+
+        } catch (SQLException e) {
+            // Handle exceptions based on your application's error handling strategy
+            e.printStackTrace();
+        }
+        return false;
     }
 
 
