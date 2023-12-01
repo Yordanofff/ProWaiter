@@ -10,13 +10,8 @@ import java.util.List;
 
 public class Restaurant {
     private RestaurantInfo restaurantInfo = loadRestaurantInfo();
-    private List<Table> tables = initTables() ;//= new ArrayList<>();
+    private List<Table> tables = loadTables() ;//= new ArrayList<>();
 //    private static List<User> users = new ArrayList<>();
-
-//    public Restaurant() {
-//        loadRestaurantInfo();
-//        initTables();
-//    }
 
     public RestaurantInfo loadRestaurantInfo() {
         // Load restaurantInfo from DB. If not in DB - Ask User + write to DB.
@@ -32,7 +27,7 @@ public class Restaurant {
         return restaurantInfoDB;
     }
 
-    public List<Table> initTables() {
+    public List<Table> loadTables() {
         // Load tables from DB. If not in DB - Create new tables + write to DB.
         List<Table> tablesFromDB = Table.getTablesFromDB();
         if (tablesFromDB.isEmpty()) {
@@ -47,22 +42,23 @@ public class Restaurant {
             return tablesFromDB;
     }
 
-//
-//    public List<Table> getTables() {
-//        if (restaurantInfo == null || )
-//        return tables;
-//    }
-
-    public void setTables(List<Table> tables) {
-        this.tables = tables;
-    }
-
     public static List<Table> generateNewTables(int numberOfTables) {
         List<Table> newTables = new ArrayList<>();
         for (int i = 1; i <= numberOfTables; i++) {
             newTables.add(new Table(i));
         }
         return newTables;
+    }
+
+    public List<Table> getTables() {
+        return tables;
+    }
+
+    public void setTables(List<Table> tables) {
+        this.tables = tables;
+        if (DBOperations.writeTablesToDB(tables)) {
+            ConsolePrinter.printInfo("Successfully wrote tables to DB.");
+        }
     }
 
     public Table getTable(int tableNumber) {
@@ -114,10 +110,6 @@ public class Restaurant {
         return getTables(getOccupiedTables());
     }
 
-    public List<User> getUsers() {
-        return UserManager.getActiveUsers();
-    }
-
     public int getNumberOfTables() {
         return restaurantInfo.getNumberOfTables();
     }
@@ -134,6 +126,11 @@ public class Restaurant {
         this.restaurantInfo = restaurantInfo;
         RestaurantInfo.saveRestaurantInfoInDB(restaurantInfo);
     }
+
+
+//    public List<User> getUsers() {
+//        return UserManager.getActiveUsers();
+//    }
 
 //    private static String[] getTablesString(List<Table> tablesList) {
 //        String[] tables = new String [tablesList.size()];
