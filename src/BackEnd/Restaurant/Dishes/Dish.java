@@ -13,6 +13,11 @@ public class Dish {
         this.dishType = dishType;
     }
 
+    public Dish(String name, double price) {
+        this.name = name;
+        this.price = price;
+    }
+
     public Dish(DishType dishType) {
         this.dishType = dishType;
     }

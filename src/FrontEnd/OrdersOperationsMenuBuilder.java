@@ -1,6 +1,8 @@
 package FrontEnd;
 
+import BackEnd.DB.DBOperations;
 import BackEnd.Restaurant.Dishes.Dish;
+import BackEnd.Restaurant.Dishes.OrderedDish;
 import BackEnd.Restaurant.Menu.RestaurantMenu;
 import BackEnd.Restaurant.Order;
 import BackEnd.Restaurant.OrderStatus;
@@ -24,16 +26,43 @@ public class OrdersOperationsMenuBuilder {
     public static void ordersMenu(User user) {
         String[] menuOptions = new String[]{"New order", "Show open orders", "Show completed orders",};
         String frameLabel = "[" + user.getUserType() + "]";
-        String topMenuLabel = "Restaurant Menu Options";
+        String topMenuLabel = "Order Management";
         String optionZeroText = "Log out";
         String optionZeroMsg = "Logging out...";
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> ordersMenuOptions(option), user);  // lambda function to ignore the user.
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel,
+                (option, nouser) -> {
+                    ordersMenuOptions(option);
+                }, user);  // lambda function to ignore the user.
+    }
+
+    private static Table getFreeTable() {
+        int selectedTable = tableSelection(Restaurant.GET_INSTANCE());
+
+        if (selectedTable == 0) {
+            return null;
+        }
+
+        Table table = new Table(selectedTable);
+
+        // TODO: think about the table occupation. If something gets the table and then breaks then the table will be occupied forever.
+        //  try {} catch === exception if table alread occupied ?
+
+        table.occupy();
+
+        return table;
     }
 
     public static void ordersMenuOptions(int option) {
         switch (option) {
-            case 1 -> createNewOrder(new Restaurant(10));
-            case 2 -> showOpenOrders();
+            case 1 -> {
+                Table table = getFreeTable();
+                if (table == null) {
+                    break;
+                }
+                Order order = createNewOrder(table);
+                table.assignOrder(order);
+            }
+            case 2 -> showOpenOrders(Restaurant.GET_INSTANCE());
             case 3 -> showClosedOrders();
         }
     }
@@ -56,14 +85,26 @@ public class OrdersOperationsMenuBuilder {
 //        }
     }
 
-    public static Order createNewOrder(Restaurant restaurant) {
+    private static Dish getDishFromUserInput() {
+        printAllRestaurantDishesWithNumbers("Done");
 
-        int selectedTable = tableSelection(restaurant);
+        List<String> allDishesCommaSeparated = getAllThreeDishesMerged();
 
-        Table table = new Table(selectedTable);
-        table.occupy();
+        ConsolePrinter.printQuestion("Enter the index of the item that you wish to add: ");
 
-        Order order = new Order();
+        int selection = getUserInputFrom0toNumber(allDishesCommaSeparated.size());
+
+        if (selection == 0) {
+            return null;
+        }
+        String dishName = getDishNameFromIndex(selection, allDishesCommaSeparated);
+
+        return RestaurantMenu.getDishFromDishName(dishName);
+    }
+
+    public static Order createNewOrder(Table table) {
+
+        Order order = new Order(table);
 
         // print all dishes + prompt select dish to add to order + quantity ? (Enter for 1)
         // if quantity > 1 = for loop add to order
@@ -71,30 +112,33 @@ public class OrdersOperationsMenuBuilder {
         // Once order is
 
         while (true) {
-            printAllRestaurantDishesWithNumbers("Done");
+            Dish dish = getDishFromUserInput();
 
-            List<String> allDishesCommaSeparated = getAllThreeDishesMerged();
-
-            ConsolePrinter.printQuestion("Enter the index of the item that you wish to add: ");
-
-            int selection = getUserInputFrom0toNumber(allDishesCommaSeparated.size());
-
-            if (selection == 0) {
+            if (dish == null) {
                 break;
             }
-            String dishName = getDishNameFromIndex(selection, allDishesCommaSeparated);
-            Dish dish = RestaurantMenu.getDishFromDishName(dishName);
-            order.addDish(dish);
-
+            //TODO: add quantity to the USER INPUT PROMPT - item, q - if no q - 1
+            order.addDish(new OrderedDish(dish, 1));
             printCurrentOrder(order);
         }
+
+        saveOrderToDB(order);
+
         return order;
     }
 
+    private static void saveOrderToDB(Order order) {
+
+        // Write to DB
+        DBOperations.addOrderToOrdersTable(order);
+        DBOperations.updateOrderDishesToDB(order);  // Write Ordered Dishes to DB
+    }
+
+
     public static void printCurrentOrder(Order order) {
-        List<Dish> orderedDishes = order.getOrderedDishes();
-        for (Dish d : orderedDishes) {
-            System.out.println("Ordered: " + d.getName() + " - " + d.getPrice());
+        List<OrderedDish> orderedDishes = order.getOrderedDishes();
+        for (OrderedDish d : orderedDishes) {
+            System.out.println("Ordered: " + d.getDish().getName() + " - " + d.getDish().getPrice());
         }
         System.out.println("Total: " + order.getTotalPrice());
     }
@@ -108,7 +152,7 @@ public class OrdersOperationsMenuBuilder {
     }
 
     public static int tableSelection(Restaurant restaurant) {
-        int[] freeTables = Restaurant.getFreeTablesArr();
+        int[] freeTables = restaurant.getFreeTablesArr();
         String frameLabel = "Free tables"; // No frame label on the Login Menu page.
         String topMenuLabel = "Please enter a table number:";
         String optionZeroText = "Go back";
@@ -124,10 +168,36 @@ public class OrdersOperationsMenuBuilder {
     }
 
 
-    public static void showOpenOrders() {
+    public static void showOpenOrders(Restaurant restaurant) {
         // print all open orders - table/order number ? Add numbers infront - ask for order selection
         // go to viewSingleOpenOrder() - decide what to use - int number in menu/table number/option number ?
-        // todo
+        // TODO: Edit Tables/Orders - to load the order for that table from DB.
+
+        System.out.println(restaurant.getTables());
+        //Table{tableNumber=1, currentOrder=null, isOccupied=false}
+        //, Table{tableNumber=2, currentOrder=null, isOccupied=  true }
+        //, Table{tableNumber=3, currentOrder=null, isOccupied=false}
+        //, Table{tableNumber=4, currentOrder=null, isOccupied=false}
+
+
+        int[] occupiedTablesArr = restaurant.getOccupiedTablesArr();
+        String frameLabel = "Open Orders"; // No frame label on the Login Menu page.
+        String topMenuLabel = "Select Table Number To View Order:";
+        String optionZeroText = "Go back";
+        String optionZeroMsg = "Going back!";
+        String tableText = "Table /Open Order/";
+
+        int selectedTable = buildMenuOrder(occupiedTablesArr, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
+
+        Order selectedOrder = restaurant.getTable(selectedTable).getCurrentOrder();
+
+        System.out.println(selectedOrder); // null
+
+        for (OrderedDish dish: selectedOrder.getOrderedDishes()){
+            System.out.println(dish.getDish().getName() + " - " + dish.getQuantity());
+        }
+
+        // todo - print the above nicely + add menu Options - Add Dish to order/ remove Dish from order/ Print receip.. etc.
     }
 
     public static void viewSingleOpenOrder() {

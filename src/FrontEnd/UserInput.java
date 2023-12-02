@@ -19,7 +19,7 @@ public class UserInput {
     }
 
     public static String getUserInput(String question) {
-        System.out.println(question);
+        ConsolePrinter.printQuestion(question);
         return scanner.nextLine();
     }
 
@@ -38,6 +38,27 @@ public class UserInput {
                 validInput = true;
             } catch (NumberFormatException e) {
                 ConsolePrinter.printError("Invalid input [" + input + "]. Please enter a valid double or integer.");
+            }
+        }
+
+        return result;
+    }
+
+    public static int getIntInput(String question) {
+        int result = 0;
+        boolean validInput = false;
+        String input = null;
+
+        while (!validInput) {
+            try {
+                ConsolePrinter.printQuestion(question);
+                input = scanner.nextLine();
+
+                // Attempt to parse the input as an integer
+                result = Integer.parseInt(input);
+                validInput = true;
+            } catch (NumberFormatException e) {
+                ConsolePrinter.printError("Invalid input [" + input + "]. Please enter a valid integer.");
             }
         }
 

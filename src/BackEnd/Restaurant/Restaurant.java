@@ -1,24 +1,79 @@
 package BackEnd.Restaurant;
 
+import BackEnd.DB.DBOperations;
 import BackEnd.Users.User;
+import BackEnd.Users.UserManager;
 import FrontEnd.ConsolePrinter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Restaurant {
-    private static String restaurantName;
-    private static List<Table> tables;
-    private List<User> users;  // todo ?
 
-    public Restaurant(int numberOfTables) {
-        tables = new ArrayList<>();
+    // Singleton pattern - we'll be working with single Restaurant.
+    // When needed use: Restaurant.GET_INSTANCE()
+    private static final Restaurant INSTANCE = new Restaurant();
+
+    public static Restaurant GET_INSTANCE() {
+        return Restaurant.INSTANCE;
+    }
+//    public static Restaurant GET_INSTANCE() {
+//        return new Restaurant();
+//    }
+
+    private RestaurantInfo restaurantInfo = loadRestaurantInfo();
+    private List<Table> tables = loadTables() ;//= new ArrayList<>();
+//    private static List<User> users = new ArrayList<>();
+
+    public RestaurantInfo loadRestaurantInfo() {
+        // Load restaurantInfo from DB. If not in DB - Ask User + write to DB.
+        RestaurantInfo restaurantInfoDB = RestaurantInfo.getRestaurantInfoFromDB();
+        if (restaurantInfoDB == null) {
+            ConsolePrinter.printWarning("RestaurantInfo not found in the DB.");
+            RestaurantInfo newRestaurantInfo = new RestaurantInfo();
+            setRestaurantInfo(newRestaurantInfo.getNewRestaurantInfoFromUser());
+            return newRestaurantInfo;
+        }
+
+        ConsolePrinter.printInfo("Restaurant info loaded from DB.");
+        return restaurantInfoDB;
+    }
+
+    public List<Table> loadTables() {
+        // Load tables from DB. If not in DB - Create new tables + write to DB.
+        List<Table> tablesFromDB = Table.getTablesFromDB();
+        if (tablesFromDB.isEmpty()) {
+            ConsolePrinter.printWarning("Tables not found in the DB.");
+            List<Table> newTableList = generateNewTables(restaurantInfo.getNumberOfTables());
+            if (DBOperations.writeTablesToDB(newTableList)) {
+                ConsolePrinter.printInfo("New tables successfully written to the database.");
+            }
+            return newTableList;
+        }
+        ConsolePrinter.printInfo("Tables loaded from DB.");
+            return tablesFromDB;
+    }
+
+    public static List<Table> generateNewTables(int numberOfTables) {
+        List<Table> newTables = new ArrayList<>();
         for (int i = 1; i <= numberOfTables; i++) {
-            tables.add(new Table(i));
+            newTables.add(new Table(i));
+        }
+        return newTables;
+    }
+
+    public List<Table> getTables() {
+        return tables;
+    }
+
+    public void setTables(List<Table> tables) {
+        this.tables = tables;
+        if (DBOperations.writeTablesToDB(tables)) {
+            ConsolePrinter.printInfo("Successfully wrote tables to DB.");
         }
     }
 
-    public static Table getTable(int tableNumber) {
+    public Table getTable(int tableNumber) {
         if (tableNumber > tables.size()) {
             ConsolePrinter.printError("Table [" + tableNumber + "] doesn't exist. Max table number [" + tables.size() + "]");
             return null;
@@ -31,9 +86,9 @@ public class Restaurant {
         return null; // Table not found
     }
 
-    public static List<Table> getFreeTables() {
+    public List<Table> getFreeTables() {
         List<Table> freeTables = new ArrayList<>();
-        for (Table table : tables) {
+        for (Table table : this.tables) {
             if (!table.isOccupied()) {
                 freeTables.add(table);
             }
@@ -41,7 +96,7 @@ public class Restaurant {
         return freeTables;
     }
 
-    public static List<Table> getOccupiedTables() {
+    public List<Table> getOccupiedTables() {
         List<Table> occupiedTables = new ArrayList<>();
         for (Table table : tables) {
             if (table.isOccupied()) {
@@ -50,6 +105,7 @@ public class Restaurant {
         }
         return occupiedTables;
     }
+
     private static int[] getTables(List<Table> tablesList) {
         int[] tables = new int[tablesList.size()];
         for (int i = 0; i < tablesList.size(); i++) {
@@ -58,13 +114,35 @@ public class Restaurant {
         return tables;
     }
 
-    public static int[] getFreeTablesArr(){
+    public int[] getFreeTablesArr() {
         return getTables(getFreeTables());
     }
 
-    public static int[] getOccupiedTablesArr(){
+    public int[] getOccupiedTablesArr() {
         return getTables(getOccupiedTables());
     }
+
+    public int getNumberOfTables() {
+        return restaurantInfo.getNumberOfTables();
+    }
+
+    public String getRestaurantName() {
+        return restaurantInfo.getRestaurantName();
+    }
+
+    public RestaurantInfo getRestaurantInfo() {
+        return restaurantInfo;
+    }
+
+    public void setRestaurantInfo(RestaurantInfo restaurantInfo) {
+        this.restaurantInfo = restaurantInfo;
+        RestaurantInfo.saveRestaurantInfoInDB(restaurantInfo);
+    }
+
+
+//    public List<User> getUsers() {
+//        return UserManager.getActiveUsers();
+//    }
 
 //    private static String[] getTablesString(List<Table> tablesList) {
 //        String[] tables = new String [tablesList.size()];
@@ -83,6 +161,5 @@ public class Restaurant {
 //    public static String[] getOccupiedTablesArr(){
 //        return getTablesString(getOccupiedTables());
 //    }
-
 
 }
