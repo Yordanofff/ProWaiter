@@ -24,11 +24,8 @@ public class UserInterface {
         if (activeUsers == 0) {
             ConsolePrinter.printWarning("No users found. Creating the initial Admin account.");
             UserManager.addAdmin();
-        } else {
-            // todo
-            // print login menu
-            MenuBuilder.LoginMenu();
         }
-    }
+        MenuBuilder.LoginMenu();
 
+    }
 }

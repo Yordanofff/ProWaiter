@@ -11,7 +11,7 @@ public class Table {
 
     public Table(int tableNumber) {
         this.tableNumber = tableNumber;
-        this.currentOrder = null;
+        this.currentOrder = null;  // TODO: Make changes here to load the current order from DB..
         this.isOccupied = false;
     }
 
@@ -20,6 +20,14 @@ public class Table {
         this.isOccupied = isOccupied;
         this.currentOrder = null;
     }
+
+//    public static Order loadOrderFromDB() {
+//      // TODO: To be implemented.
+//    }
+//
+//    public static void saveOrderToDB(Order order) {
+//      // TODO: I think I already created this method somewhere - don't add it here for now.
+//    }
 
     @Override
     public String toString() {
@@ -56,13 +64,16 @@ public class Table {
 
     public boolean isOccupied() {
         return isOccupied;
+        // TODO: get from DB ? - to make sure another person hasn't changed it?
     }
 
     public void occupy() {
         isOccupied = true;
+        DBOperations.updateOccupyTable(this);
     }
 
     public void unOccupy() {
         isOccupied = false;
+        DBOperations.updateOccupyTable(this);
     }
 }

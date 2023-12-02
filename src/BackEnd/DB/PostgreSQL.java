@@ -1,6 +1,8 @@
 package BackEnd.DB;
 
 import BackEnd.Restaurant.Dishes.Dish;
+import BackEnd.Restaurant.Order;
+import BackEnd.Restaurant.OrderStatus;
 import BackEnd.Restaurant.RestaurantInfo;
 import BackEnd.Restaurant.Table;
 import BackEnd.Users.User;
@@ -36,9 +38,33 @@ public class PostgreSQL {
         dao.createRestaurantMenuTableIfNotExist();
         dao.createRestaurantInfoIfNotExist();
         dao.createTablesTableIfNotExist();
+
         dao.createOrderStatusesTableIfNotExist();
+        if (!areAllOrderStatusesInDB()){
+            ConsolePrinter.printWarning("OrderStatuses not found in the DB. Adding them now.");
+            dao.populateOrderStatusesTable();
+        }
+
         dao.createOrdersTableIfNotExist();
         dao.createDishesTableIfNotExist();
+        dao.createOrderDishesTableIfNotExist();
+    }
+    public boolean areAllOrderStatusesInDB(){
+        List<String> orderStatuses = getOrderStatusesTable();
+        boolean areAllOrderStatusesInDB = true;
+        for (String orderStatus: orderStatuses) {
+            boolean isFound = false;
+            for (OrderStatus status: OrderStatus.values()) {
+                if (status.toString().equals(orderStatus)) {
+                    isFound = true;
+                }
+            }
+            if (!isFound) {
+                areAllOrderStatusesInDB = false;
+                break;
+            }
+        }
+        return areAllOrderStatusesInDB;
     }
 
     public List<User> getUsers(int limit) {
@@ -87,5 +113,20 @@ public class PostgreSQL {
 
     public boolean writeTablesToDB(List<Table> tables){
         return dao.writeTablesToDB(tables);
+    }
+
+    public boolean updateOccupyTable(Table table) {
+        return dao.updateOccupyTable(table);
+    }
+
+    public void addOrderToOrdersTable(Order order){
+        dao.addOrderToOrdersTable(order);
+    }
+    public void updateOrderDishesToDB(Order order) {
+        dao.updateOrderDishesToDB(order);
+    }
+
+    public List<String> getOrderStatusesTable() {
+        return dao.getOrderStatusesTable();
     }
 }

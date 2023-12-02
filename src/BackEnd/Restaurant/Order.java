@@ -1,6 +1,7 @@
 package BackEnd.Restaurant;
 
 import BackEnd.Restaurant.Dishes.Dish;
+import BackEnd.Restaurant.Dishes.OrderedDish;
 import BackEnd.Restaurant.Menu.RestaurantMenu;
 import FrontEnd.ConsolePrinter;
 
@@ -8,28 +9,65 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Order {
-    private List<Dish> orderedDishes;
+    private List<OrderedDish> orderedDishes ; //= loadOrderedDishes();
     private double totalPrice = 0;
-
-    // Keep incrementing the number on each new order, so we have total number of orders.
-    private static int orderNumber = 0;
     boolean isPaid;
-
     OrderStatus orderStatus;
+    int tableNumber;
+    long orderNumber;  // Very long in the DB. Int might not be long enough. Will be created from the DB.
 
-    public Order() {
-        orderNumber += 1;
+    public void setOrderNumber(long orderNumber) {
+        this.orderNumber = orderNumber;
+    }
+
+    public Order(Table table) {
         this.isPaid = false;
         this.orderedDishes = new ArrayList<>();
         this.orderStatus = OrderStatus.CREATED;
+        this.tableNumber = table.getTableNumber();
     }
 
-    public void addDish(Dish dish) {
-        if (!isDishInMenu(dish)) {
-            ConsolePrinter.printWarning("The item [" + dish.getName() + "] is not in the Restaurant Menu!");
+    public boolean isPaid() {
+        return isPaid;
+    }
+
+    public void setPaid(boolean paid) {
+        isPaid = paid;
+    }
+
+    public int getTableNumber() {
+        return tableNumber;
+    }
+
+    public void setTableNumber(int tableNumber) {
+        this.tableNumber = tableNumber;
+    }
+
+    // From DB;
+    public Order(int orderNumber, int tableNumber, boolean isPaid, OrderStatus orderStatus) {
+        this.orderNumber = orderNumber;
+        this.tableNumber = tableNumber;
+        this.isPaid = isPaid;
+        this.orderStatus = orderStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "orderedDishes=" + orderedDishes +
+                ", totalPrice=" + totalPrice +
+                ", isPaid=" + isPaid +
+                ", orderStatus=" + orderStatus +
+                ", tableNumber=" + tableNumber +
+                '}';
+    }
+
+    public void addDish(OrderedDish dish) {
+        if (!isDishInMenu(dish.getDish())) {
+            ConsolePrinter.printWarning("The item [" + dish.getDish().getName() + "] is not in the Restaurant Menu!");
         }
         orderedDishes.add(dish);
-        setTotalPrice(getTotalPrice() + dish.getPrice());
+        setTotalPrice(getTotalPrice() + dish.getDish().getPrice());
     }
 
     public void removeDish(Dish dish) {
@@ -37,11 +75,11 @@ public class Order {
         setTotalPrice(getTotalPrice() - dish.getPrice());
     }
 
-    public List<Dish> getOrderedDishes() {
+    public List<OrderedDish> getOrderedDishes() {
         return orderedDishes;
     }
 
-    public int getOrderNumber() {
+    public long getOrderNumber() {
         return orderNumber;
     }
 

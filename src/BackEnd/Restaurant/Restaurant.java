@@ -9,6 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Restaurant {
+
+    // Singleton pattern - we'll be working with single Restaurant.
+    // When needed use: Restaurant.GET_INSTANCE()
+    private static final Restaurant INSTANCE = new Restaurant();
+
+    public static Restaurant GET_INSTANCE() {
+        return Restaurant.INSTANCE;
+    }
+//    public static Restaurant GET_INSTANCE() {
+//        return new Restaurant();
+//    }
+
     private RestaurantInfo restaurantInfo = loadRestaurantInfo();
     private List<Table> tables = loadTables() ;//= new ArrayList<>();
 //    private static List<User> users = new ArrayList<>();
