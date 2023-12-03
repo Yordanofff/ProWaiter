@@ -4,7 +4,6 @@ import BackEnd.Users.User;
 import BackEnd.Users.UserManager;
 import BackEnd.Users.UserType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,32 +22,33 @@ public class UserManagementMenuBuilder {
     public static void UserManagementMenuAction(int option, User user) {
         // todo - use user somewhere?
         switch (option) {
-            case 1 -> printAllUsers();
+            case 1 -> printAllUsersAlignedWithPassword(); // or printAllUsersAlignedWithOutPassword()
             case 2 -> addUserMenu();
             case 3 -> editUserMenu();
             case 4 -> deleteUserMenuSelectUserType();
         }
     }
 
-    public static void printAllUsers() {
-        List<String> userDataToPrint;
-        List<User> activeUsers = UserManager.getActiveUsers();
+    public static void printAllUsersAligned(String columnNames, boolean printPassword) {
+        List<String> allAdmins = UserManager.getAllUsersInformationByUserType(UserType.ADMIN, printPassword);
+        List<String> allWaiters = UserManager.getAllUsersInformationByUserType(UserType.WAITER, printPassword);
+        List<String> allCooks = UserManager.getAllUsersInformationByUserType(UserType.COOK, printPassword);
 
-        String columnNames = "Username, Full Name, Id";
-        for (UserType userType : UserType.values()) {
+        int[] maxColumnLengths = getBiggest(allAdmins, allWaiters, allCooks, columnNames);
 
-            // Empty the users list for each new type
-            userDataToPrint = new ArrayList<>();
+        printMenuOptionsInFrameTableRestaurantMenu(allAdmins, "ADMINS", columnNames, "", maxColumnLengths);
+        printMenuOptionsInFrameTableRestaurantMenu(allWaiters, "WAITERS", "", "", maxColumnLengths);
+        printMenuOptionsInFrameTableRestaurantMenu(allCooks, "COOKS", "", "Go Back", maxColumnLengths);
+    }
 
-            for (User user : activeUsers) {
-                if (user.getUserType() == userType) {
-                    String userDataSingleString = (user.getUsername() + sep + user.getFullName() + sep + user.getId().toString());
-                    userDataToPrint.add(userDataSingleString);
-                }
-            }
-            MenuBuilder.printMenuOptionsInFrameTable(userDataToPrint, userType.toString(), columnNames);
-            System.out.println();  // Space below
-        }
+    public static void printAllUsersAlignedWithPassword() {
+        String columnNames = "Username, Full Name, Password";
+        printAllUsersAligned(columnNames, true);
+    }
+
+    public static void printAllUsersAlignedWithOutPassword() {
+        String columnNames = "Username, Full Name";
+        printAllUsersAligned(columnNames, false);
     }
 
     public static void addUserMenu() {

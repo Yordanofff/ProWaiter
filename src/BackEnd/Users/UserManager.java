@@ -194,5 +194,15 @@ public class UserManager {
         return userTypeNames;
     }
 
+    public static List<String> getAllUsersInformationByUserType(UserType userType, boolean withPassword) {
+        List<String> usersInformation = new ArrayList<>();
+        for (User user : getActiveUsers()) {
+            if (user.getUserType() == userType) {
+                usersInformation.add(user.getUserInformation(withPassword));
+            }
+        }
+        return usersInformation;
+    }
+
 }
 

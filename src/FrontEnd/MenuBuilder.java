@@ -9,7 +9,7 @@ import java.util.*;
 import static FrontEnd.MenuBuilderFrameDrawers.*;
 
 public class MenuBuilder {
-    static final String sep = ",";  // separator for the strings when printing menus
+    public static final String sep = ",";  // separator for the strings when printing menus
     static final int MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU = 5;
     static final String MENU_SEPARATOR = " - ";  // With spaces if required.
     static final String SideWall = "│";
