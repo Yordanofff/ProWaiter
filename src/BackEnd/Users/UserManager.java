@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static FrontEnd.MenuBuilder.sep;
+
 public class UserManager {
     // todo - part of BackEnd.Users.Administrator?
     // todo - load/update users from DB before login
@@ -194,14 +196,25 @@ public class UserManager {
         return userTypeNames;
     }
 
-    public static List<String> getAllUsersInformationByUserType(UserType userType, boolean withPassword) {
+    public static List<String> getAllUsersInformationByUserType(UserType userType, boolean withPassword, boolean addNumbers, int startingNumber) {
         List<String> usersInformation = new ArrayList<>();
+        String userInfoToAdd;
         for (User user : getActiveUsers()) {
             if (user.getUserType() == userType) {
-                usersInformation.add(user.getUserInformation(withPassword));
+                if (addNumbers) {
+                    userInfoToAdd = startingNumber + sep + user.getUserInformation((withPassword));
+                    startingNumber ++;
+                } else {
+                    userInfoToAdd = user.getUserInformation(withPassword);
+                }
+                usersInformation.add(userInfoToAdd);
             }
         }
         return usersInformation;
+    }
+
+    public static List<String> getAllUsersInformationByUserType(UserType userType, boolean withPassword) {
+        return getAllUsersInformationByUserType(userType, withPassword, false, 0);
     }
 
 }

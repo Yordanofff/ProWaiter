@@ -13,9 +13,7 @@ import BackEnd.Users.User;
 import java.util.List;
 
 import static FrontEnd.MenuBuilder.*;
-import static FrontEnd.MenuBuilder.getDishNameFromIndex;
-import static FrontEnd.RestaurantMenuBuilder.getAllThreeDishesMerged;
-import static FrontEnd.RestaurantMenuBuilder.printAllRestaurantDishesWithNumbers;
+import static FrontEnd.RestaurantMenuBuilder.*;
 
 public class OrdersOperationsMenuBuilder {
     // Всяка поръчка си има дата и час на създаване и номер на маса. Не може да се създаде повече от една поръчка за маса.
@@ -88,7 +86,7 @@ public class OrdersOperationsMenuBuilder {
     private static Dish getDishFromUserInput() {
         printAllRestaurantDishesWithNumbers("Done");
 
-        List<String> allDishesCommaSeparated = getAllThreeDishesMerged();
+        List<String> allDishesCommaSeparated = getMergedListOfNestedStringLists(getAllThreeDishesForMenu());
 
         ConsolePrinter.printQuestion("Enter the index of the item that you wish to add: ");
 
@@ -97,7 +95,7 @@ public class OrdersOperationsMenuBuilder {
         if (selection == 0) {
             return null;
         }
-        String dishName = getDishNameFromIndex(selection, allDishesCommaSeparated);
+        String dishName = MenuBuilder.getFirstElementFromIndex(selection, allDishesCommaSeparated);
 
         return RestaurantMenu.getDishFromDishName(dishName);
     }

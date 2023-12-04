@@ -105,13 +105,17 @@ public class MenuBuilder {
         }
     }
 
-    public static String getDishNameFromIndex(int index, List<String> allDishesCommaSeparated) {
+    public static String getElementPositionFromIndex(int index, List<String> allDishesCommaSeparated, int positionToGet) {
         for (String row : allDishesCommaSeparated) {
-            if (Integer.parseInt(row.split(",")[0]) == index) {
-                return row.split(",")[1].strip();
+            if (Integer.parseInt(row.split(sep)[0]) == index) {
+                return row.split(sep)[1].strip();
             }
         }
         return null;
+    }
+
+    public static String getFirstElementFromIndex(int index, List<String> allDishesCommaSeparated) {
+        return getElementPositionFromIndex(index, allDishesCommaSeparated, 1);
     }
 
     public static void buildMenu(String[] menuOptions, String topMenuLabel, String optionZeroText, String optionZeroMsg, String frameLabel, MenuAction menuAction, User user) {
@@ -151,7 +155,7 @@ public class MenuBuilder {
                 break;
             }
 
-            if (isNumberInArray(menuOptions, selectedOption)){
+            if (isNumberInArray(menuOptions, selectedOption)) {
                 validOption = true;
                 break;
             }
@@ -691,5 +695,20 @@ public class MenuBuilder {
         }
 
         return itemsWithNumbers;
+    }
+
+    static List<String> getMergedLists(List<String> l1, List<String> l2) {
+        List<String> mergedList = new ArrayList<>();
+        mergedList.addAll(l1);
+        mergedList.addAll(l2);
+        return mergedList;
+    }
+
+    public static List<String> getMergedListOfNestedStringLists(List<List<String>> toMerge) {
+        List<String> merged = new ArrayList<>();
+        for (List<String> singleList : toMerge) {
+            merged = getMergedLists(merged, singleList);
+        }
+        return merged;
     }
 }

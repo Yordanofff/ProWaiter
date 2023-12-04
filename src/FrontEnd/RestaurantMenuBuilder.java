@@ -79,7 +79,7 @@ public class RestaurantMenuBuilder {
     public static void deleteItemFromRestaurantMenu() {
         printAllRestaurantDishesWithNumbers("Go Back");
 
-        List<String> allDishesCommaSeparated = getAllThreeDishesMerged();
+        List<String> allDishesCommaSeparated = getMergedListOfNestedStringLists(getAllThreeDishesForMenu());
 
         ConsolePrinter.printQuestion("Enter the index of the item that you wish to delete: ");
 
@@ -90,7 +90,7 @@ public class RestaurantMenuBuilder {
             return;
         }
 
-        String dishName = getDishNameFromIndex(selection, allDishesCommaSeparated);
+        String dishName = getFirstElementFromIndex(selection, allDishesCommaSeparated);
 
         boolean confirmed = UserInput.getConfirmation("Are you sure you want to delete [" + dishName + "]");
         if (confirmed) {
@@ -127,23 +127,6 @@ public class RestaurantMenuBuilder {
         result.add(allDessertCommaSeparated);
 
         return result;
-    }
-
-    public static List<String> getAllThreeDishesMerged() {
-        List<List<String>> allThreeDishes = getAllThreeDishesForMenu();
-        List<String> food = allThreeDishes.get(0);
-        List<String> drink = allThreeDishes.get(1);
-        List<String> dessert = allThreeDishes.get(2);
-        List<String> allDishesCommaSeparated = getMergedLists(food, drink, dessert);
-        return allDishesCommaSeparated;
-    }
-
-    static List<String> getMergedLists(List<String> l1, List<String> l2, List<String> l3) {
-        List<String> mergedList = new ArrayList<>();
-        mergedList.addAll(l1);
-        mergedList.addAll(l2);
-        mergedList.addAll(l3);
-        return mergedList;
     }
 
 }
