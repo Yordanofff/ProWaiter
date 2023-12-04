@@ -83,21 +83,25 @@ public class OrdersOperationsMenuBuilder {
 //        }
     }
 
-    private static Dish getDishFromUserInput() {
+    private static OrderedDish getDishFromUserInput() {
         printAllRestaurantDishesWithNumbers("Done");
 
         List<String> allDishesCommaSeparated = getMergedListOfNestedStringLists(getAllThreeDishesForMenu());
 
-        ConsolePrinter.printQuestion("Enter the index of the item that you wish to add: ");
+        ConsolePrinter.printQuestion("Enter the [index] <space> [quantity] of the item that you wish to add: ");
 
-        int selection = getUserInputFrom0toNumber(allDishesCommaSeparated.size());
+        int[] dishIndexAndQuantity = getUserInputMenuNumberAndQuantity(allDishesCommaSeparated.size());
 
-        if (selection == 0) {
+        int dishIndex = dishIndexAndQuantity[0];
+        int dishQuantity = dishIndexAndQuantity[1];
+
+        if (dishIndex == 0) {
             return null;
         }
-        String dishName = MenuBuilder.getFirstElementFromIndex(selection, allDishesCommaSeparated);
+        String dishName = MenuBuilder.getFirstElementFromIndex(dishIndexAndQuantity[0], allDishesCommaSeparated);
+        Dish dish = RestaurantMenu.getDishFromDishName(dishName);
 
-        return RestaurantMenu.getDishFromDishName(dishName);
+        return new OrderedDish(dish, dishQuantity);
     }
 
     public static Order createNewOrder(Table table) {
@@ -110,13 +114,13 @@ public class OrdersOperationsMenuBuilder {
         // Once order is
 
         while (true) {
-            Dish dish = getDishFromUserInput();
+            OrderedDish orderedDish = getDishFromUserInput();
 
-            if (dish == null) {
+            if (orderedDish == null) {
                 break;
             }
-            //TODO: add quantity to the USER INPUT PROMPT - item, q - if no q - 1
-            order.addDish(new OrderedDish(dish, 1));
+
+            order.addDish(orderedDish);
             printCurrentOrder(order);
         }
 
@@ -136,7 +140,8 @@ public class OrdersOperationsMenuBuilder {
     public static void printCurrentOrder(Order order) {
         List<OrderedDish> orderedDishes = order.getOrderedDishes();
         for (OrderedDish d : orderedDishes) {
-            System.out.println("Ordered: " + d.getDish().getName() + " - " + d.getDish().getPrice());
+            System.out.println("Ordered " + d.getQuantity() + " x " + d.getDish().getName() + " - " +
+                    d.getDish().getPrice() + " Total: " + d.getDish().getPrice() * d.getQuantity());
         }
         System.out.println("Total: " + order.getTotalPrice());
     }
@@ -191,7 +196,7 @@ public class OrdersOperationsMenuBuilder {
 
         System.out.println(selectedOrder); // null
 
-        for (OrderedDish dish: selectedOrder.getOrderedDishes()){
+        for (OrderedDish dish : selectedOrder.getOrderedDishes()) {
             System.out.println(dish.getDish().getName() + " - " + dish.getQuantity());
         }
 

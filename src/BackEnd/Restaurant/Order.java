@@ -67,7 +67,7 @@ public class Order {
             ConsolePrinter.printWarning("The item [" + dish.getDish().getName() + "] is not in the Restaurant Menu!");
         }
         orderedDishes.add(dish);
-        setTotalPrice(getTotalPrice() + dish.getDish().getPrice());
+        setTotalPrice(getTotalPrice() + dish.getDish().getPrice() * dish.getQuantity());
     }
 
     public void removeDish(Dish dish) {

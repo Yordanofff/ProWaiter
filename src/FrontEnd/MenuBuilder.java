@@ -281,6 +281,80 @@ public class MenuBuilder {
         return choice;
     }
 
+    static int[] getUserInputMenuNumberAndQuantity(int numOptions) {
+        int[] choiceAndQuantity = new int[2];
+        int menuItemChoiceInt;
+        int quantityInt;
+
+        while (true) {
+            String ans = scanner.nextLine().strip();
+            String[] answers = ans.split(" ");
+
+            if (answers.length > 2) {
+                ConsolePrinter.printError("Maximum of [2] integers allowed in the format: [DISH INDEX] <space> [QUANTITY]");
+                continue;
+            } else if (answers.length == 0) {
+                ConsolePrinter.printError("Empty Input. Try again.");
+                continue;
+            }
+
+            String menuItemChoice;
+            String quantity;
+
+            if (answers.length == 1) {
+                quantityInt = 1;
+
+                try {
+                    menuItemChoiceInt = Integer.parseInt(answers[0]);
+
+                    if (menuItemChoiceInt >= 0 && menuItemChoiceInt <= numOptions) {
+                        break;
+                    } else {
+                        ConsolePrinter.printError("Please enter a number between [0 - " + numOptions + "]");
+                    }
+                } catch (NumberFormatException e) {
+                    ConsolePrinter.printError("Invalid input [" + ans + "]! " +
+                            "Please enter an integer in the range [0 - " + numOptions + "]");
+                }
+            } else {
+                // answers.length == 2
+                menuItemChoice = answers[0];
+                quantity = answers[1];
+
+                if (!(isInteger(menuItemChoice) && isInteger(quantity))) {
+                    ConsolePrinter.printError("Invalid input! Only integers allowed!");
+                    continue;
+                }
+
+                quantityInt = Integer.parseInt(quantity);
+                if (quantityInt <= 0) {
+                    ConsolePrinter.printError("Quantity cannot be a [negative number] or [0]");
+                    continue;
+                }
+
+                menuItemChoiceInt = Integer.parseInt(answers[0]);
+                if (menuItemChoiceInt >= 0 && menuItemChoiceInt <= numOptions) {
+                    break;
+                } else {
+                    ConsolePrinter.printError("Please enter a number between [0 - " + numOptions + "]");
+                }
+            }
+        }
+
+        choiceAndQuantity[0] = menuItemChoiceInt;
+        choiceAndQuantity[1] = quantityInt;
+        return choiceAndQuantity;
+    }
+
+    private static boolean isInteger(String integerToTest) {
+        try {
+            Integer.parseInt(integerToTest);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     private static HashMap<Integer, String> generateHashMapMenuOptionsWithNumbers(String[] menuOptionsWithoutExit, String optionZeroText) {
         // Will add Exit as position 0.
 
