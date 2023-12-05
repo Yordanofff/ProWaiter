@@ -55,12 +55,14 @@ public class Order {
                 '}';
     }
 
-    public void addDish(OrderedDish dish) {
-        if (!isDishInMenu(dish.getDish())) {
-            ConsolePrinter.printWarning("The item [" + dish.getDish().getName() + "] is not in the Restaurant Menu!");
+    public void addOrderedDish(OrderedDish orderedDish) {
+        if (!isDishInMenu(orderedDish.getDish())) {
+            ConsolePrinter.printWarning("The item [" + orderedDish.getDish().getName() + "] is not in the Restaurant Menu!");
         }
-        orderedDishes.add(dish);
-        setTotalPrice(getTotalPrice() + dish.getDish().getPrice() * dish.getQuantity());
+//        orderedDishes.add(orderedDish);  // this fails (don't delete until fixing)
+        this.orderedDishes = getOrderedDishes();
+        orderedDishes.add(orderedDish);
+        setTotalPrice(getTotalPrice() + orderedDish.getDish().getPrice() * orderedDish.getQuantity());
     }
 
     public void removeDish(Dish dish) {
