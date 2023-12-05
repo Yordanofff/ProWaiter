@@ -24,18 +24,6 @@ public class Order {
         this.tableNumber = table.getTableNumber();
     }
 
-    public boolean isPaid() {
-        return isPaid;
-    }
-
-    public void setPaid(boolean paid) {
-        isPaid = paid;
-    }
-
-    public int getTableNumber() {
-        return tableNumber;
-    }
-
     // From DB;
     public Order(long orderNumber, int tableNumber, boolean isPaid, OrderStatus orderStatus) {
         this.orderNumber = orderNumber;
@@ -69,6 +57,20 @@ public class Order {
         orderedDishes.remove(dish);
         setTotalPrice(getTotalPrice() - dish.getPrice());
     }
+
+    public boolean isPaid() {
+        return isPaid;
+    }
+
+    public void setPaid(boolean paid) {
+        isPaid = paid;
+    }
+
+    public int getTableNumber() {
+        return tableNumber;
+    }
+
+
 
     public List<OrderedDish> getOrderedDishes() {
         // Retrieve from DB.
