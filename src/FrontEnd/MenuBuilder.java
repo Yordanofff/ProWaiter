@@ -244,7 +244,7 @@ public class MenuBuilder {
         return menuOptionsWithNumbers;
     }
 
-    private static int printMenuAndGetUsersChoice(String[] menuOptions, String topMenuQuestion, String optionZeroText, String frameLabel) {
+    static int printMenuAndGetUsersChoice(String[] menuOptions, String topMenuQuestion, String optionZeroText, String frameLabel) {
         // Creating HashMap with numbers and options. + Adding Exit/Logout/Go Back
         HashMap<Integer, String> menuOptionsWithNumbers = generateHashMapMenuOptionsWithNumbers(menuOptions, optionZeroText);
 
