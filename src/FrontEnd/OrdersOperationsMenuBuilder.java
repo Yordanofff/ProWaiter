@@ -25,8 +25,8 @@ public class OrdersOperationsMenuBuilder {
         String[] menuOptions = new String[]{"New order", "Show open orders", "Show completed orders",};
         String frameLabel = "[" + user.getUserType() + "]";
         String topMenuLabel = "Order Management";
-        String optionZeroText = "Log out";
-        String optionZeroMsg = "Logging out...";
+        String optionZeroText = "Go back";
+        String optionZeroMsg = "Going back...";
         buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel,
                 (option, nouser) -> {
                     ordersMenuOptions(option);

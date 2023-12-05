@@ -15,8 +15,8 @@ public class RestaurantMenuBuilder {
         String[] menuOptions = new String[]{"Print Restaurant Menu", "Add new item", "Delete item"};
         String frameLabel = "[" + user.getUserType() + "]";
         String topMenuLabel = "Restaurant Menu Options";
-        String optionZeroText = "Log out";
-        String optionZeroMsg = "Logging out...";
+        String optionZeroText = "Go back";
+        String optionZeroMsg = "Going back...";
         buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, RestaurantMenuBuilder::RestaurantMenuItemsMenuOptions, user); // use this if user data is needed in WaiterMenuAction
     }
 
