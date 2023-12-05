@@ -1,5 +1,6 @@
 package BackEnd.Restaurant;
 
+import BackEnd.DB.DBOperations;
 import BackEnd.Restaurant.Dishes.Dish;
 import BackEnd.Restaurant.Dishes.OrderedDish;
 import BackEnd.Restaurant.Menu.RestaurantMenu;
@@ -9,16 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Order {
-    private List<OrderedDish> orderedDishes ; //= loadOrderedDishes();
+    private List<OrderedDish> orderedDishes;
     private double totalPrice = 0;
     boolean isPaid;
-    OrderStatus orderStatus;
-    int tableNumber;
-    long orderNumber;  // Very long in the DB. Int might not be long enough. Will be created from the DB.
-
-    public void setOrderNumber(long orderNumber) {
-        this.orderNumber = orderNumber;
-    }
+    private OrderStatus orderStatus;
+    private int tableNumber;
+    private long orderNumber;  // Very long in the DB. Int might not be long enough. Will be created from the DB.
 
     public Order(Table table) {
         this.isPaid = false;
@@ -39,12 +36,8 @@ public class Order {
         return tableNumber;
     }
 
-    public void setTableNumber(int tableNumber) {
-        this.tableNumber = tableNumber;
-    }
-
     // From DB;
-    public Order(int orderNumber, int tableNumber, boolean isPaid, OrderStatus orderStatus) {
+    public Order(long orderNumber, int tableNumber, boolean isPaid, OrderStatus orderStatus) {
         this.orderNumber = orderNumber;
         this.tableNumber = tableNumber;
         this.isPaid = isPaid;
@@ -76,11 +69,19 @@ public class Order {
     }
 
     public List<OrderedDish> getOrderedDishes() {
-        return orderedDishes;
+        // Retrieve from DB.
+        return DBOperations.getOrdersDishesForTableNumber(this.tableNumber);
     }
 
     public long getOrderNumber() {
-        return orderNumber;
+        if (orderNumber != 0) {
+            return orderNumber;
+        }
+        return DBOperations.getOrderIDOfOccupiedTable(tableNumber);
+    }
+
+    public void setOrderNumber(long orderNumber) {
+        this.orderNumber = orderNumber;
     }
 
     public double getTotalPrice() {

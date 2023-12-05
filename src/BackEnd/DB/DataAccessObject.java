@@ -3,6 +3,7 @@ package BackEnd.DB;
 import BackEnd.Restaurant.Dishes.Dish;
 import BackEnd.Restaurant.Dishes.DishType;
 import BackEnd.Restaurant.Dishes.OrderedDish;
+import BackEnd.Restaurant.Menu.RestaurantMenu;
 import BackEnd.Restaurant.Order;
 import BackEnd.Restaurant.OrderStatus;
 import BackEnd.Restaurant.RestaurantInfo;
@@ -15,6 +16,7 @@ import FrontEnd.ConsolePrinter;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
+import java.util.List;
 
 // File from the CocroachDB java example https://github.com/cockroachlabs/example-app-java-jdbc/blob/master/app/src/main/java/com/cockroachlabs/BasicExample.java
 
@@ -557,13 +559,6 @@ public class DataAccessObject {
 
                 order.setOrderNumber(getOrderID(order));
 
-//                try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-//                    if (generatedKeys.next()) {
-//                        order.setOrderNumber(generatedKeys.getLong(1));
-//                    } else {
-//                        throw new SQLException("Creating user failed, no ID obtained.");
-//                    }
-//                }
             }
         } catch (SQLException e) {
             e.printStackTrace(); // Handle the exception according to your application's error handling strategy
@@ -587,6 +582,26 @@ public class DataAccessObject {
         return resultSet.getLong("id");
     }
 
+    public long getOrderID(int tableNumber) throws SQLException {
+        Connection connection = ds.getConnection();
+        String sql = "SELECT id FROM Orders WHERE tableNumber = ? AND statusname != ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, tableNumber);
+            preparedStatement.setString(2, OrderStatus.PAID.toString());
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    long id = resultSet.getLong("id");
+                    return id;
+                } else {
+                    // Handle the case when no result is found (e.g., return a default value or throw an exception)
+                    throw new SQLException("No order found for the given table number and status");
+                }
+            }
+        }
+    }
+
     public List<Order> getAllOrdersFromDB() {
         List<Order> orders = new ArrayList<>();
 
@@ -602,7 +617,6 @@ public class DataAccessObject {
                     String statusName = resultSet.getString("statusName");
                     int id = resultSet.getInt("id");
 
-                    // Assuming you have a constructor in the Order class that takes these parameters
                     Order order = new Order(id, tableNumber, isPaid, OrderStatus.valueOf(statusName));
                     orders.add(order);
                 }
@@ -616,27 +630,43 @@ public class DataAccessObject {
         return orders;
     }
 
+    public Order getCurrentOrderForTable(int tableNumber) {
+        List<Order> orders = new ArrayList<>();
+
+        try (Connection connection = ds.getConnection()) {
+            String sql = "SELECT id, statusName FROM Orders WHERE isPaid = false and tablenumber = ?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setLong(1, tableNumber);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        String statusName = resultSet.getString("statusName");
+                        long id = resultSet.getLong("id");
+
+                        Order order = new Order(id, tableNumber, false, OrderStatus.valueOf(statusName));
+                        orders.add(order);
+                    }
+                    if (orders.size() == 1) {
+                        return orders.get(0);
+                    } else if (orders.size() > 1) {
+                        throw new BadSqlDataException("There are [" + orders.size() + "] OPEN orders for table [" + tableNumber + "].");
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            // Handle exceptions based on your application's error handling strategy
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public void createOrderStatusesTableIfNotExist() {
         runSQL("CREATE TABLE IF NOT EXISTS OrderStatuses (" +
                 "statusName VARCHAR(50) PRIMARY KEY NOT NULL)"
         );
-
-//        for (OrderStatus status : OrderStatus.values()) {
-//            String statusName = status.toString();
-//
-//            try (Connection connection = ds.getConnection()) {
-//                String sql = "INSERT INTO OrderStatuses (statusName) VALUES (?)";
-//
-//                try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-//
-//                    preparedStatement.setString(1, statusName);
-//
-//                    preparedStatement.executeUpdate();
-//                }
-//            } catch (SQLException e) {
-//                e.printStackTrace(); // Handle the exception according to your application's error handling strategy
-//            }
-//        }
     }
 
     public void populateOrderStatusesTable() {
@@ -731,6 +761,52 @@ public class DataAccessObject {
         }
     }
 
+    // get id from "orders" where tablenumber = ?
+    // get menuitemname, quantity from "ordersdishes" where orderid = <id> from above
+    // add these to List<OrderedDish>
+    public List<OrderedDish> getOrdersDishesForTableNumber(int tableNumber) {
+        List<OrderedDish> orderedDishes = new ArrayList<>();
+
+        try (Connection connection = ds.getConnection()) {
+            long orderId = getOrderID(tableNumber);
+            String sql = "SELECT menuitemname, quantity FROM ordersdishes WHERE orderid = ?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setLong(1, orderId);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        String menuItemName = resultSet.getString("menuitemname");
+                        int quantity = resultSet.getInt("quantity");
+
+                        Dish dish = RestaurantMenu.getDishFromDishName(menuItemName);
+
+                        OrderedDish orderedDish = new OrderedDish(dish, quantity);
+                        orderedDishes.add(orderedDish);
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            // Consider throwing a custom exception or logging the error for better error handling
+            e.printStackTrace();
+        }
+
+        return orderedDishes;
+    }
+
+    public long getOrderIDOfOccupiedTable(int tableNumber) {
+        long orderID = 0;
+        try {
+            orderID = getOrderID(tableNumber);
+
+        } catch (SQLException e) {
+            // Consider throwing a custom exception or logging the error for better error handling
+            e.printStackTrace();
+        }
+        return orderID;
+    }
+
 
 //    public int insertDish(Dish dish) {
 //        int generatedDishID = -1; // Default value indicating an error
@@ -763,34 +839,34 @@ public class DataAccessObject {
 //        return generatedDishID;
 //    }
 
-    public List<Dish> getDishesByOrderNumber(int orderNumber) {
-        List<Dish> dishes = new ArrayList<>();
-
-        try (Connection connection = ds.getConnection()) {
-            String sql = "SELECT dishID, dishName, dishPrice FROM Dishes WHERE orderNumber = ?";
-
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                preparedStatement.setInt(1, orderNumber);
-
-                try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    while (resultSet.next()) {
-                        int dishID = resultSet.getInt("dishID"); // todo ?
-                        String dishName = resultSet.getString("dishName");
-                        double dishPrice = resultSet.getDouble("dishPrice");
-
-                        Dish dish = new Dish(dishName, dishPrice);
-                        dishes.add(dish);
-                    }
-                }
-            }
-
-        } catch (SQLException e) {
-            // Handle exceptions based on your application's error handling strategy
-            e.printStackTrace();
-        }
-
-        return dishes;
-    }
+//    public List<Dish> getDishesByOrderNumber(int orderNumber) {
+//        List<Dish> dishes = new ArrayList<>();
+//
+//        try (Connection connection = ds.getConnection()) {
+//            String sql = "SELECT dishID, dishName, dishPrice FROM Dishes WHERE orderNumber = ?";
+//
+//            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+//                preparedStatement.setInt(1, orderNumber);
+//
+//                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+//                    while (resultSet.next()) {
+//                        int dishID = resultSet.getInt("dishID"); // todo ?
+//                        String dishName = resultSet.getString("dishName");
+//                        double dishPrice = resultSet.getDouble("dishPrice");
+//
+//                        Dish dish = new Dish(dishName, dishPrice);
+//                        dishes.add(dish);
+//                    }
+//                }
+//            }
+//
+//        } catch (SQLException e) {
+//            // Handle exceptions based on your application's error handling strategy
+//            e.printStackTrace();
+//        }
+//
+//        return dishes;
+//    }
 }
 
 

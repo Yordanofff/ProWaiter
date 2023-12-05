@@ -1,6 +1,7 @@
 package BackEnd.DB;
 
 import BackEnd.Restaurant.Dishes.Dish;
+import BackEnd.Restaurant.Dishes.OrderedDish;
 import BackEnd.Restaurant.Order;
 import BackEnd.Restaurant.OrderStatus;
 import BackEnd.Restaurant.RestaurantInfo;
@@ -122,11 +123,24 @@ public class PostgreSQL {
     public void addOrderToOrdersTable(Order order){
         dao.addOrderToOrdersTable(order);
     }
+
     public void updateOrderDishesToDB(Order order) {
         dao.updateOrderDishesToDB(order);
     }
 
     public List<String> getOrderStatusesTable() {
         return dao.getOrderStatusesTable();
+    }
+
+    public List<OrderedDish> getOrdersDishesForTableNumber(int tableNumber) {
+        return dao.getOrdersDishesForTableNumber(tableNumber);
+    }
+
+    public long getOrderIDOfOccupiedTable(int tableNumber) {
+        return dao.getOrderIDOfOccupiedTable(tableNumber);
+    }
+
+    public Order getCurrentOrderForTable(int tableNumber) {
+        return dao.getCurrentOrderForTable(tableNumber);
     }
 }

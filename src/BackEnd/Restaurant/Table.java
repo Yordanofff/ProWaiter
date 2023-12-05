@@ -11,8 +11,8 @@ public class Table {
 
     public Table(int tableNumber) {
         this.tableNumber = tableNumber;
-        this.currentOrder = null;  // TODO: Make changes here to load the current order from DB..
         this.isOccupied = false;
+        this.currentOrder = null;  // TODO: Make changes here to load the current order from DB..
     }
 
     public Table(int tableNumber, boolean isOccupied){
@@ -47,7 +47,7 @@ public class Table {
     }
 
     public Order getCurrentOrder() {
-        return currentOrder;
+        return DBOperations.getCurrentOrderForTable(tableNumber);
     }
 
     public void assignOrder(Order order) {

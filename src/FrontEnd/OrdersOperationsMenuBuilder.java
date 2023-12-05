@@ -190,14 +190,16 @@ public class OrdersOperationsMenuBuilder {
         String optionZeroMsg = "Going back!";
         String tableText = "Table /Open Order/";
 
-        int selectedTable = buildMenuOrder(occupiedTablesArr, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
+        int selectedTableNumber = buildMenuOrder(occupiedTablesArr, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
 
-        Order selectedOrder = restaurant.getTable(selectedTable).getCurrentOrder();
+        Table selectedTable = restaurant.getTable(selectedTableNumber);
 
-        System.out.println(selectedOrder); // null
+        Order selectedOrder = selectedTable.getCurrentOrder();
 
-        for (OrderedDish dish : selectedOrder.getOrderedDishes()) {
-            System.out.println(dish.getDish().getName() + " - " + dish.getQuantity());
+        System.out.println(selectedOrder);
+
+        for (OrderedDish orderedDish : selectedOrder.getOrderedDishes()) {
+            System.out.println(orderedDish.getDish().getName() + " - " + orderedDish.getQuantity());
         }
 
         // todo - print the above nicely + add menu Options - Add Dish to order/ remove Dish from order/ Print receip.. etc.

@@ -1,6 +1,7 @@
 package BackEnd.DB;
 
 import BackEnd.Restaurant.Dishes.Dish;
+import BackEnd.Restaurant.Dishes.OrderedDish;
 import BackEnd.Restaurant.Order;
 import BackEnd.Restaurant.RestaurantInfo;
 import BackEnd.Restaurant.Table;
@@ -63,11 +64,24 @@ public class DBOperations {
     public static void addOrderToOrdersTable(Order order){
         database.addOrderToOrdersTable(order);
     }
+
     public static void updateOrderDishesToDB(Order order) {
         database.updateOrderDishesToDB(order);
     }
 
     public static List<String> getOrderStatusesTable() {
         return database.getOrderStatusesTable();
+    }
+
+    public static List<OrderedDish> getOrdersDishesForTableNumber(int tableNumber) {
+        return database.getOrdersDishesForTableNumber(tableNumber);
+    }
+
+    public static long getOrderIDOfOccupiedTable(int tableNumber) {
+        return database.getOrderIDOfOccupiedTable(tableNumber);
+    }
+
+    public static Order getCurrentOrderForTable(int tableNumber) {
+        return database.getCurrentOrderForTable(tableNumber);
     }
 }
