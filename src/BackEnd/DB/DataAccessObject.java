@@ -605,10 +605,9 @@ public class DataAccessObject {
                     while (resultSet.next()) {
                         int tableNumber = resultSet.getInt("tableNumber");
                         boolean isPaid = resultSet.getBoolean("isPaid");
-                        String statusName = resultSet.getString("statusName");
-                        int id = resultSet.getInt("id");
+                        long id = resultSet.getLong("id");
 
-                        Order order = new Order(id, tableNumber, isPaid, OrderStatus.valueOf(statusName));
+                        Order order = new Order(id, tableNumber, isPaid, orderStatus);
                         orders.add(order);
                     }
                 }
