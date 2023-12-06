@@ -107,6 +107,21 @@ public class Restaurant {
         return occupiedTables;
     }
 
+    public List<Table> getCookedTables() {
+        List<Order> cookedOrders = DBOperations.getAllOrdersFromDBWithStatus(OrderStatus.COOKED);
+
+        return getTablesFromOrders(cookedOrders);
+    }
+
+    public static List<Table> getTablesFromOrders(List<Order> orders){
+        List<Table> tables = new ArrayList<>();
+        for (Order order:orders) {
+            Table table = new Table(order.getTableNumber());
+            tables.add(table);
+        }
+        return tables;
+    }
+
     private static int[] getTables(List<Table> tablesList) {
         int[] tables = new int[tablesList.size()];
         for (int i = 0; i < tablesList.size(); i++) {
@@ -121,6 +136,10 @@ public class Restaurant {
 
     public int[] getOccupiedTablesArr() {
         return getTables(getOccupiedTables());
+    }
+
+    public int[] getCookedTablesArr() {
+        return getTables(getCookedTables());
     }
 
     public int getNumberOfTables() {

@@ -592,6 +592,36 @@ public class DataAccessObject {
         return orders;
     }
 
+    public List<Order> getAllOrdersFromDBWithStatus(OrderStatus orderStatus) {
+        List<Order> orders = new ArrayList<>();
+
+        try (Connection connection = ds.getConnection()) {
+            String sql = "SELECT id, tableNumber, isPaid FROM Orders WHERE statusName = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, orderStatus.toString());
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                    while (resultSet.next()) {
+                        int tableNumber = resultSet.getInt("tableNumber");
+                        boolean isPaid = resultSet.getBoolean("isPaid");
+                        String statusName = resultSet.getString("statusName");
+                        int id = resultSet.getInt("id");
+
+                        Order order = new Order(id, tableNumber, isPaid, OrderStatus.valueOf(statusName));
+                        orders.add(order);
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            // Handle exceptions based on your application's error handling strategy
+            e.printStackTrace();
+        }
+
+        return orders;
+    }
+
     public Order getCurrentOrderForTable(int tableNumber) {
         List<Order> orders = new ArrayList<>();
 

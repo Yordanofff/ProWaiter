@@ -152,4 +152,12 @@ public class PostgreSQL {
     public boolean updateOrderStatus(Order order) {
         return dao.updateOrderStatus(order);
     }
+
+    public List<Order> getAllOrdersFromDB() {
+        return dao.getAllOrdersFromDB();
+    }
+
+    public List<Order> getAllOrdersFromDBWithStatus(OrderStatus orderStatus) {
+        return dao.getAllOrdersFromDBWithStatus(orderStatus);
+    }
 }

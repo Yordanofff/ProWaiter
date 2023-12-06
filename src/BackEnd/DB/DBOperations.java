@@ -3,6 +3,7 @@ package BackEnd.DB;
 import BackEnd.Restaurant.Dishes.Dish;
 import BackEnd.Restaurant.Dishes.OrderedDish;
 import BackEnd.Restaurant.Order;
+import BackEnd.Restaurant.OrderStatus;
 import BackEnd.Restaurant.RestaurantInfo;
 import BackEnd.Restaurant.Table;
 import BackEnd.Users.User;
@@ -91,5 +92,13 @@ public class DBOperations {
 
     public static boolean updateOrderStatus(Order order) {
         return database.updateOrderStatus(order);
+    }
+
+    public static List<Order> getAllOrdersFromDB() {
+        return database.getAllOrdersFromDB();
+    }
+
+    public static List<Order> getAllOrdersFromDBWithStatus(OrderStatus orderStatus) {
+        return database.getAllOrdersFromDBWithStatus(orderStatus);
     }
 }
