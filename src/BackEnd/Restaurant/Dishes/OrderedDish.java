@@ -5,6 +5,14 @@ public class OrderedDish {
     private Dish dish;
     private int quantity;
 
+    @Override
+    public String toString() {
+        return "OrderedDish{" +
+                "dish=" + dish +
+                ", quantity=" + quantity +
+                '}';
+    }
+
     public OrderedDish(Dish dish, int quantity) {
         this.dish = dish;
         this.quantity = quantity;

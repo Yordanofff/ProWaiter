@@ -9,11 +9,12 @@ import java.util.*;
 import static FrontEnd.MenuBuilderFrameDrawers.*;
 
 public class MenuBuilder {
-    static final String sep = ",";  // separator for the strings when printing menus
+    public static final String sep = ",";  // separator for the strings when printing menus
     static final int MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU = 5;
     static final String MENU_SEPARATOR = " - ";  // With spaces if required.
     static final String SideWall = "│";
     static Scanner scanner = new Scanner(System.in);
+    static int numSpacesAroundEachColumnWord = 2;
 
     public static void LoginMenu() {
         // todo - if enough time - add another option to change the color of the menu.
@@ -105,13 +106,17 @@ public class MenuBuilder {
         }
     }
 
-    public static String getDishNameFromIndex(int index, List<String> allDishesCommaSeparated) {
+    public static String getElementPositionFromIndex(int index, List<String> allDishesCommaSeparated, int positionToGet) {
         for (String row : allDishesCommaSeparated) {
-            if (Integer.parseInt(row.split(",")[0]) == index) {
-                return row.split(",")[1].strip();
+            if (Integer.parseInt(row.split(sep)[0]) == index) {
+                return row.split(sep)[positionToGet].strip();
             }
         }
         return null;
+    }
+
+    public static String getFirstElementFromIndex(int index, List<String> allDishesCommaSeparated) {
+        return getElementPositionFromIndex(index, allDishesCommaSeparated, 1);
     }
 
     public static void buildMenu(String[] menuOptions, String topMenuLabel, String optionZeroText, String optionZeroMsg, String frameLabel, MenuAction menuAction, User user) {
@@ -128,8 +133,8 @@ public class MenuBuilder {
             menuAction.execute(selectedOption, user);
 
             // pause
-            System.out.print("Press any key to continue..: ");
-            scanner.nextLine();
+//            System.out.print("Press any key to continue..: ");
+//            scanner.nextLine();
 
             System.out.println();
         }
@@ -151,7 +156,7 @@ public class MenuBuilder {
                 break;
             }
 
-            if (isNumberInArray(menuOptions, selectedOption)){
+            if (isNumberInArray(menuOptions, selectedOption)) {
                 validOption = true;
                 break;
             }
@@ -240,7 +245,7 @@ public class MenuBuilder {
         return menuOptionsWithNumbers;
     }
 
-    private static int printMenuAndGetUsersChoice(String[] menuOptions, String topMenuQuestion, String optionZeroText, String frameLabel) {
+    static int printMenuAndGetUsersChoice(String[] menuOptions, String topMenuQuestion, String optionZeroText, String frameLabel) {
         // Creating HashMap with numbers and options. + Adding Exit/Logout/Go Back
         HashMap<Integer, String> menuOptionsWithNumbers = generateHashMapMenuOptionsWithNumbers(menuOptions, optionZeroText);
 
@@ -275,6 +280,80 @@ public class MenuBuilder {
         }
 
         return choice;
+    }
+
+    static int[] getUserInputMenuNumberAndQuantity(int numOptions) {
+        int[] choiceAndQuantity = new int[2];
+        int menuItemChoiceInt;
+        int quantityInt;
+
+        while (true) {
+            String ans = scanner.nextLine().strip();
+            String[] answers = ans.split(" ");
+
+            if (answers.length > 2) {
+                ConsolePrinter.printError("Maximum of [2] integers allowed in the format: [DISH INDEX] <space> [QUANTITY]");
+                continue;
+            } else if (answers.length == 0) {
+                ConsolePrinter.printError("Empty Input. Try again.");
+                continue;
+            }
+
+            String menuItemChoice;
+            String quantity;
+
+            if (answers.length == 1) {
+                quantityInt = 1;
+
+                try {
+                    menuItemChoiceInt = Integer.parseInt(answers[0]);
+
+                    if (menuItemChoiceInt >= 0 && menuItemChoiceInt <= numOptions) {
+                        break;
+                    } else {
+                        ConsolePrinter.printError("Please enter a number between [0 - " + numOptions + "]");
+                    }
+                } catch (NumberFormatException e) {
+                    ConsolePrinter.printError("Invalid input [" + ans + "]! " +
+                            "Please enter an integer in the range [0 - " + numOptions + "]");
+                }
+            } else {
+                // answers.length == 2
+                menuItemChoice = answers[0];
+                quantity = answers[1];
+
+                if (!(isInteger(menuItemChoice) && isInteger(quantity))) {
+                    ConsolePrinter.printError("Invalid input! Only integers allowed!");
+                    continue;
+                }
+
+                quantityInt = Integer.parseInt(quantity);
+                if (quantityInt <= 0) {
+                    ConsolePrinter.printError("Quantity cannot be a [negative number] or [0]");
+                    continue;
+                }
+
+                menuItemChoiceInt = Integer.parseInt(answers[0]);
+                if (menuItemChoiceInt >= 0 && menuItemChoiceInt <= numOptions) {
+                    break;
+                } else {
+                    ConsolePrinter.printError("Please enter a number between [0 - " + numOptions + "]");
+                }
+            }
+        }
+
+        choiceAndQuantity[0] = menuItemChoiceInt;
+        choiceAndQuantity[1] = quantityInt;
+        return choiceAndQuantity;
+    }
+
+    private static boolean isInteger(String integerToTest) {
+        try {
+            Integer.parseInt(integerToTest);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     private static HashMap<Integer, String> generateHashMapMenuOptionsWithNumbers(String[] menuOptionsWithoutExit, String optionZeroText) {
@@ -500,7 +579,7 @@ public class MenuBuilder {
      * @param maxColumnLengths              [14, 5] - the longest word on the left/right column or more columns
      */
     public static void printMenuOptionsInFrameTableRestaurantMenu(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText, int[] maxColumnLengths) {
-        int numSpacesAroundEachColumnWord = 2;
+
         int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
 
         // This sums up the longest word in each column
@@ -512,11 +591,7 @@ public class MenuBuilder {
         int frameLength = maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
 
         if (!columnNames.isEmpty()) {
-//            System.out.println(getTopLineOfMenu(frameLength));
-            System.out.println(getTopLineTable(frameLength, maxColumnLengths));
-            columnNames = addExtraSeparatorsToLength(columnNames, numberOfColumns);
-            printMiddleMenuLineTable(columnNames, maxColumnLengths, numSpacesAroundEachColumnWord);
-            System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+            printColumnNames(frameLength, maxColumnLengths, columnNames);
         }
         System.out.println(getTopLineOfMenu(frameLength, frameLabel));
         System.out.println(getTopLineTableEndingUpDown(frameLength, maxColumnLengths));
@@ -528,11 +603,29 @@ public class MenuBuilder {
         if (zeroOptionText.isEmpty()) {
             System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
         } else {
-            System.out.println(getBottomLineTableContinuingDownCorners(frameLength, maxColumnLengths));
-            zeroOptionText = "0 - " + zeroOptionText;
-            printMiddleMenuLine(frameLength, zeroOptionText, SideWall, numSpacesAroundEachColumnWord);
-            System.out.println(getBottomLine(frameLength));
+            printZeroOptionText(frameLength, maxColumnLengths, zeroOptionText);
         }
+    }
+    public static void printColumnNames(int frameLength, int[] maxColumnLengths, String columnNames){
+        int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
+        System.out.println(getTopLineTable(frameLength, maxColumnLengths));
+        columnNames = addExtraSeparatorsToLength(columnNames, numberOfColumns);
+        printMiddleMenuLineTable(columnNames, maxColumnLengths, numSpacesAroundEachColumnWord);
+        System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+    }
+
+    public static void printZeroOptionText(int frameLength, int[] maxColumnLengths, String zeroOptionText) {
+        System.out.println(getBottomLineTableContinuingDownCorners(frameLength, maxColumnLengths));
+        zeroOptionText = "0 - " + zeroOptionText;
+        printMiddleMenuLine(frameLength, zeroOptionText, SideWall, numSpacesAroundEachColumnWord);
+        System.out.println(getBottomLine(frameLength));
+    }
+
+    public static int getFrameLength(int[] maxColumnLengths, String columnNames) {
+        int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
+        int maxNumberOfSymbolsAllRows = getMaxNumberOfSymbolsAllRows(maxColumnLengths);
+        int numAddedSpaces = numberOfColumns * 2 * numSpacesAroundEachColumnWord;
+        return maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
     }
 
     private static String addExtraSeparatorsToLength(String columnNames, int numberOfColumns) {
@@ -544,7 +637,7 @@ public class MenuBuilder {
         return columnNames;
     }
 
-    private static int getMaxNumberOfColumns(int[] maxColumnLengths, String columnNames) {
+    static int getMaxNumberOfColumns(int[] maxColumnLengths, String columnNames) {
         int numberOfColumns = maxColumnLengths.length;
         if (getNumberOfColumns(columnNames) > numberOfColumns) {
             numberOfColumns = getNumberOfColumns(columnNames);
@@ -691,5 +784,20 @@ public class MenuBuilder {
         }
 
         return itemsWithNumbers;
+    }
+
+    static List<String> getMergedLists(List<String> l1, List<String> l2) {
+        List<String> mergedList = new ArrayList<>();
+        mergedList.addAll(l1);
+        mergedList.addAll(l2);
+        return mergedList;
+    }
+
+    public static List<String> getMergedListOfNestedStringLists(List<List<String>> toMerge) {
+        List<String> merged = new ArrayList<>();
+        for (List<String> singleList : toMerge) {
+            merged = getMergedLists(merged, singleList);
+        }
+        return merged;
     }
 }
