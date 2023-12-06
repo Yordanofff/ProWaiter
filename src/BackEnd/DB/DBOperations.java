@@ -84,4 +84,8 @@ public class DBOperations {
     public static Order getCurrentOrderForTable(int tableNumber) {
         return database.getCurrentOrderForTable(tableNumber);
     }
+
+    public static void deleteOrderByID(Order order) {
+        database.deleteOrderByID(order);
+    }
 }

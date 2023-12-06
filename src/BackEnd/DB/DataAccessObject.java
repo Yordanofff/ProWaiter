@@ -196,6 +196,19 @@ public class DataAccessObject {
         }
     }
 
+
+    // Users
+    public void createUserTableIfNotExist() {
+        runSQL("CREATE TABLE IF NOT EXISTS users (" +
+                "id UUID PRIMARY KEY," +
+                "username VARCHAR(255) NOT NULL," +
+                "firstName VARCHAR(255)," +
+                "lastName VARCHAR(255)," +
+                "userType VARCHAR(50) NOT NULL," +
+                "password VARCHAR(255) NOT NULL" +
+                ")");
+    }
+
     public void addUser(User user) {
         try (Connection connection = ds.getConnection()) {
             String sql = "INSERT INTO users (id, username, firstName, lastName, userType, password) VALUES (?, ?, ?, ?, ?, ?)";
@@ -269,17 +282,8 @@ public class DataAccessObject {
         return users;
     }
 
-    public void createUserTableIfNotExist() {
-        runSQL("CREATE TABLE IF NOT EXISTS users (" +
-                "id UUID PRIMARY KEY," +
-                "username VARCHAR(255) NOT NULL," +
-                "firstName VARCHAR(255)," +
-                "lastName VARCHAR(255)," +
-                "userType VARCHAR(50) NOT NULL," +
-                "password VARCHAR(255) NOT NULL" +
-                ")");
-    }
 
+    // RestaurantInfo
     public void createRestaurantInfoIfNotExist() {
         runSQL("CREATE TABLE IF NOT EXISTS restaurantInfo (" +
                 "restaurantName VARCHAR(255) NOT NULL," +
@@ -287,29 +291,6 @@ public class DataAccessObject {
                 ")");
     }
 
-//    public RestaurantInfo getRestaurantInfoFromDB() {
-//
-//        try (Connection connection = ds.getConnection();
-//             Statement statement = connection.createStatement()) {
-//
-//            String sql = "SELECT restaurantName, numberOfTables FROM restaurantInfo";
-//
-//            try (ResultSet resultSet = statement.executeQuery(sql)) {
-//                if (resultSet.next()) {
-//                    String restaurantName = resultSet.getString("restaurantName");
-//                    int numberOfTables = resultSet.getInt("numberOfTables");
-//
-//                    return new RestaurantInfo(restaurantName, numberOfTables);
-//                }
-//            }
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace(); // Handle the exception according to your application's error handling strategy
-//        }
-//        return null;
-//    }
-
-    // Using PreparedStatement
     public RestaurantInfo getRestaurantInfoFromDB() {
         try (Connection connection = ds.getConnection()) {
             String sql = "SELECT restaurantName, numberOfTables FROM restaurantInfo";
@@ -334,7 +315,6 @@ public class DataAccessObject {
         return null;
     }
 
-
     public void setRestaurantInfo(RestaurantInfo restaurantInfo) {
         try (Connection connection = ds.getConnection()) {
             String sql = "INSERT INTO restaurantInfo (restaurantName, numberOfTables) VALUES (?, ?)";
@@ -351,6 +331,8 @@ public class DataAccessObject {
         }
     }
 
+
+    // RestaurantMenuItems
     public void createRestaurantMenuTableIfNotExist() {
         runSQL("CREATE TABLE IF NOT EXISTS restaurantMenuItems (" +
                 "name VARCHAR(255) PRIMARY KEY," +
@@ -417,30 +399,8 @@ public class DataAccessObject {
         return dishes;
     }
 
-    public List<String> getDBTables() {
-        List<String> tables = new ArrayList<>();
-        String sql = "SHOW TABLES;";
 
-        try (Connection connection = ds.getConnection()) {
-
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-
-                try (ResultSet resultSet = statement.executeQuery()) {
-                    while (resultSet.next()) {
-                        tables.add(resultSet.getString("table_name"));
-                    }
-
-                }
-            }
-        } catch (SQLException e) {
-            // todo
-            System.out.printf("BasicExampleDAO.bulkInsertRandomAccountData ERROR: { state => %s, cause => %s, message => %s }\n",
-                    e.getSQLState(), e.getCause(), e.getMessage());
-        }
-
-        return tables;
-    }
-
+    // Tables
     public void createTablesTableIfNotExist() {
         runSQL("CREATE TABLE IF NOT EXISTS Tables (" +
                 "tableNumber INT PRIMARY KEY NOT NULL," +
@@ -534,6 +494,8 @@ public class DataAccessObject {
         return false;
     }
 
+
+    // Orders
     public void createOrdersTableIfNotExist() {
         runSQL("CREATE TABLE IF NOT EXISTS Orders (" +
                 "id SERIAL PRIMARY KEY," +
@@ -663,6 +625,33 @@ public class DataAccessObject {
         return null;
     }
 
+    public long getOrderIDOfOccupiedTable(int tableNumber) {
+        long orderID = 0;
+        try {
+            orderID = getOrderID(tableNumber);
+
+        } catch (SQLException e) {
+            // Consider throwing a custom exception or logging the error for better error handling
+            e.printStackTrace();
+        }
+        return orderID;
+    }
+
+    public void deleteOrderByID(Order order) {
+        // Will  be used to delete orders if no items were added to them.
+        try (Connection connection = ds.getConnection()) {
+            String sql = "DELETE FROM orders WHERE id = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setLong(1, order.getOrderNumber());
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle the exception according to your application's error handling strategy
+        }
+    }
+
+
+    // OrderStatuses
     public void createOrderStatusesTableIfNotExist() {
         runSQL("CREATE TABLE IF NOT EXISTS OrderStatuses (" +
                 "statusName VARCHAR(50) PRIMARY KEY NOT NULL)"
@@ -709,15 +698,8 @@ public class DataAccessObject {
         return orderStatuses;
     }
 
-    public void createDishesTableIfNotExist() {
-        runSQL("CREATE TABLE IF NOT EXISTS Dishes (" +
-                "dishID INT PRIMARY KEY," +
-                "orderNumber INT," +
-                "dishName VARCHAR(255)," +
-                "dishPrice DECIMAL(10,2)," +
-                "FOREIGN KEY (orderNumber) REFERENCES Orders(id))");
-    }
 
+    // OrderDishes
     public void createOrderDishesTableIfNotExist() {
         runSQL("CREATE TABLE IF NOT EXISTS OrdersDishes (" +
                 "orderID INT," +
@@ -731,7 +713,7 @@ public class DataAccessObject {
         // Clear the data in the order ID
         deleteOrderDishesFromDB(order);
 
-        for (OrderedDish dish : order.getOrderedDishes()) {
+        for (OrderedDish dish : order.getOrderedDishesLocal()) {
             try (Connection connection = ds.getConnection()) {
                 String sql = "INSERT INTO OrdersDishes (orderID, menuItemName, quantity) VALUES (?, ?, ?)";
 
@@ -761,9 +743,6 @@ public class DataAccessObject {
         }
     }
 
-    // get id from "orders" where tablenumber = ?
-    // get menuitemname, quantity from "ordersdishes" where orderid = <id> from above
-    // add these to List<OrderedDish>
     public List<OrderedDish> getOrdersDishesForTableNumber(int tableNumber) {
         List<OrderedDish> orderedDishes = new ArrayList<>();
 
@@ -795,247 +774,30 @@ public class DataAccessObject {
         return orderedDishes;
     }
 
-    public long getOrderIDOfOccupiedTable(int tableNumber) {
-        long orderID = 0;
-        try {
-            orderID = getOrderID(tableNumber);
 
+    // Other
+    public List<String> getDBTables() {
+        List<String> tables = new ArrayList<>();
+        String sql = "SHOW TABLES;";
+
+        try (Connection connection = ds.getConnection()) {
+
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        tables.add(resultSet.getString("table_name"));
+                    }
+
+                }
+            }
         } catch (SQLException e) {
-            // Consider throwing a custom exception or logging the error for better error handling
-            e.printStackTrace();
+            // todo
+            System.out.printf("BasicExampleDAO.bulkInsertRandomAccountData ERROR: { state => %s, cause => %s, message => %s }\n",
+                    e.getSQLState(), e.getCause(), e.getMessage());
         }
-        return orderID;
+
+        return tables;
     }
-
-
-//    public int insertDish(Dish dish) {
-//        int generatedDishID = -1; // Default value indicating an error
-//
-//        try (Connection connection = ds.getConnection()) {
-//            String sql = "INSERT INTO Dishes (orderNumber, dishName, dishPrice) VALUES (?, ?, ?)";
-//
-//            try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-//                preparedStatement.setInt(1, dish.getOrderNumber());
-//                preparedStatement.setString(2, dish.getName());
-//                preparedStatement.setDouble(3, dish.getPrice());
-//
-//                int rowsAffected = preparedStatement.executeUpdate();
-//
-//                if (rowsAffected > 0) {
-//                    // Retrieve the generated keys (including dishID)
-//                    try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-//                        if (generatedKeys.next()) {
-//                            generatedDishID = generatedKeys.getInt(1);
-//                        }
-//                    }
-//                }
-//            }
-//
-//        } catch (SQLException e) {
-//            // Handle exceptions based on your application's error handling strategy
-//            e.printStackTrace();
-//        }
-//
-//        return generatedDishID;
-//    }
-
-//    public List<Dish> getDishesByOrderNumber(int orderNumber) {
-//        List<Dish> dishes = new ArrayList<>();
-//
-//        try (Connection connection = ds.getConnection()) {
-//            String sql = "SELECT dishID, dishName, dishPrice FROM Dishes WHERE orderNumber = ?";
-//
-//            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-//                preparedStatement.setInt(1, orderNumber);
-//
-//                try (ResultSet resultSet = preparedStatement.executeQuery()) {
-//                    while (resultSet.next()) {
-//                        int dishID = resultSet.getInt("dishID"); // todo ?
-//                        String dishName = resultSet.getString("dishName");
-//                        double dishPrice = resultSet.getDouble("dishPrice");
-//
-//                        Dish dish = new Dish(dishName, dishPrice);
-//                        dishes.add(dish);
-//                    }
-//                }
-//            }
-//
-//        } catch (SQLException e) {
-//            // Handle exceptions based on your application's error handling strategy
-//            e.printStackTrace();
-//        }
-//
-//        return dishes;
-//    }
 }
 
-
-//    /**
-//     Used to test the retry logic in 'runSQL'.  It is not necessary
-//     in production code.
-//     */
-//    void testRetryHandling() {
-//        if (DataAccessObject.FORCE_RETRY) {
-//            runSQL("SELECT crdb_internal.force_retry('1s':::INTERVAL)");
-//        }
-//    }
-
-
-//    /**
-//     * Update accounts by passing in a Map of (ID, Balance) pairs.
-//     *
-//     * @param accounts (Map)
-//     * @return The number of updated accounts (int)
-//     */
-//    public int updateAccounts(Map<String, String> accounts) {
-//        int rows = 0;
-//        for (Map.Entry<String, String> account : accounts.entrySet()) {
-//
-//            String k = account.getKey();
-//            String v = account.getValue();
-//
-//            String[] args = {k, v};
-//            rows += runSQL("INSERT INTO accounts (id, balance) VALUES (?, ?)", args);
-//        }
-//        return rows;
-//    }
-
-
-///**
-//     * Get the account balance for one account.
-//     *
-//     * We skip using the retry logic in 'runSQL()' here for the
-//     * following reasons:
-//     *
-//     * 1. Since this is a single read ("SELECT"), we don't expect any
-//     *    transaction conflicts to handle
-//     *
-//     * 2. We need to return the balance as an integer
-//     *
-//     * @param id (UUID)
-//     * @return balance (int)
-//     */
-//    public BigDecimal getAccountBalance(UUID id) {
-//        BigDecimal balance = BigDecimal.valueOf(0);
-//
-//        try (Connection connection = ds.getConnection()) {
-//
-//            // Check the current balance.
-//            ResultSet res = connection.createStatement()
-//                    .executeQuery(String.format("SELECT balance FROM accounts WHERE id = '%s'", id.toString()));
-//            if(!res.next()) {
-//                System.out.printf("No users in the table with id %d", id);
-//            } else {
-//                balance = res.getBigDecimal("balance");
-//            }
-//        } catch (SQLException e) {
-//            System.out.printf("BasicExampleDAO.getAccountBalance ERROR: { state => %s, cause => %s, message => %s }\n",
-//                    e.getSQLState(), e.getCause(), e.getMessage());
-//        }
-//
-//        return balance;
-//    }
-
-
-//    /**
-//     * Insert randomized account data (ID, balance) using the JDBC
-//     * fast path for bulk inserts.  The fastest way to get data into
-//     * CockroachDB is the IMPORT statement.  However, if you must bulk
-//     * ingest from the application using INSERT statements, the best
-//     * option is the method shown here. It will require the following:
-//     *
-//     * 1. Add `rewriteBatchedInserts=true` to your JDBC connection
-//     *    settings (see the connection info in 'BasicExample.main').
-//     *
-//     * 2. Inserting in batches of 128 rows, as used inside this method
-//     *    (see BATCH_SIZE), since the PGJDBC driver's logic works best
-//     *    with powers of two, such that a batch of size 128 can be 6x
-//     *    faster than a batch of size 250.
-//     * @return The number of new accounts inserted (int)
-//     */
-//    public int bulkInsertRandomAccountData() {
-//
-//        Random random = new Random();
-//        int BATCH_SIZE = 128;
-//        int totalNewAccounts = 0;
-//
-//        try (Connection connection = ds.getConnection()) {
-//
-//            // We're managing the commit lifecycle ourselves so we can
-//            // control the size of our batch inserts.
-//            connection.setAutoCommit(false);
-//
-//            // In this example we are adding 500 rows to the database,
-//            // but it could be any number.  What's important is that
-//            // the batch size is 128.
-//            try (PreparedStatement pstmt = connection.prepareStatement("INSERT INTO accounts (id, balance) VALUES (?, ?)")) {
-//                for (int i=0; i<=(500/BATCH_SIZE);i++) {
-//                    for (int j=0; j<BATCH_SIZE; j++) {
-//                        String id = UUID.randomUUID().toString();
-//                        BigDecimal balance = BigDecimal.valueOf(random.nextInt(1000000000));
-//                        pstmt.setString(1, id);
-//                        pstmt.setBigDecimal(2, balance);
-//                        pstmt.addBatch();
-//                    }
-//                    int[] count = pstmt.executeBatch();
-//                    totalNewAccounts += count.length;
-//                    System.out.printf("\nBasicExampleDAO.bulkInsertRandomAccountData:\n    '%s'\n", pstmt.toString());
-//                    System.out.printf("    => %s row(s) updated in this batch\n", count.length);
-//                }
-//                connection.commit();
-//            } catch (SQLException e) {
-//                System.out.printf("BasicExampleDAO.bulkInsertRandomAccountData ERROR: { state => %s, cause => %s, message => %s }\n",
-//                        e.getSQLState(), e.getCause(), e.getMessage());
-//            }
-//        } catch (SQLException e) {
-//            System.out.printf("BasicExampleDAO.bulkInsertRandomAccountData ERROR: { state => %s, cause => %s, message => %s }\n",
-//                    e.getSQLState(), e.getCause(), e.getMessage());
-//        }
-//        return totalNewAccounts;
-//    }
-
-
-//    /**
-//     * Read out a subset of accounts from the data store.
-//     *
-//     * @param limit (int)
-//     * @return Number of accounts read (int)
-//     */
-//    public int readAccounts(int limit) {
-//        return runSQL("SELECT id, balance FROM accounts LIMIT ?", Integer.toString(limit));
-//    }
-
-//    /**
-//     * Create the accounts table if it doesn't already exist.
-//     *
-//     */
-//    public void createAccountsTable() {
-//        runSQL("CREATE TABLE IF NOT EXISTS accounts (id UUID PRIMARY KEY, balance int8)");
-//    }
-
-
-//    /**
-//     * Transfer funds between one account and another.  Handles
-//     * transaction retries in case of conflict automatically on the
-//     * backend.
-//     * @param fromId (UUID)
-//     * @param toId (UUID)
-//     * @param amount (int)
-//     * @return The number of updated accounts (int)
-//     */
-//    public int transferFunds(UUID fromId, UUID toId, BigDecimal amount) {
-//        String sFromId = fromId.toString();
-//        String sToId = toId.toString();
-//        String sAmount = amount.toPlainString();
-//
-//        // We have omitted explicit BEGIN/COMMIT statements for
-//        // brevity.  Individual statements are treated as implicit
-//        // transactions by CockroachDB (see
-//        // https://www.cockroachlabs.com/docs/stable/transactions.html#individual-statements).
-//
-//        String sqlCode = "UPSERT INTO accounts (id, balance) VALUES" +
-//                "(?, ((SELECT balance FROM accounts WHERE id = ?) - ?))," +
-//                "(?, ((SELECT balance FROM accounts WHERE id = ?) + ?))";
-//
-//        return runSQL(sqlCode, sFromId, sFromId, sAmount, sToId, sToId, sAmount);
-//    }

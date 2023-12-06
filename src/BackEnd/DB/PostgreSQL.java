@@ -47,15 +47,16 @@ public class PostgreSQL {
         }
 
         dao.createOrdersTableIfNotExist();
-        dao.createDishesTableIfNotExist();
+//        dao.createDishesTableIfNotExist();  // not needed? Will delete later.
         dao.createOrderDishesTableIfNotExist();
     }
     public boolean areAllOrderStatusesInDB(){
         List<String> orderStatuses = getOrderStatusesTable();
         boolean areAllOrderStatusesInDB = true;
-        for (String orderStatus: orderStatuses) {
+
+        for (OrderStatus status: OrderStatus.values()) {
             boolean isFound = false;
-            for (OrderStatus status: OrderStatus.values()) {
+            for (String orderStatus: orderStatuses) {
                 if (status.toString().equals(orderStatus)) {
                     isFound = true;
                 }
@@ -142,5 +143,9 @@ public class PostgreSQL {
 
     public Order getCurrentOrderForTable(int tableNumber) {
         return dao.getCurrentOrderForTable(tableNumber);
+    }
+
+    public void deleteOrderByID(Order order) {
+        dao.deleteOrderByID(order);
     }
 }

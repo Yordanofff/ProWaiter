@@ -42,10 +42,6 @@ public class Table {
         return DBOperations.getAllTablesFromDB();
     }
 
-    public void freeUpTable() {
-        unOccupy();
-    }
-
     public Order getCurrentOrder() {
         return DBOperations.getCurrentOrderForTable(tableNumber);
     }

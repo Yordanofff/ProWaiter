@@ -132,8 +132,8 @@ public class MenuBuilder {
             menuAction.execute(selectedOption, user);
 
             // pause
-            System.out.print("Press any key to continue..: ");
-            scanner.nextLine();
+//            System.out.print("Press any key to continue..: ");
+//            scanner.nextLine();
 
             System.out.println();
         }

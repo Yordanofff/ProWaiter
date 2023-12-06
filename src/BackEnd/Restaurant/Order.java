@@ -47,9 +47,10 @@ public class Order {
         if (!isDishInMenu(orderedDish.getDish())) {
             ConsolePrinter.printWarning("The item [" + orderedDish.getDish().getName() + "] is not in the Restaurant Menu!");
         }
-//        orderedDishes.add(orderedDish);  // this fails (don't delete until fixing)
-        this.orderedDishes = getOrderedDishes();
+
         orderedDishes.add(orderedDish);
+
+        DBOperations.updateOrderDishesToDB(this);
         setTotalPrice(getTotalPrice() + orderedDish.getDish().getPrice() * orderedDish.getQuantity());
     }
 
@@ -70,9 +71,12 @@ public class Order {
         return tableNumber;
     }
 
+    public List<OrderedDish> getOrderedDishesLocal() {
+        // Retrieve from DB.
+        return this.orderedDishes;
+    }
 
-
-    public List<OrderedDish> getOrderedDishes() {
+    public List<OrderedDish> getOrderedDishesFromDB() {
         // Retrieve from DB.
         return DBOperations.getOrdersDishesForTableNumber(this.tableNumber);
     }
@@ -117,5 +121,14 @@ public class Order {
             return;
         }
         this.orderStatus = orderStatus;
+    }
+
+    public void printCurrentOrder() {
+        List<OrderedDish> orderedDishes = getOrderedDishesFromDB();
+        for (OrderedDish d : orderedDishes) {
+            System.out.println("Ordered " + d.getQuantity() + " x " + d.getDish().getName() + " - " +
+                    d.getDish().getPrice() + " Total: " + d.getDish().getPrice() * d.getQuantity());
+        }
+        System.out.println("Total: " + getTotalPrice());
     }
 }
