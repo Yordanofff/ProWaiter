@@ -1,8 +1,6 @@
 package BackEnd.Restaurant;
 
 import BackEnd.DB.DBOperations;
-import BackEnd.Users.User;
-import BackEnd.Users.UserManager;
 import FrontEnd.ConsolePrinter;
 
 import java.util.ArrayList;
@@ -22,7 +20,7 @@ public class Restaurant {
 //    }
 
     private RestaurantInfo restaurantInfo = loadRestaurantInfo();
-    private List<Table> tables = loadTables() ;//= new ArrayList<>();
+    private List<Table> tables = getTablesFromDBorPopulateTheTablesIfNone() ;//= new ArrayList<>();
 //    private static List<User> users = new ArrayList<>();
 
     public RestaurantInfo loadRestaurantInfo() {
@@ -39,7 +37,8 @@ public class Restaurant {
         return restaurantInfoDB;
     }
 
-    public List<Table> loadTables() {
+    public List<Table> getTablesFromDBorPopulateTheTablesIfNone() {
+        // TODO: Populate the tables just once when the RestaurantInfo is initialized. Then just load from DB.
         // Load tables from DB. If not in DB - Create new tables + write to DB.
         List<Table> tablesFromDB = Table.getTablesFromDB();
         if (tablesFromDB.isEmpty()) {
@@ -87,8 +86,9 @@ public class Restaurant {
     }
 
     public List<Table> getFreeTables() {
+        List<Table> tablesFromDB = Table.getTablesFromDB();
         List<Table> freeTables = new ArrayList<>();
-        for (Table table : this.tables) {
+        for (Table table : tablesFromDB) {
             if (!table.isOccupied()) {
                 freeTables.add(table);
             }
@@ -97,8 +97,9 @@ public class Restaurant {
     }
 
     public List<Table> getOccupiedTables() {
+        List<Table> tablesFromDB = Table.getTablesFromDB();
         List<Table> occupiedTables = new ArrayList<>();
-        for (Table table : tables) {
+        for (Table table : tablesFromDB) {
             if (table.isOccupied()) {
                 occupiedTables.add(table);
             }

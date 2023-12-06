@@ -42,8 +42,7 @@ public class OrdersOperationsMenuBuilder {
 
         Table table = new Table(selectedTable);
 
-        // TODO: think about the table occupation. If something gets the table and then breaks then the table will be occupied forever.
-        //  try {} catch === exception if table alread occupied ?
+        // TODO: try {} catch === exception if table alread occupied ?
 
         return table;
     }
@@ -242,7 +241,6 @@ public class OrdersOperationsMenuBuilder {
             order.printCurrentOrder();
         }
 
-        saveOrderToDB(order);
     }
 
     public static void showClosedOrders() {

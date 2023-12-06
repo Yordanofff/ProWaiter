@@ -48,6 +48,7 @@ public class Order {
             ConsolePrinter.printWarning("The item [" + orderedDish.getDish().getName() + "] is not in the Restaurant Menu!");
         }
 
+        setOrderedDishes(getOrderedDishesFromDB());
         orderedDishes.add(orderedDish);
 
         DBOperations.updateOrderDishesToDB(this);
@@ -69,6 +70,10 @@ public class Order {
 
     public int getTableNumber() {
         return tableNumber;
+    }
+
+    public void setOrderedDishes(List<OrderedDish> orderedDishes) {
+        this.orderedDishes = orderedDishes;
     }
 
     public List<OrderedDish> getOrderedDishesLocal() {
