@@ -88,4 +88,8 @@ public class DBOperations {
     public static void deleteOrderByID(Order order) {
         database.deleteOrderByID(order);
     }
+
+    public static boolean updateOrderStatus(Order order) {
+        return database.updateOrderStatus(order);
+    }
 }

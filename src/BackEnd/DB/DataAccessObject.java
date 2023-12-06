@@ -515,7 +515,7 @@ public class DataAccessObject {
 
                 preparedStatement.setInt(1, order.getTableNumber());
                 preparedStatement.setBoolean(2, order.isPaid());
-                preparedStatement.setString(3, order.getOrderStatus().toString());
+                preparedStatement.setString(3, order.getOrderStatusLocal().toString());
 
                 preparedStatement.executeUpdate();
 
@@ -648,6 +648,25 @@ public class DataAccessObject {
         } catch (SQLException e) {
             e.printStackTrace(); // Handle the exception according to your application's error handling strategy
         }
+    }
+
+    public boolean updateOrderStatus(Order order) {
+        try (Connection connection = ds.getConnection()) {
+            String sql = "UPDATE orders SET statusname = ? WHERE id = ?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, order.getOrderStatusLocal().toString());
+                preparedStatement.setLong(2, getOrderIDOfOccupiedTable(order.getTableNumber()));
+                // Execute the insert statement
+                int rowsAffected = preparedStatement.executeUpdate();
+                return rowsAffected > 0;
+            }
+        } catch (SQLException e) {
+            // Handle exceptions based on your application's error handling strategy
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
 

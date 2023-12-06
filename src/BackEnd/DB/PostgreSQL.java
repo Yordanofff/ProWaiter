@@ -148,4 +148,8 @@ public class PostgreSQL {
     public void deleteOrderByID(Order order) {
         dao.deleteOrderByID(order);
     }
+
+    public boolean updateOrderStatus(Order order) {
+        return dao.updateOrderStatus(order);
+    }
 }

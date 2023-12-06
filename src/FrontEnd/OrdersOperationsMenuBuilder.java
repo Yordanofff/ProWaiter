@@ -216,8 +216,11 @@ public class OrdersOperationsMenuBuilder {
                 System.out.println("Total: " + order.getCalculatedTotalPrice() + "\n");
                 // TODO: Add total in the menu
             }
-            case 2 -> addDishToOrder(order);
-            case 3 -> removeDishFromOrder(order);
+            case 2 -> {
+                addDishToOrder(order);
+                order.setOrderStatusAndSaveToDB(OrderStatus.UPDATED);
+            }
+            case 3 -> removeDishFromOrder(order);  // Keep order status.
 //            case 4 -> ; // Close order
         }
     }
