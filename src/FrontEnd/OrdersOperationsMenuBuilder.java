@@ -68,7 +68,7 @@ public class OrdersOperationsMenuBuilder {
     }
 
     public static void kitchenOrdersMenu(User user) {
-        String[] menuOptions = new String[]{"Show open orders", "Set status to \"Cooking\"", "Set status to \"Ready\""};
+        String[] menuOptions = new String[]{"Show open orders", "Set status to \"Cooking\"", "Set status to \"Cooked\""};
         String frameLabel = "[" + user.getUserType() + "]";
         String topMenuLabel = "Restaurant Menu Options";
         String optionZeroText = "Log out";
@@ -81,7 +81,7 @@ public class OrdersOperationsMenuBuilder {
         switch (option) {
             case 1 -> printTablesForKitchen(Restaurant.GET_INSTANCE());
             case 2 -> printTablesReadyToBeCooking(Restaurant.GET_INSTANCE());
-//            case 3 -> printTablesReadyToBeCooked(Restaurant.GET_INSTANCE());
+            case 3 -> printTablesReadyToBeCooked(Restaurant.GET_INSTANCE());
         }
     }
 
@@ -190,7 +190,6 @@ public class OrdersOperationsMenuBuilder {
 
         Order selectedOrder = selectedTable.getCurrentOrder();
 
-//        viewSingleOpenOrderMenu(selectedOrder);
         viewSingleOpenOrderMenuAction(1, selectedOrder);
     }
 
@@ -214,7 +213,7 @@ public class OrdersOperationsMenuBuilder {
         Table selectedTable = restaurant.getTable(tableNumber);
         Order selectedOrder = selectedTable.getCurrentOrder();
         selectedOrder.setOrderStatusAndSaveToDB(OrderStatus.SERVED);
-        ConsolePrinter.printInfo("Order [" + selectedOrder + "] on table [" + tableNumber + "] is now served.");
+        ConsolePrinter.printInfo("Order on table [" + tableNumber + "] is now served.");
     }
 
     public static int getTableNumberFromUserPromptReadyToDeliver(Restaurant restaurant) {
@@ -229,7 +228,7 @@ public class OrdersOperationsMenuBuilder {
     }
 
     public static void printTablesReadyToBeCooking(Restaurant restaurant) {
-        // get tables with status COOKED - ready to be delivered.
+        // get tables with status CREATED or UPDATED - ready to be COOKED. Then set status to COOKING.
         int tableNumber = getTableNumberFromUserPromptForKitchenCooking(restaurant);
         if (tableNumber == 0){
             return;
@@ -247,6 +246,29 @@ public class OrdersOperationsMenuBuilder {
         String optionZeroText = "Go back";
         String optionZeroMsg = "Going back!";
         String tableText = "Table (Open/Updated Order)";
+
+        return buildMenuOrder(occupiedTablesArr, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
+    }
+
+    public static void printTablesReadyToBeCooked(Restaurant restaurant) {
+        // get tables with status COOKING - ready to be fully COOKED. Then set status to COOKED.
+        int tableNumber = getTableNumberFromUserPromptForKitchenCooked(restaurant);
+        if (tableNumber == 0){
+            return;
+        }
+        Table selectedTable = restaurant.getTable(tableNumber);
+        Order selectedOrder = selectedTable.getCurrentOrder();
+        selectedOrder.setOrderStatusAndSaveToDB(OrderStatus.COOKED);
+        ConsolePrinter.printInfo("Order on table [" + tableNumber + "] is now cooked.");
+    }
+
+    public static int getTableNumberFromUserPromptForKitchenCooked(Restaurant restaurant) {
+        int[] occupiedTablesArr = restaurant.getReadyForKitchenCookedTablesArr();
+        String frameLabel = "Cooking Orders";
+        String topMenuLabel = "Select Table Number To View Order:";
+        String optionZeroText = "Go back";
+        String optionZeroMsg = "Going back!";
+        String tableText = "Table (Cooking Order)";
 
         return buildMenuOrder(occupiedTablesArr, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
     }

@@ -129,6 +129,12 @@ public class Restaurant {
         return getTablesFromOrders(combinedOrders);
     }
 
+    public List<Table> getReadyForKitchenCookedTables() {
+        List<Order> createdOrders = DBOperations.getAllOrdersFromDBWithStatus(OrderStatus.COOKING);
+
+        return getTablesFromOrders(createdOrders);
+    }
+
     public static List<Table> getTablesFromOrders(List<Order> orders){
         List<Table> tables = new ArrayList<>();
         for (Order order:orders) {
@@ -160,6 +166,10 @@ public class Restaurant {
 
     public int[] getReadyForKitchenCookingTablesArr() {
         return getTables(getReadyForKitchenCookingTables());
+    }
+
+    public int[] getReadyForKitchenCookedTablesArr() {
+        return getTables(getReadyForKitchenCookedTables());
     }
 
     public int getNumberOfTables() {
