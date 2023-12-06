@@ -173,12 +173,12 @@ public class OrdersOperationsMenuBuilder {
 
         Order selectedOrder = selectedTable.getCurrentOrder();
 
-        viewSingleOpenOrder(selectedOrder);
+        viewSingleOpenOrderMenu(selectedOrder);
     }
 
     public static int getOccupiedTableNumberFromUserPrompt(Restaurant restaurant) {
         int[] occupiedTablesArr = restaurant.getOccupiedTablesArr();
-        String frameLabel = "Open Orders"; // No frame label on the Login Menu page.
+        String frameLabel = "Open Orders";
         String topMenuLabel = "Select Table Number To View Order:";
         String optionZeroText = "Go back";
         String optionZeroMsg = "Going back!";
@@ -187,18 +187,8 @@ public class OrdersOperationsMenuBuilder {
         return buildMenuOrder(occupiedTablesArr, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
     }
 
-    public static void viewSingleOpenOrder(Order order) {
-        List<List<String>> allThreeOrderedDishesForMenu = getAllThreeOrderedDishesForMenu(order);
-
-        // Print the current order
-        printAllOrderedDishesWithNumbers(allThreeOrderedDishesForMenu);
-
-        // Print additional small menu with options
-        viewSingleOpenOrderMenu(order);
-    }
-
     public static void viewSingleOpenOrderMenu(Order order) {
-        String[] menuOptions = new String[]{"Add dish", "Remove dish", "Close order"};  // serve order ?
+        String[] menuOptions = new String[]{"Show order", "Add dish", "Remove dish", "Close order"};  // serve order ?
         String frameLabel = "[Table " + order.getTableNumber() + "]";
         String topMenuLabel = "Select option: ";
         String optionZeroText = "Go back";
@@ -221,24 +211,77 @@ public class OrdersOperationsMenuBuilder {
 
     public static void viewSingleOpenOrderMenuAction(int option, Order order) {
         switch (option) {
-            case 1 -> addDishToOrder(order);
-//            case 2 -> ;
-//            case 3 -> ;
+            case 1 -> {
+                printOrderInMenu(order);
+                System.out.println("Total: " + order.getCalculatedTotalPrice() + "\n");
+                // TODO: Add total in the menu
+            }
+            case 2 -> addDishToOrder(order);
+            case 3 -> removeDishFromOrder(order);
+//            case 4 -> ; // Close order
         }
+    }
+
+    public static void printOrderInMenu(Order order, String optionZeroText) {
+        // Print the current order
+        List<List<String>> allThreeOrderedDishesForMenu = getAllThreeOrderedDishesForMenu(order);
+        printAllOrderedDishesWithNumbers(allThreeOrderedDishesForMenu, optionZeroText);
+    }
+
+    public static void printOrderInMenu(Order order) {
+        printOrderInMenu(order, "");
+    }
+
+    public static void removeDishFromOrder(Order order) {
+
+        printOrderInMenu(order, "Go Back");
+
+        List<OrderedDish> orderedDishes = order.getOrderedDishesFromDB();
+        ConsolePrinter.printQuestion("Enter the [index] <space> [quantity] of the item that you wish to remove: ");
+        int[] dishIndexAndQuantity = getUserInputMenuNumberAndQuantity(orderedDishes.size());
+        int dishIndex = dishIndexAndQuantity[0];
+        int dishQuantity = dishIndexAndQuantity[1];
+
+        if (dishIndex == 0) {
+            System.out.println("Cancelling.");
+            return;
+        }
+
+        String selectedDishName = getDishNameFromSelection(getAllThreeOrderedDishesForMenu(order), dishIndex);
+        if (selectedDishName == null) {
+            ConsolePrinter.printError("This should never happen. Please try again..");
+            return;
+        }
+
+        int totalNumberOfOrderedDishName = order.getTotalNumberOfOrderedDishName(selectedDishName);
+
+        order.removeOrderedDish(selectedDishName, dishQuantity);
+        int maximumPossibleDishesWithThatNameToRemove = Math.min(totalNumberOfOrderedDishName, dishQuantity);
+        ConsolePrinter.printInfo("Successfully removed [" + maximumPossibleDishesWithThatNameToRemove + " x " + selectedDishName + "].");
+    }
+
+    public static String getDishNameFromSelection(List<List<String>> allThreeOrderedDishesForMenu, int selectedIndex) {
+        String dishname;
+        for (List<String> sectionWithTypeInMenu : allThreeOrderedDishesForMenu) {
+            dishname = MenuBuilder.getFirstElementFromIndex(selectedIndex, sectionWithTypeInMenu);
+            if (dishname != null) {
+                return dishname;
+            }
+        }
+        return null;
     }
 
     public static void addDishToOrder(Order order) {
         while (true) {
             OrderedDish orderedDish = getDishFromUserInput();
 
-            System.out.println(orderedDish);
-
             if (orderedDish == null) {
                 break;
             }
 
             order.addOrderedDish(orderedDish);
-            order.printCurrentOrder();
+            ConsolePrinter.printInfo("Added [" + orderedDish.getQuantity() + " x " + orderedDish.getDish().getName() + "] to the order.\n");
+//            order.printCurrentOrder();  // this was more for a debug - to be deleted ?
         }
 
     }
@@ -301,8 +344,7 @@ public class OrdersOperationsMenuBuilder {
         return result;
     }
 
-    public static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu) {
-        // TODO: combine with RestaurantMenuBuilder - printAllRestaurantDishesWithNumbers in RestaurantMenu ?
+    public static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu, String optionZeroText) {
         List<String> food = allThreeOrderedDishesForMenu.get(0);
         List<String> drink = allThreeOrderedDishesForMenu.get(1);
         List<String> dessert = allThreeOrderedDishesForMenu.get(2);
@@ -311,24 +353,32 @@ public class OrdersOperationsMenuBuilder {
 
         int[] maxColumnLengths = getBiggest(food, drink, dessert, columnNames);
 
-        // Print only the categories that have items. Add column names to the first one that has data.
+        int frameLength = MenuBuilder.getFrameLength(maxColumnLengths, columnNames);
+
+        MenuBuilder.printColumnNames(frameLength, maxColumnLengths, columnNames);
+
         if (!food.isEmpty()) {
-            printMenuOptionsInFrameTableRestaurantMenu(food, "Food", columnNames, "", maxColumnLengths);
-            if (!drink.isEmpty()) {
+            if (drink.isEmpty() && dessert.isEmpty()) {
+                printMenuOptionsInFrameTableRestaurantMenu(food, "Food", "", optionZeroText, maxColumnLengths);
+            } else {
+                printMenuOptionsInFrameTableRestaurantMenu(food, "Food", "", "", maxColumnLengths);
+            }
+        }
+        if (!drink.isEmpty()) {
+            if (dessert.isEmpty()) {
+                printMenuOptionsInFrameTableRestaurantMenu(drink, "Drinks", "", optionZeroText, maxColumnLengths);
+            } else {
                 printMenuOptionsInFrameTableRestaurantMenu(drink, "Drinks", "", "", maxColumnLengths);
             }
-            if (!dessert.isEmpty()) {
-                printMenuOptionsInFrameTableRestaurantMenu(dessert, "Deserts", "", "", maxColumnLengths);
-            }
-        } else if (!drink.isEmpty()) {
-            printMenuOptionsInFrameTableRestaurantMenu(drink, "Drinks", columnNames, "", maxColumnLengths);
-            if (!dessert.isEmpty()) {
-                printMenuOptionsInFrameTableRestaurantMenu(dessert, "Deserts", "", "", maxColumnLengths);
-            }
-        } else {
-            printMenuOptionsInFrameTableRestaurantMenu(dessert, "Deserts", columnNames, "", maxColumnLengths);
+        }
+        if (!dessert.isEmpty()) {
+            printMenuOptionsInFrameTableRestaurantMenu(dessert, "Deserts", "", optionZeroText, maxColumnLengths);
         }
 
+    }
+
+    public static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu) {
+        printAllOrderedDishesWithNumbers(allThreeOrderedDishesForMenu, "");
     }
 
 }

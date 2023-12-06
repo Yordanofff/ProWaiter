@@ -52,7 +52,73 @@ public class Order {
         orderedDishes.add(orderedDish);
 
         DBOperations.updateOrderDishesToDB(this);
-        setTotalPrice(getTotalPrice() + orderedDish.getDish().getPrice() * orderedDish.getQuantity());
+        setTotalPrice(getTotalPrice() + orderedDish.getDish().getPrice() * orderedDish.getQuantity()); // TODO - recalc?
+    }
+
+    /**
+     * There might be multiple rows with the same dish name if the items weren't ordered in the same time.
+     * If we are trying to remove 20 items, and the current row has 5 - remove all 5 (don't add the row to the new list)
+     * and keep looking for the remaining 15. Don't attempt to remove the OrderedDish from the original list, or it will
+     * crash with "java.util.ConcurrentModificationException".
+     *
+     * @param dishNameToRemove - the name of the Dish that we want to remove
+     * @param numDishesToRemove - number of that dish that we want to remove
+     */
+    public void removeOrderedDish(String dishNameToRemove, int numDishesToRemove) {
+        List<OrderedDish> currentOrderDishes = getOrderedDishesFromDB();
+        List<OrderedDish> editedOrder = new ArrayList<>();
+
+        printWarningIfTryingToRemoveMoreThanWhatsBeenOrdered(dishNameToRemove, numDishesToRemove);
+
+        boolean isMoreToRemove = true;
+        // The item will be 100% in the list - because it's selection (no need to check)
+        for (OrderedDish dishInCurrentOrder : currentOrderDishes) {
+            if (dishInCurrentOrder.getDish().getName().equalsIgnoreCase(dishNameToRemove)) {
+                if (isMoreToRemove) {
+                    int currentOrderDishQuantity = dishInCurrentOrder.getQuantity();
+
+                    if (currentOrderDishQuantity > numDishesToRemove) {
+                        dishInCurrentOrder.setQuantity(currentOrderDishQuantity - numDishesToRemove);
+                        editedOrder.add(dishInCurrentOrder);  // with less quantity.
+                    } else {
+                        // Just don't add the dish to the new edited list.
+                        numDishesToRemove -= currentOrderDishQuantity;
+                    }
+
+                    if (numDishesToRemove == 0) {
+                        isMoreToRemove = false;
+                    }
+                } else {
+                    editedOrder.add(dishInCurrentOrder);
+                }
+            } else {
+                editedOrder.add(dishInCurrentOrder);
+            }
+        }
+
+        // Set the new list as a new OrderedDishes list and update the DB.
+        setOrderedDishes(editedOrder);
+        DBOperations.updateOrderDishesToDB(this);
+
+        setTotalPrice(getCalculatedTotalPrice());
+    }
+
+    public void printWarningIfTryingToRemoveMoreThanWhatsBeenOrdered(String dishNameToRemove, int numDishesToRemove) {
+        int totalNumberOfOrderedDishName = getTotalNumberOfOrderedDishName(dishNameToRemove);
+        if (numDishesToRemove > totalNumberOfOrderedDishName) {
+            ConsolePrinter.printWarning("You are trying to remove [" + numDishesToRemove + " x " + dishNameToRemove + "  ]. There are total of [" + totalNumberOfOrderedDishName + "] dishes and all will be removed.");
+        }
+    }
+
+    public int getTotalNumberOfOrderedDishName(String dishName) {
+        List<OrderedDish> currentOrder = getOrderedDishesFromDB();
+        int total = 0;
+        for (OrderedDish orderedDish : currentOrder) {
+            if (orderedDish.getDish().getName().equalsIgnoreCase(dishName)) {
+                total += orderedDish.getQuantity();
+            }
+        }
+        return total;
     }
 
     public void removeDish(Dish dish) {
@@ -97,6 +163,15 @@ public class Order {
         this.orderNumber = orderNumber;
     }
 
+    public double getCalculatedTotalPrice() {
+        List<OrderedDish> currentOrder = getOrderedDishesFromDB();
+        double totalPrice = 0;
+        for (OrderedDish orderedDish : currentOrder) {
+            totalPrice += orderedDish.getDish().getPrice() * orderedDish.getQuantity();
+        }
+        return totalPrice;
+    }
+
     public double getTotalPrice() {
         return totalPrice;
     }
@@ -134,6 +209,6 @@ public class Order {
             System.out.println("Ordered " + d.getQuantity() + " x " + d.getDish().getName() + " - " +
                     d.getDish().getPrice() + " Total: " + d.getDish().getPrice() * d.getQuantity());
         }
-        System.out.println("Total: " + getTotalPrice());
+        System.out.println("Total: " + getCalculatedTotalPrice());
     }
 }

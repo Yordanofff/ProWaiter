@@ -14,6 +14,7 @@ public class MenuBuilder {
     static final String MENU_SEPARATOR = " - ";  // With spaces if required.
     static final String SideWall = "│";
     static Scanner scanner = new Scanner(System.in);
+    static int numSpacesAroundEachColumnWord = 2;
 
     public static void LoginMenu() {
         // todo - if enough time - add another option to change the color of the menu.
@@ -108,7 +109,7 @@ public class MenuBuilder {
     public static String getElementPositionFromIndex(int index, List<String> allDishesCommaSeparated, int positionToGet) {
         for (String row : allDishesCommaSeparated) {
             if (Integer.parseInt(row.split(sep)[0]) == index) {
-                return row.split(sep)[1].strip();
+                return row.split(sep)[positionToGet].strip();
             }
         }
         return null;
@@ -578,7 +579,7 @@ public class MenuBuilder {
      * @param maxColumnLengths              [14, 5] - the longest word on the left/right column or more columns
      */
     public static void printMenuOptionsInFrameTableRestaurantMenu(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText, int[] maxColumnLengths) {
-        int numSpacesAroundEachColumnWord = 2;
+
         int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
 
         // This sums up the longest word in each column
@@ -590,11 +591,7 @@ public class MenuBuilder {
         int frameLength = maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
 
         if (!columnNames.isEmpty()) {
-//            System.out.println(getTopLineOfMenu(frameLength));
-            System.out.println(getTopLineTable(frameLength, maxColumnLengths));
-            columnNames = addExtraSeparatorsToLength(columnNames, numberOfColumns);
-            printMiddleMenuLineTable(columnNames, maxColumnLengths, numSpacesAroundEachColumnWord);
-            System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+            printColumnNames(frameLength, maxColumnLengths, columnNames);
         }
         System.out.println(getTopLineOfMenu(frameLength, frameLabel));
         System.out.println(getTopLineTableEndingUpDown(frameLength, maxColumnLengths));
@@ -606,11 +603,29 @@ public class MenuBuilder {
         if (zeroOptionText.isEmpty()) {
             System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
         } else {
-            System.out.println(getBottomLineTableContinuingDownCorners(frameLength, maxColumnLengths));
-            zeroOptionText = "0 - " + zeroOptionText;
-            printMiddleMenuLine(frameLength, zeroOptionText, SideWall, numSpacesAroundEachColumnWord);
-            System.out.println(getBottomLine(frameLength));
+            printZeroOptionText(frameLength, maxColumnLengths, zeroOptionText);
         }
+    }
+    public static void printColumnNames(int frameLength, int[] maxColumnLengths, String columnNames){
+        int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
+        System.out.println(getTopLineTable(frameLength, maxColumnLengths));
+        columnNames = addExtraSeparatorsToLength(columnNames, numberOfColumns);
+        printMiddleMenuLineTable(columnNames, maxColumnLengths, numSpacesAroundEachColumnWord);
+        System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+    }
+
+    public static void printZeroOptionText(int frameLength, int[] maxColumnLengths, String zeroOptionText) {
+        System.out.println(getBottomLineTableContinuingDownCorners(frameLength, maxColumnLengths));
+        zeroOptionText = "0 - " + zeroOptionText;
+        printMiddleMenuLine(frameLength, zeroOptionText, SideWall, numSpacesAroundEachColumnWord);
+        System.out.println(getBottomLine(frameLength));
+    }
+
+    public static int getFrameLength(int[] maxColumnLengths, String columnNames) {
+        int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
+        int maxNumberOfSymbolsAllRows = getMaxNumberOfSymbolsAllRows(maxColumnLengths);
+        int numAddedSpaces = numberOfColumns * 2 * numSpacesAroundEachColumnWord;
+        return maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
     }
 
     private static String addExtraSeparatorsToLength(String columnNames, int numberOfColumns) {
@@ -622,7 +637,7 @@ public class MenuBuilder {
         return columnNames;
     }
 
-    private static int getMaxNumberOfColumns(int[] maxColumnLengths, String columnNames) {
+    static int getMaxNumberOfColumns(int[] maxColumnLengths, String columnNames) {
         int numberOfColumns = maxColumnLengths.length;
         if (getNumberOfColumns(columnNames) > numberOfColumns) {
             numberOfColumns = getNumberOfColumns(columnNames);
