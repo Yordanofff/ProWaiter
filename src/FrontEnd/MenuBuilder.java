@@ -72,12 +72,7 @@ public class MenuBuilder {
     }
 
     public static void KitchenMenu(User user) {
-        String[] menuOptions = new String[]{"Show orders", "Set status: cooking", "Set status: ready"};
-        String frameLabel = "[" + user.getUserType() + "]";
-        String topMenuLabel = "Hello, " + user.getFullName() + "!";
-        String optionZeroText = "Log out";
-        String optionZeroMsg = "Logging out...";
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::KitchenMenuAction);
+        OrdersOperationsMenuBuilder.kitchenOrdersMenu(user);
     }
 
     public static void KitchenMenuAction(int option, User user) {

@@ -3,6 +3,8 @@ package BackEnd.Restaurant;
 import BackEnd.DB.DBOperations;
 import FrontEnd.ConsolePrinter;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,6 +109,41 @@ public class Restaurant {
         return occupiedTables;
     }
 
+    public List<Table> getCookedTables() {
+        List<Order> cookedOrders = DBOperations.getAllOrdersFromDBWithStatus(OrderStatus.COOKED);
+
+        return getTablesFromOrders(cookedOrders);
+    }
+
+    public List<Table> getReadyForKitchenCookingTables() {
+        List<Order> createdOrders = DBOperations.getAllOrdersFromDBWithStatus(OrderStatus.CREATED);
+        List<Order> updatedOrders = DBOperations.getAllOrdersFromDBWithStatus(OrderStatus.UPDATED);
+
+        List<Order> combinedOrders = new ArrayList<>();
+        combinedOrders.addAll(createdOrders);
+        combinedOrders.addAll(updatedOrders);
+
+        // Sort the array - it will not be sorted because it's created from 2 different lists.
+        Collections.sort(combinedOrders, Comparator.comparingInt(Order::getTableNumber));
+
+        return getTablesFromOrders(combinedOrders);
+    }
+
+    public List<Table> getReadyForKitchenCookedTables() {
+        List<Order> createdOrders = DBOperations.getAllOrdersFromDBWithStatus(OrderStatus.COOKING);
+
+        return getTablesFromOrders(createdOrders);
+    }
+
+    public static List<Table> getTablesFromOrders(List<Order> orders){
+        List<Table> tables = new ArrayList<>();
+        for (Order order:orders) {
+            Table table = new Table(order.getTableNumber());
+            tables.add(table);
+        }
+        return tables;
+    }
+
     private static int[] getTables(List<Table> tablesList) {
         int[] tables = new int[tablesList.size()];
         for (int i = 0; i < tablesList.size(); i++) {
@@ -121,6 +158,18 @@ public class Restaurant {
 
     public int[] getOccupiedTablesArr() {
         return getTables(getOccupiedTables());
+    }
+
+    public int[] getCookedTablesArr() {
+        return getTables(getCookedTables());
+    }
+
+    public int[] getReadyForKitchenCookingTablesArr() {
+        return getTables(getReadyForKitchenCookingTables());
+    }
+
+    public int[] getReadyForKitchenCookedTablesArr() {
+        return getTables(getReadyForKitchenCookedTables());
     }
 
     public int getNumberOfTables() {

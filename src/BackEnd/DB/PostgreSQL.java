@@ -148,4 +148,16 @@ public class PostgreSQL {
     public void deleteOrderByID(Order order) {
         dao.deleteOrderByID(order);
     }
+
+    public boolean updateOrderStatus(Order order) {
+        return dao.updateOrderStatus(order);
+    }
+
+    public List<Order> getAllOrdersFromDB() {
+        return dao.getAllOrdersFromDB();
+    }
+
+    public List<Order> getAllOrdersFromDBWithStatus(OrderStatus orderStatus) {
+        return dao.getAllOrdersFromDBWithStatus(orderStatus);
+    }
 }

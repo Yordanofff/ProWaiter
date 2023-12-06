@@ -190,17 +190,18 @@ public class Order {
         return false;
     }
 
-    public OrderStatus getOrderStatus() {
+    public OrderStatus getOrderStatusLocal() {
         return orderStatus;
     }
 
-    public void setOrderStatus(OrderStatus orderStatus) {
+    public void setOrderStatusAndSaveToDB(OrderStatus orderStatus) {
         // Don't allow setting up the order status back to "Created" if it's already something else.
-        if ((getOrderStatus() != OrderStatus.CREATED) && (orderStatus == OrderStatus.CREATED)) {
+        if ((getOrderStatusLocal() != OrderStatus.CREATED) && (orderStatus == OrderStatus.CREATED)) {
             ConsolePrinter.printError("You can't set the order status back to [CREATED]!");
             return;
         }
         this.orderStatus = orderStatus;
+        DBOperations.updateOrderStatus(this);
     }
 
     public void printCurrentOrder() {
