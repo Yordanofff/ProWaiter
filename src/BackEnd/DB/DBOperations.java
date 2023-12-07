@@ -101,4 +101,8 @@ public class DBOperations {
     public static List<Order> getAllOrdersFromDBWithStatus(OrderStatus orderStatus) {
         return database.getAllOrdersFromDBWithStatus(orderStatus);
     }
+
+    public static List<OrderedDish> getOrdersDishesForID(long id) {
+        return database.getOrdersDishesForID(id);
+    }
 }

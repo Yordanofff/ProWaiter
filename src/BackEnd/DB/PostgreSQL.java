@@ -160,4 +160,8 @@ public class PostgreSQL {
     public List<Order> getAllOrdersFromDBWithStatus(OrderStatus orderStatus) {
         return dao.getAllOrdersFromDBWithStatus(orderStatus);
     }
+
+    public List<OrderedDish> getOrdersDishesForID(long id) {
+        return dao.getOrdersDishesForID(id);
+    }
 }

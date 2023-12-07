@@ -13,6 +13,7 @@ import BackEnd.Users.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static FrontEnd.MenuBuilder.*;
 import static FrontEnd.RestaurantMenuBuilder.*;
@@ -62,8 +63,8 @@ public class OrdersOperationsMenuBuilder {
             }
             case 2 -> printTablesGetAndEditOrder(Restaurant.GET_INSTANCE());
             case 3 -> printTablesReadyToBeDelivered(Restaurant.GET_INSTANCE());
-//            case 4 -> );
-            case 5 -> showClosedOrders();
+            case 4 -> printTablesReadyToBeClosed(Restaurant.GET_INSTANCE());
+            case 5 -> getTableNumberFromUserPromptForClosedOrders();
         }
     }
 
@@ -227,6 +228,30 @@ public class OrdersOperationsMenuBuilder {
         return buildMenuOrder(occupiedTablesArr, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
     }
 
+    public static void printTablesReadyToBeClosed(Restaurant restaurant) {
+        // get tables with status COOKED - ready to be delivered.
+        int tableNumber = getTableNumberFromUserPromptReadyToClose(restaurant);
+        if (tableNumber == 0){
+            return;
+        }
+        Table selectedTable = restaurant.getTable(tableNumber);
+        Order selectedOrder = selectedTable.getCurrentOrder();
+        selectedOrder.setOrderStatusAndSaveToDB(OrderStatus.PAID);
+        ConsolePrinter.printInfo("Order on table [" + tableNumber + "] is now paid and closed.");
+        selectedTable.unOccupy(); // TODO: different from other methods.
+    }
+
+    public static int getTableNumberFromUserPromptReadyToClose(Restaurant restaurant) {
+        int[] occupiedTablesArr = restaurant.getDeliveredTablesArr();
+        String frameLabel = "Delivered Orders";
+        String topMenuLabel = "Select Table Number To View Order:";
+        String optionZeroText = "Go back";
+        String optionZeroMsg = "Going back!";
+        String tableText = "Table /Delivered Order/";
+
+        return buildMenuOrder(occupiedTablesArr, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
+    }
+
     public static void printTablesReadyToBeCooking(Restaurant restaurant) {
         // get tables with status CREATED or UPDATED - ready to be COOKED. Then set status to COOKING.
         int tableNumber = getTableNumberFromUserPromptForKitchenCooking(restaurant);
@@ -271,6 +296,56 @@ public class OrdersOperationsMenuBuilder {
         String tableText = "Table (Cooking Order)";
 
         return buildMenuOrder(occupiedTablesArr, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
+    }
+
+//    public static void showClosedOrders(Restaurant restaurant) {
+//        int tableNumber = getTableNumberFromUserPromptForClosedOrders(restaurant);
+//        if (tableNumber == 0){
+//            return;
+//        }
+//        // TODO - get ID from orders - then get menuitemname and quantity from ordersdishes where orderid = id
+//        // printAllOrderedDishesWithNumbers
+//
+//        Table selectedTable = restaurant.getTable(tableNumber);
+////        Order selectedOrder = selectedTable.getCurrentOrder();
+////        selectedOrder.setOrderStatusAndSaveToDB(OrderStatus.COOKED);
+////        ConsolePrinter.printInfo("Order on table [" + tableNumber + "] is now cooked.");
+//    }
+
+    public static void getTableNumberFromUserPromptForClosedOrders() {
+        List<String> closedOrdersInfo = getAllClosedOrdersInformation();
+        String columnNames = "Index, Table Number, Order Number";
+        int[] maxColumnLengths = MenuBuilder.getBiggestColumnNames(closedOrdersInfo, columnNames);
+
+        printMenuOptionsInFrameTableRestaurantMenu(closedOrdersInfo, "CLOSED ORDERS", columnNames, "Go Back", maxColumnLengths);
+        int userSelection = getUserInputFrom0toNumber(closedOrdersInfo.size());
+
+        if (userSelection == 0) {
+            return;
+        }
+
+        long id = Long.parseLong(Objects.requireNonNull(getElementPositionFromIndex(userSelection, closedOrdersInfo, 2)));
+
+        List<OrderedDish> orderedDishes = DBOperations.getOrdersDishesForID(id);
+
+        List<List<String>> allDishes = getAllThreeOrderedDishesForMenu(orderedDishes);
+
+
+        printAllOrderedDishesWithNumbers(allDishes,"Go Back");
+    }
+
+    public static List<String> getAllClosedOrdersInformation() {
+        List<Order> closedOrders = DBOperations.getAllOrdersFromDBWithStatus(OrderStatus.PAID);
+        List<String> ordersInformation = new ArrayList<>();
+        int startingNumber = 1;
+        for (Order order : closedOrders) {
+            int tableNumber = order.getTableNumber();
+            long id = order.getOrderNumber();
+
+            ordersInformation.add(startingNumber + sep + tableNumber + sep + id);
+            startingNumber ++;
+        }
+        return ordersInformation;
     }
 
     public static void viewSingleOpenOrderMenu(Order order) {
@@ -374,10 +449,6 @@ public class OrdersOperationsMenuBuilder {
 
     }
 
-    public static void showClosedOrders() {
-        // todo
-    }
-
     public static void changeOrderStatus(OrderStatus orderStatus) {
         // todo
     }
@@ -388,6 +459,35 @@ public class OrdersOperationsMenuBuilder {
         List<OrderedDish> allDeserts = new ArrayList<>();
 
         for (OrderedDish orderedDish : order.getOrderedDishesFromDB()) {
+            Dish dish = orderedDish.getDish();
+            DishType type = dish.getDishType();
+            if (type == DishType.FOOD) {
+                allFood.add(orderedDish);
+            } else if (type == DishType.DRINK) {
+                allDrinks.add(orderedDish);
+            } else {
+                allDeserts.add(orderedDish);
+            }
+        }
+
+        List<String> allFoodCommaSeparated = joinOrderedDishToString(allFood, false, true, 1);
+        List<String> allDrinkCommaSeparated = joinOrderedDishToString(allDrinks, false, true, allFoodCommaSeparated.size() + 1);
+        List<String> allDessertCommaSeparated = joinOrderedDishToString(allDeserts, false, true, allFoodCommaSeparated.size() + allDrinkCommaSeparated.size() + 1);
+
+        List<List<String>> result = new ArrayList<>();
+        result.add(allFoodCommaSeparated);
+        result.add(allDrinkCommaSeparated);
+        result.add(allDessertCommaSeparated);
+
+        return result;
+    }
+
+    public static List<List<String>> getAllThreeOrderedDishesForMenu(List<OrderedDish> orderedDishList) {
+        List<OrderedDish> allFood = new ArrayList<>();
+        List<OrderedDish> allDrinks = new ArrayList<>();
+        List<OrderedDish> allDeserts = new ArrayList<>();
+
+        for (OrderedDish orderedDish : orderedDishList) {
             Dish dish = orderedDish.getDish();
             DishType type = dish.getDishType();
             if (type == DishType.FOOD) {
