@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static FrontEnd.MenuBuilder.*;
+import static FrontEnd.UserInput.getUserInputFrom0toNumber;
 
 public class UserManagementMenuBuilder {
     public static void UserManagementMenu(User user) {

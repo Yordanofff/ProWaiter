@@ -1,5 +1,6 @@
 package FrontEnd;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static FrontEnd.MenuBuilder.*;
@@ -142,4 +143,54 @@ public class MenuBuilderFrameDrawers {
     static String getTopLineOfMenuTable(int length, int[] maxColumnLengths) {
         return getGreenLineTable(length, topLeftCorner, topRightCorner, topCross, maxColumnLengths);
     }
+
+    /**
+     * |      0 - Exit                                   |
+     * |      1 - Login                                  |
+     *
+     * @param frameLength - longest row data + min spaces on each side + 2
+     * @param rowData     - the actual data that needs to be printed "0 - Exit"
+     */
+    static void printMiddleMenuLine(int frameLength, String rowData, int numberOfSymbolsFromLeftWall) {
+        String coloredFrameAndSpacesBeginningOfRow = ConsolePrinter.getGreenMsg(MenuBuilder.SideWall + " ".repeat(numberOfSymbolsFromLeftWall));
+        System.out.print(coloredFrameAndSpacesBeginningOfRow + rowData);
+        if (numberOfSymbolsFromLeftWall == MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU) {
+            System.out.println(ConsolePrinter.getGreenMsg(" ".repeat(getNumberOfRemainingSpacesToTheEndOfTheFrame(frameLength, rowData)) + MenuBuilder.SideWall));
+        } else {
+            int diff = MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU - numberOfSymbolsFromLeftWall;
+            frameLength = frameLength + diff;  // add more spaces when printing the frame so that the right wall is in the correct place.
+            System.out.println(ConsolePrinter.getGreenMsg(" ".repeat(getNumberOfRemainingSpacesToTheEndOfTheFrame(frameLength, rowData)) + MenuBuilder.SideWall));
+        }
+    }
+
+    static void printMiddleMenuLine(int frameLength, String rowData) {
+        printMiddleMenuLine(frameLength, rowData, MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU);
+    }
+
+    private static int getNumberOfRemainingSpacesToTheEndOfTheFrame(int frameLength, String rowData) {
+        return (frameLength - (getStringLengthWithoutANSI(rowData) + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU + 2));
+    }
+
+    private static int getLengthOfTheLongestStringInList(List<String> list) {
+        int longest = 0;
+        for (String row : list) {
+            int currentLength = getStringLengthWithoutANSI(row);
+            if (currentLength > longest) {
+                longest = currentLength;
+            }
+        }
+        return longest;
+    }
+
+    private static int getStringLengthWithoutANSI(String str) {
+        return str.replaceAll("\u001B\\[[;\\d]*m", "").length();
+    }
+
+    static int getTheNumberOfSymbolsInTheLongestString(String str, List<String> listOfStrings) {
+        // Create a new list that combines the current list and the string and get the length of the longest one.
+        List<String> menuQuestionAndOptions = new ArrayList<>(listOfStrings);
+        menuQuestionAndOptions.add(str);
+        return getLengthOfTheLongestStringInList(menuQuestionAndOptions);
+    }
+
 }

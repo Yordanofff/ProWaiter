@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static FrontEnd.MenuBuilder.*;
+import static FrontEnd.UserInput.getUserInputFrom0toNumber;
 
 public class RestaurantMenuBuilder {
 

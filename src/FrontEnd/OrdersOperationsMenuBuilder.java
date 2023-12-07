@@ -17,6 +17,8 @@ import java.util.List;
 import static BackEnd.Restaurant.Restaurant.getAllClosedOrdersInformation;
 import static FrontEnd.MenuBuilder.*;
 import static FrontEnd.RestaurantMenuBuilder.*;
+import static FrontEnd.UserInput.getUserInputFrom0toNumber;
+import static FrontEnd.UserInput.pressAnyKeyToContinue;
 
 public class OrdersOperationsMenuBuilder {
     // Всяка поръчка си има дата и час на създаване и номер на маса. Не може да се създаде повече от една поръчка за маса.
@@ -345,11 +347,9 @@ public class OrdersOperationsMenuBuilder {
         String optionZeroText = "Go back";
         String optionZeroMsg = "Going back...";
 
-        // buildMenu
         while (true) {
             int selectedOption = printMenuAndGetUsersChoice(menuOptions, topMenuLabel, optionZeroText, frameLabel);
 
-            // Exit if 0
             if (selectedOption == 0) {
                 System.out.println(optionZeroMsg);
                 break;
@@ -357,7 +357,6 @@ public class OrdersOperationsMenuBuilder {
 
             viewSingleOpenOrderMenuAction(selectedOption, order);
         }
-
     }
 
     public static void viewSingleOpenOrderMenuAction(int option, Order order) {
