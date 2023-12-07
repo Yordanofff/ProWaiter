@@ -437,8 +437,13 @@ public class MenuBuilder {
      * @param columnNames                   Name, Price (When empty - not printing)
      * @param zeroOptionText                0, Go Back
      * @param maxColumnLengths              [14, 5] - the longest word on the left/right column or more columns
+     *                                      It is needed when printing more than one rowsWithCommaSeparatedColumns, and
+     *                                      it needs to be calculated prior to entering the method.
      */
     public static void printMenuOptionsInFrameTableRestaurantMenu(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText, int[] maxColumnLengths) {
+        if (maxColumnLengths == null) {
+            maxColumnLengths = MenuBuilder.getBiggestColumnNames(rowsWithCommaSeparatedColumns, columnNames);
+        }
 
         int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
 
@@ -465,6 +470,11 @@ public class MenuBuilder {
         } else {
             printZeroOptionText(frameLength, maxColumnLengths, zeroOptionText);
         }
+    }
+
+    // Use when printing single list rowsWithCommaSeparatedColumns, and there's no need to match frame sizes.
+    public static void printMenuOptionsInFrameTableRestaurantMenu(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText) {
+        printMenuOptionsInFrameTableRestaurantMenu(rowsWithCommaSeparatedColumns, frameLabel, columnNames, zeroOptionText, null);
     }
 
     public static void printColumnNames(int[] maxColumnLengths, String columnNames) {

@@ -284,8 +284,7 @@ public class OrdersOperationsMenuBuilder {
         String columnNames = "Index, Table Number, Order Number";
         List<String> allClosedOrdersInformation = getAllClosedOrdersInformation();
 
-        int[] maxColumnLengths = MenuBuilder.getBiggestColumnNames(allClosedOrdersInformation, columnNames);  // TODO: delete
-        printMenuOptionsInFrameTableRestaurantMenu(allClosedOrdersInformation, "CLOSED ORDERS", columnNames, "Go Back", maxColumnLengths);
+        printMenuOptionsInFrameTableRestaurantMenu(allClosedOrdersInformation, "CLOSED ORDERS", columnNames, "Go Back");
 
         int selectedIndex = getUserInputFrom0toNumber(allClosedOrdersInformation.size());
 

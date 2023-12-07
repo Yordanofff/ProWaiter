@@ -110,7 +110,7 @@ public class RestaurantMenuBuilder {
 
         String columnNames = "Index, Name, Price";
 
-        int[] maxColumnLengths = getBiggest(food, drink, dessert, columnNames);
+        int[] maxColumnLengths = getBiggest(food, drink, dessert, columnNames);  // TODO: get this from allThreeDishes + columnNames
 
         printMenuOptionsInFrameTableRestaurantMenu(food, "Food", columnNames, "", maxColumnLengths);
         printMenuOptionsInFrameTableRestaurantMenu(drink, "Drinks", "", "", maxColumnLengths);
