@@ -4,7 +4,6 @@ import BackEnd.Users.User;
 import BackEnd.Users.UserManager;
 import BackEnd.Users.UserType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,7 +21,7 @@ public class UserManagementMenuBuilder {
     }
 
     public static void UserManagementMenuAction(int option, User user) {
-        // todo - use user somewhere?
+        // TODO: use user somewhere or remove it.
         switch (option) {
             case 1 -> printAllUsersAlignedAndGetUserInput(true);
             case 2 -> addUserMenu();
@@ -48,18 +47,16 @@ public class UserManagementMenuBuilder {
         List<String> allWaiters = UserManager.getAllUsersInformationByUserType(UserType.WAITER, printPassword, true, allAdmins.size() + 1);
         List<String> allCooks = UserManager.getAllUsersInformationByUserType(UserType.COOK, printPassword, true, allAdmins.size() + allWaiters.size() + 1);
 
-        return MenuBuilder.combineLists(allAdmins,allWaiters,allCooks);
+        return MenuBuilder.combineLists(allAdmins, allWaiters, allCooks);
     }
 
-    public static List<List<String>> printAllUsersAlignedAndGetUserInput(List<List<String>> allUsers, boolean printPassword) {
+    public static void printAllUsersAlignedAndGetUserInput(List<List<String>> allUsers, boolean printPassword) {
         String columnNames = "Index, Username, Full Name";
         if (printPassword) {
             columnNames = "Index, Username, Full Name, Password";
         }
 
         printAllUsersAlignedWithNumbers(columnNames, allUsers);
-
-        return allUsers;
     }
 
     public static void printAllUsersAlignedAndGetUserInput(boolean printPassword) {
@@ -90,14 +87,11 @@ public class UserManagementMenuBuilder {
     }
 
     public static void addUserMenuAction(int option) {
-        // todo - any better/clever way to do this?
-        // Will need to add new UserTypes to this list if new types
         switch (option) {
             case 1 -> UserManager.addAdmin();
             case 2 -> UserManager.addWaiter();
             case 3 -> UserManager.addCook();
-            default ->
-                    ConsolePrinter.printError("UserType not implemented. Add UserType in MenuBuilder/addUserMenuAction");
+            default -> throw new RuntimeException("UserType not implemented.");
         }
     }
 
@@ -114,13 +108,12 @@ public class UserManagementMenuBuilder {
         }
 
         //  TODO: print another menu 1.2.3.4 - options what to change + UserInput prompt for that.
-
     }
 
     public static void deleteUserMenuSelectUserType() {
         String[] userTypeNames = UserManager.getUserTypeNames();
 
-        String frameLabel = "Select User Type";  // No frame label on the Login Menu page.
+        String frameLabel = "Select User Type";
         String topMenuLabel = "Please choose the type of User that you want to delete:";
         String optionZeroText = "Cancel";
         String optionZeroMsg = "Canceled.";
@@ -128,14 +121,11 @@ public class UserManagementMenuBuilder {
     }
 
     public static void deleteUserMenuAction(int option) {
-        // todo - any better/clever way to do this?
-        // Will need to add new UserTypes to this list if new types
         switch (option) {
             case 1 -> deleteUserMenuPrintUsers(UserType.ADMIN);
             case 2 -> deleteUserMenuPrintUsers(UserType.WAITER);
             case 3 -> deleteUserMenuPrintUsers(UserType.COOK);
-            default ->
-                    ConsolePrinter.printError("UserType not implemented. Add UserType in MenuBuilder/deleteUserMenuAction");
+            default -> throw new RuntimeException("UserType not implemented.");
         }
     }
 
@@ -152,7 +142,6 @@ public class UserManagementMenuBuilder {
         ConsolePrinter.printQuestion("Enter the [index] of the user you want to delete: ");
         int selection = getUserInputFrom0toNumber(numberOfUsers);
 
-        // Exit if 0
         if (selection == 0) {
             System.out.println("Canceled.");
             return;

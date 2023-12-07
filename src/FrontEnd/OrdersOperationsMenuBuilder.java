@@ -37,7 +37,7 @@ public class OrdersOperationsMenuBuilder {
     }
 
     private static Table getFreeTable() {
-        int selectedTable = tableSelection(Restaurant.GET_INSTANCE());
+        int selectedTable = getFreeTableNumberFromUserPrompt(Restaurant.GET_INSTANCE());
 
         if (selectedTable == 0) {
             return null;
@@ -110,17 +110,12 @@ public class OrdersOperationsMenuBuilder {
     }
 
     public static Order createNewOrder(Table table) {
-
         Order order = new Order(table);
-        // this.isPaid = false;
-        // this.orderedDishes = new ArrayList<>();
-        // this.orderStatus = OrderStatus.CREATED;
-        // tableNumber(set);
 
+        // Create an entry in DB: this.isPaid = false, OrderStatus.CREATED, tableNumber
         saveOrderToDB(order);
 
         boolean noDishesAddedToOrder = false;
-
         while (true) {
             OrderedDish orderedDish = getDishFromUserInput();
 
@@ -149,7 +144,6 @@ public class OrdersOperationsMenuBuilder {
     }
 
     private static void saveOrderToDB(Order order) {
-        // Write to DB
         DBOperations.addOrderToOrdersTable(order);
         DBOperations.updateOrderDishesToDB(order);  // Write Ordered Dishes to DB
     }
@@ -158,7 +152,7 @@ public class OrdersOperationsMenuBuilder {
         RestaurantMenuBuilder.deleteItemFromRestaurantMenu();
     }
 
-    public static int tableSelection(Restaurant restaurant) {
+    public static int getFreeTableNumberFromUserPrompt(Restaurant restaurant) {
         int[] freeTables = restaurant.getFreeTablesArr();
         String frameLabel = "Free tables"; // No frame label on the Login Menu page.
         String topMenuLabel = "Please enter a table number:";
@@ -166,8 +160,7 @@ public class OrdersOperationsMenuBuilder {
         String optionZeroMsg = "Going back!";
         String tableText = "Free Table";
 
-        int selectedTable = buildMenuOrder(freeTables, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
-        return selectedTable;
+        return buildMenuOrder(freeTables, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
     }
 
     public static void printTablesGetAndEditOrder(Restaurant restaurant) {
@@ -278,7 +271,7 @@ public class OrdersOperationsMenuBuilder {
     }
 
     public static void printTablesReadyToBeCooked(Restaurant restaurant) {
-        // get tables with status COOKING - ready to be fully COOKED. Then set status to COOKED.
+        // get tables with status COOKING. Then set status to COOKED.
         int tableNumber = getTableNumberFromUserPromptForKitchenCooked(restaurant);
         if (tableNumber == 0) {
             return;
@@ -496,9 +489,7 @@ public class OrdersOperationsMenuBuilder {
 
         int[] maxColumnLengths = getBiggest(food, drink, dessert, columnNames);
 
-        int frameLength = MenuBuilder.getFrameLength(maxColumnLengths, columnNames);
-
-        MenuBuilder.printColumnNames(frameLength, maxColumnLengths, columnNames);
+        MenuBuilder.printColumnNames(maxColumnLengths, columnNames);
 
         if (!food.isEmpty()) {
             if (drink.isEmpty() && dessert.isEmpty()) {

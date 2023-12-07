@@ -4,7 +4,6 @@ import BackEnd.DB.DBOperations;
 import BackEnd.Restaurant.Dishes.OrderedDish;
 import FrontEnd.ConsolePrinter;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +19,9 @@ public class Restaurant {
     public static Restaurant GET_INSTANCE() {
         return Restaurant.INSTANCE;
     }
-//    public static Restaurant GET_INSTANCE() {
-//        return new Restaurant();
-//    }
 
     private RestaurantInfo restaurantInfo = loadRestaurantInfo();
     private List<Table> tables = getTablesFromDBorPopulateTheTablesIfNone();//= new ArrayList<>();
-//    private static List<User> users = new ArrayList<>();
 
     public RestaurantInfo loadRestaurantInfo() {
         // Load restaurantInfo from DB. If not in DB - Ask User + write to DB.
@@ -64,17 +59,6 @@ public class Restaurant {
             newTables.add(new Table(i));
         }
         return newTables;
-    }
-
-    public List<Table> getTables() {
-        return tables;
-    }
-
-    public void setTables(List<Table> tables) {
-        this.tables = tables;
-        if (DBOperations.writeTablesToDB(tables)) {
-            ConsolePrinter.printInfo("Successfully wrote tables to DB.");
-        }
     }
 
     public Table getTable(int tableNumber) {
@@ -125,6 +109,15 @@ public class Restaurant {
     }
 
     public List<Table> getReadyForKitchenCookingTables() {
+        List<Order> allOrdersWithCreatedAndUpdatedStatus = getAllOrdersWithCreatedAndUpdatedStatus();
+
+        // Sort the array - it will not be sorted because it's created from 2 different lists.
+        allOrdersWithCreatedAndUpdatedStatus.sort(Comparator.comparingInt(Order::getTableNumber));
+
+        return getTablesFromOrders(allOrdersWithCreatedAndUpdatedStatus);
+    }
+
+    public List<Order> getAllOrdersWithCreatedAndUpdatedStatus(){
         List<Order> createdOrders = DBOperations.getAllOrdersFromDBWithStatus(OrderStatus.CREATED);
         List<Order> updatedOrders = DBOperations.getAllOrdersFromDBWithStatus(OrderStatus.UPDATED);
 
@@ -132,10 +125,7 @@ public class Restaurant {
         combinedOrders.addAll(createdOrders);
         combinedOrders.addAll(updatedOrders);
 
-        // Sort the array - it will not be sorted because it's created from 2 different lists.
-        Collections.sort(combinedOrders, Comparator.comparingInt(Order::getTableNumber));
-
-        return getTablesFromOrders(combinedOrders);
+        return combinedOrders;
     }
 
     public List<Table> getReadyForKitchenCookedTables() {
@@ -206,44 +196,32 @@ public class Restaurant {
         return getTables(getReadyForKitchenCookedTables());
     }
 
-    public int getNumberOfTables() {
-        return restaurantInfo.getNumberOfTables();
-    }
-
-    public String getRestaurantName() {
-        return restaurantInfo.getRestaurantName();
-    }
-
-    public RestaurantInfo getRestaurantInfo() {
-        return restaurantInfo;
-    }
-
     public void setRestaurantInfo(RestaurantInfo restaurantInfo) {
         this.restaurantInfo = restaurantInfo;
         RestaurantInfo.saveRestaurantInfoInDB(restaurantInfo);
     }
 
-
-//    public List<User> getUsers() {
-//        return UserManager.getActiveUsers();
+//    public int getNumberOfTables() {
+//        return restaurantInfo.getNumberOfTables();
 //    }
-
-//    private static String[] getTablesString(List<Table> tablesList) {
-//        String[] tables = new String [tablesList.size()];
-//        for (int i = 0; i < tablesList.size(); i++) {
-//            int tableNumber = tablesList.get(i).getTableNumber();
-//            String tableNumberStr = "Table " + tableNumber;
-//            tables[i] = tableNumberStr;
-//        }
+//
+//    public String getRestaurantName() {
+//        return restaurantInfo.getRestaurantName();
+//    }
+//
+//    public RestaurantInfo getRestaurantInfo() {
+//        return restaurantInfo;
+//    }
+//
+//    public List<Table> getTables() {
 //        return tables;
 //    }
 //
-//    public static String[] getFreeTablesArr(){
-//        return getTablesString(getFreeTables());
-//    }
-//
-//    public static String[] getOccupiedTablesArr(){
-//        return getTablesString(getOccupiedTables());
+//    public void setTables(List<Table> tables) {
+//        this.tables = tables;
+//        if (DBOperations.writeTablesToDB(tables)) {
+//            ConsolePrinter.printInfo("Successfully wrote tables to DB.");
+//        }
 //    }
 
 }

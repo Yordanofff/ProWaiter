@@ -384,19 +384,19 @@ public class MenuBuilder {
         int frameLength = maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
 
         System.out.println(getTopLineOfMenu(frameLength, frameLabel));
-        System.out.println(getTopLineTableEndingUpDown(frameLength, maxColumnLengths));
+        System.out.println(getTopLineTableEndingUpDown(maxColumnLengths));
         columnNames = addExtraSeparatorsToLength(columnNames, numberOfColumns);
         printMiddleMenuLineTable(columnNames, maxColumnLengths, numSpacesAroundEachColumnWord);
-        System.out.println(getMidLineTable(frameLength, maxColumnLengths));
+        System.out.println(getMidLineTable(maxColumnLengths));
 
         for (String row : rowsWithCommaSeparatedColumns) {
             row = addExtraSeparatorsToLength(row, numberOfColumns);
             printMiddleMenuLineTable(row, maxColumnLengths, numSpacesAroundEachColumnWord);
         }
         if (zeroOptionText.isEmpty()) {
-            System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+            System.out.println(getBottomLineTable(maxColumnLengths));
         } else {
-            System.out.println(getBottomLineTableContinuingDownCorners(frameLength, maxColumnLengths));
+            System.out.println(getBottomLineTableContinuingDownCorners(maxColumnLengths));
             zeroOptionText = "0 - " + zeroOptionText;
             printMiddleMenuLine(frameLength, zeroOptionText, numSpacesAroundEachColumnWord);
             System.out.println(getBottomLine(frameLength));
@@ -451,32 +451,32 @@ public class MenuBuilder {
         int frameLength = maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
 
         if (!columnNames.isEmpty()) {
-            printColumnNames(frameLength, maxColumnLengths, columnNames);
+            printColumnNames(maxColumnLengths, columnNames);
         }
         System.out.println(getTopLineOfMenu(frameLength, frameLabel));
-        System.out.println(getTopLineTableEndingUpDown(frameLength, maxColumnLengths));
+        System.out.println(getTopLineTableEndingUpDown(maxColumnLengths));
 
         for (String row : rowsWithCommaSeparatedColumns) {
             row = addExtraSeparatorsToLength(row, numberOfColumns);
             printMiddleMenuLineTable(row, maxColumnLengths, numSpacesAroundEachColumnWord);
         }
         if (zeroOptionText.isEmpty()) {
-            System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+            System.out.println(getBottomLineTable(maxColumnLengths));
         } else {
             printZeroOptionText(frameLength, maxColumnLengths, zeroOptionText);
         }
     }
 
-    public static void printColumnNames(int frameLength, int[] maxColumnLengths, String columnNames) {
+    public static void printColumnNames(int[] maxColumnLengths, String columnNames) {
         int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
-        System.out.println(getTopLineTable(frameLength, maxColumnLengths));
+        System.out.println(getTopLineTable(maxColumnLengths));
         columnNames = addExtraSeparatorsToLength(columnNames, numberOfColumns);
         printMiddleMenuLineTable(columnNames, maxColumnLengths, numSpacesAroundEachColumnWord);
-        System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+        System.out.println(getBottomLineTable(maxColumnLengths));
     }
 
     public static void printZeroOptionText(int frameLength, int[] maxColumnLengths, String zeroOptionText) {
-        System.out.println(getBottomLineTableContinuingDownCorners(frameLength, maxColumnLengths));
+        System.out.println(getBottomLineTableContinuingDownCorners(maxColumnLengths));
         zeroOptionText = "0 - " + zeroOptionText;
         printMiddleMenuLine(frameLength, zeroOptionText, numSpacesAroundEachColumnWord);
         System.out.println(getBottomLine(frameLength));

@@ -38,8 +38,8 @@ public class MenuBuilderFrameDrawers {
     }
 
     // ┌──────────────────┬─────────┐
-    static String getTopLineTable(int length, int[] maxColumnLengths) {
-        return getGreenLineTable(length, topLeftCorner, topRightCorner, topCross, maxColumnLengths);
+    static String getTopLineTable(int[] maxColumnLengths) {
+        return getGreenLineTable(topLeftCorner, topRightCorner, topCross, maxColumnLengths);
     }
 
     static String getGreenLine(int length, String mostLeftSymbol, String mostRightSymbol) {
@@ -47,11 +47,11 @@ public class MenuBuilderFrameDrawers {
     }
 
     // ├────────────────────────┬───────────┬────────────────┬────────────────┤
-    static String getTopLineTableEndingUpDown(int length, int[] maxColumnLengths) {
-        return getGreenLineTable(length, midLeft, midRight, topCross, maxColumnLengths);
+    static String getTopLineTableEndingUpDown(int[] maxColumnLengths) {
+        return getGreenLineTable(midLeft, midRight, topCross, maxColumnLengths);
     }
 
-    static String getGreenLineTable(int length, String mostLeftSymbol, String mostRightSymbol, String crossSymbol, int[] maxColumnLengths) {
+    static String getGreenLineTable(String mostLeftSymbol, String mostRightSymbol, String crossSymbol, int[] maxColumnLengths) {
         String toReturn = "";
         toReturn += mostLeftSymbol;
         for (int i = 0; i < maxColumnLengths.length; i++) {
@@ -66,18 +66,18 @@ public class MenuBuilderFrameDrawers {
     }
 
     // └──────────┴───────────┴────────────────┴────────────────┘
-    static String getBottomLineTable(int length, int[] maxColumnLengths) {
-        return getGreenLineTable(length, bottomLeftCorner, bottomRightCorner, bottomCross, maxColumnLengths);
+    static String getBottomLineTable(int[] maxColumnLengths) {
+        return getGreenLineTable(bottomLeftCorner, bottomRightCorner, bottomCross, maxColumnLengths);
     }
 
     // ├──────────┴───────────┴────────────────┴────────────────┤
-    static String getBottomLineTableContinuingDownCorners(int length, int[] maxColumnLengths) {
-        return getGreenLineTable(length, midLeft, midRight, bottomCross, maxColumnLengths);
+    static String getBottomLineTableContinuingDownCorners(int[] maxColumnLengths) {
+        return getGreenLineTable(midLeft, midRight, bottomCross, maxColumnLengths);
     }
 
     // ├──────────┼───────────┼────────────────┼────────────────┤
-    static String getMidLineTable(int length, int[] maxColumnLengths) {
-        return getGreenLineTable(length, midLeft, midRight, midCross, maxColumnLengths);
+    static String getMidLineTable(int[] maxColumnLengths) {
+        return getGreenLineTable(midLeft, midRight, midCross, maxColumnLengths);
     }
 
     // ├──────────────────────────────┤
@@ -140,8 +140,8 @@ public class MenuBuilderFrameDrawers {
         System.out.println("_".repeat(frameLength));
     }
 
-    static String getTopLineOfMenuTable(int length, int[] maxColumnLengths) {
-        return getGreenLineTable(length, topLeftCorner, topRightCorner, topCross, maxColumnLengths);
+    static String getTopLineOfMenuTable(int[] maxColumnLengths) {
+        return getGreenLineTable(topLeftCorner, topRightCorner, topCross, maxColumnLengths);
     }
 
     /**
