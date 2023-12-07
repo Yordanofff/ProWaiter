@@ -822,6 +822,36 @@ public class DataAccessObject {
         return orderedDishes;
     }
 
+    public List<OrderedDish> getOrdersDishesForID(long id) {
+        List<OrderedDish> orderedDishes = new ArrayList<>();
+
+        try (Connection connection = ds.getConnection()) {
+            String sql = "SELECT menuitemname, quantity FROM ordersdishes WHERE orderid = ?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setLong(1, id);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        String menuItemName = resultSet.getString("menuitemname");
+                        int quantity = resultSet.getInt("quantity");
+
+                        Dish dish = RestaurantMenu.getDishFromDishName(menuItemName);
+
+                        OrderedDish orderedDish = new OrderedDish(dish, quantity);
+                        orderedDishes.add(orderedDish);
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            // Consider throwing a custom exception or logging the error for better error handling
+            e.printStackTrace();
+        }
+
+        return orderedDishes;
+    }
+
 
     // Other
     public List<String> getDBTables() {

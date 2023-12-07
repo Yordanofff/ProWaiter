@@ -506,7 +506,6 @@ public class MenuBuilder {
 
     public static void printMenuOptionsInFrameTable(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText) {
 
-        int numSpacesAroundEachColumnWord = 2;
         int[] maxColumnLengths = getBiggestColumnNames(rowsWithCommaSeparatedColumns, columnNames);
         int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
 
@@ -601,6 +600,7 @@ public class MenuBuilder {
             printZeroOptionText(frameLength, maxColumnLengths, zeroOptionText);
         }
     }
+
     public static void printColumnNames(int frameLength, int[] maxColumnLengths, String columnNames){
         int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
         System.out.println(getTopLineTable(frameLength, maxColumnLengths));
@@ -640,7 +640,7 @@ public class MenuBuilder {
         return numberOfColumns;
     }
 
-    private static int[] getBiggestColumnNames(List<String> rowsWithCommaSeparatedColumns, String columnNames) {
+    static int[] getBiggestColumnNames(List<String> rowsWithCommaSeparatedColumns, String columnNames) {
         int[] maxColumnLengths = getMaxColumnLengths(rowsWithCommaSeparatedColumns);
         // Get the length of the elements in the columnNames
         int[] maxColumnLengthDescription = getMaxColumnLength(columnNames);
