@@ -42,22 +42,12 @@ public class UserManagementMenuBuilder {
         printMenuOptionsInFrameTableRestaurantMenu(allCooks, "COOKS", "", "Go Back", maxColumnLengths);
     }
 
-    public static List<List<String>> getAllUsersByType(boolean printPassword) {
+    public static List<List<String>> getAllUsersNestedList(boolean printPassword) {
         List<String> allAdmins = UserManager.getAllUsersInformationByUserType(UserType.ADMIN, printPassword, true, 1);
         List<String> allWaiters = UserManager.getAllUsersInformationByUserType(UserType.WAITER, printPassword, true, allAdmins.size() + 1);
         List<String> allCooks = UserManager.getAllUsersInformationByUserType(UserType.COOK, printPassword, true, allAdmins.size() + allWaiters.size() + 1);
 
-        List<List<String>> result = new ArrayList<>();
-        result.add(allAdmins);
-        result.add(allWaiters);
-        result.add(allCooks);
-
-        return result;
-    }
-
-    public static List<List<String>> getAllUsersNestedList(boolean printPassword) {
-        List<List<String>> allUsers = getAllUsersByType(printPassword);
-        return allUsers;
+        return MenuBuilder.combineLists(allAdmins,allWaiters,allCooks);
     }
 
     public static List<List<String>> printAllUsersAlignedAndGetUserInput(List<List<String>> allUsers, boolean printPassword) {

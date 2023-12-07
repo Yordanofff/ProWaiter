@@ -801,4 +801,17 @@ public class MenuBuilder {
         Scanner scanner = new Scanner(System.in);
         scanner.nextLine();
     }
+
+    @SafeVarargs
+    static List<List<String>> combineLists(List<String>... lists) {
+        List<List<String>> combinedList = new ArrayList<>();
+
+        for (List<String> list : lists) {
+            // Make a defensive copy to ensure the original lists are not modified externally
+            List<String> newList = new ArrayList<>(list);
+            combinedList.add(newList);
+        }
+
+        return combinedList;
+    }
 }

@@ -439,37 +439,8 @@ public class OrdersOperationsMenuBuilder {
 
     }
 
-    public static void changeOrderStatus(OrderStatus orderStatus) {
-        // todo
-    }
-
     public static List<List<String>> getAllThreeOrderedDishesForMenu(Order order) {
-        List<OrderedDish> allFood = new ArrayList<>();
-        List<OrderedDish> allDrinks = new ArrayList<>();
-        List<OrderedDish> allDeserts = new ArrayList<>();
-
-        for (OrderedDish orderedDish : order.getOrderedDishesFromDB()) {
-            Dish dish = orderedDish.getDish();
-            DishType type = dish.getDishType();
-            if (type == DishType.FOOD) {
-                allFood.add(orderedDish);
-            } else if (type == DishType.DRINK) {
-                allDrinks.add(orderedDish);
-            } else {
-                allDeserts.add(orderedDish);
-            }
-        }
-
-        List<String> allFoodCommaSeparated = joinOrderedDishToString(allFood, false, true, 1);
-        List<String> allDrinkCommaSeparated = joinOrderedDishToString(allDrinks, false, true, allFoodCommaSeparated.size() + 1);
-        List<String> allDessertCommaSeparated = joinOrderedDishToString(allDeserts, false, true, allFoodCommaSeparated.size() + allDrinkCommaSeparated.size() + 1);
-
-        List<List<String>> result = new ArrayList<>();
-        result.add(allFoodCommaSeparated);
-        result.add(allDrinkCommaSeparated);
-        result.add(allDessertCommaSeparated);
-
-        return result;
+        return getAllThreeOrderedDishesForMenu(order.getOrderedDishesFromDB());
     }
 
     public static List<List<String>> getAllThreeOrderedDishesForMenu(List<OrderedDish> orderedDishList) {
@@ -493,12 +464,7 @@ public class OrdersOperationsMenuBuilder {
         List<String> allDrinkCommaSeparated = joinOrderedDishToString(allDrinks, false, true, allFoodCommaSeparated.size() + 1);
         List<String> allDessertCommaSeparated = joinOrderedDishToString(allDeserts, false, true, allFoodCommaSeparated.size() + allDrinkCommaSeparated.size() + 1);
 
-        List<List<String>> result = new ArrayList<>();
-        result.add(allFoodCommaSeparated);
-        result.add(allDrinkCommaSeparated);
-        result.add(allDessertCommaSeparated);
-
-        return result;
+        return MenuBuilder.combineLists(allFoodCommaSeparated, allDrinkCommaSeparated, allDessertCommaSeparated);
     }
 
     public static List<String> joinOrderedDishToString(List<OrderedDish> orderedDishes, boolean addDishType, boolean addNumbers, int startNumber) {

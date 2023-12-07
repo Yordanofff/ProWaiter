@@ -121,12 +121,7 @@ public class RestaurantMenuBuilder {
         List<String> allDrinkCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDrink(), false, true, allFoodCommaSeparated.size() + 1);
         List<String> allDessertCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDesert(), false, true, allFoodCommaSeparated.size() + allDrinkCommaSeparated.size() + 1);
 
-        List<List<String>> result = new ArrayList<>();
-        result.add(allFoodCommaSeparated);
-        result.add(allDrinkCommaSeparated);
-        result.add(allDessertCommaSeparated);
-
-        return result;
+        return MenuBuilder.combineLists(allFoodCommaSeparated, allDrinkCommaSeparated, allDessertCommaSeparated);
     }
 
 }
