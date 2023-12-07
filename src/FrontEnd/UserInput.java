@@ -6,6 +6,9 @@ import BackEnd.Users.UserManager;
 import java.util.List;
 import java.util.Scanner;
 
+import static FrontEnd.Validators.intArrayToString;
+import static FrontEnd.Validators.isNumberInArray;
+
 public class UserInput {
     static Scanner scanner = new Scanner(System.in);
 
@@ -175,5 +178,57 @@ public class UserInput {
 
         String confirmation = scanner.nextLine().trim().toLowerCase();
         return confirmation.equals("yes");
+    }
+
+    static int getUserInputFrom0toNumberOrder(int[] possibleTables) {
+        int choice;
+
+        while (true) {
+            String ans = scanner.nextLine().strip();
+
+            try {
+                choice = Integer.parseInt(ans);
+
+                if (choice == 0 || isNumberInArray(possibleTables, choice)) {
+                    break;
+                } else {
+                    ConsolePrinter.printError("Please enter a number from [" + intArrayToString(possibleTables) + "] or [0]");
+                }
+            } catch (NumberFormatException e) {
+                ConsolePrinter.printError("Invalid input [" + ans + "]! " +
+                        "Please enter an integer from [" + intArrayToString(possibleTables) + "] or [0]");
+            }
+        }
+
+        return choice;
+    }
+
+    static int getUserInputFrom0toNumber(int numOptions) {
+        int choice;
+
+        while (true) {
+            String ans = scanner.nextLine().strip();
+
+            try {
+                choice = Integer.parseInt(ans);
+
+                if (choice >= 0 && choice <= numOptions) {
+                    break;
+                } else {
+                    ConsolePrinter.printError("Please enter a number between [0 - " + numOptions + "]");
+                }
+            } catch (NumberFormatException e) {
+                ConsolePrinter.printError("Invalid input [" + ans + "]! " +
+                        "Please enter an integer in the range [0 - " + numOptions + "]");
+            }
+        }
+
+        return choice;
+    }
+
+    static void pressAnyKeyToContinue() {
+        ConsolePrinter.printQuestion("Press [Enter] to continue...");
+        Scanner scanner = new Scanner(System.in);
+        scanner.nextLine();
     }
 }

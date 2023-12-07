@@ -13,17 +13,19 @@ import BackEnd.Users.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
+import static BackEnd.Restaurant.Restaurant.getAllClosedOrdersInformation;
 import static FrontEnd.MenuBuilder.*;
 import static FrontEnd.RestaurantMenuBuilder.*;
+import static FrontEnd.UserInput.getUserInputFrom0toNumber;
+import static FrontEnd.UserInput.pressAnyKeyToContinue;
 
 public class OrdersOperationsMenuBuilder {
     // Всяка поръчка си има дата и час на създаване и номер на маса. Не може да се създаде повече от една поръчка за маса.
     //Към всяка поръчка може да се добавят или премахват ястия. Всяко ястие може да се добави веднъж или много пъти. Общата цена на поръчката се показва в реално време.
     // Сервитьорът може да смени статуса на поръчка на “платена”. Тогава му се показва обобщение на поръчката, тя изчезва от списъка с активни поръчки и на тази маса вече може да се прави нова поръчка.
     // Drink/Desert - cannot be cooked but still need to be ready for delivery? If new item is Food - wait for cook status before able to deliver?
-    // todo - ready should only show orders with status "Cooking"
+
     public static void ordersMenu(User user) {
         String[] menuOptions = new String[]{"New order", "Show open orders", "Deliver order", "Close order", "Show completed orders"};
         String frameLabel = "[" + user.getUserType() + "]";
@@ -35,7 +37,7 @@ public class OrdersOperationsMenuBuilder {
     }
 
     private static Table getFreeTable() {
-        int selectedTable = tableSelection(Restaurant.GET_INSTANCE());
+        int selectedTable = getFreeTableNumberFromUserPrompt(Restaurant.GET_INSTANCE());
 
         if (selectedTable == 0) {
             return null;
@@ -64,7 +66,7 @@ public class OrdersOperationsMenuBuilder {
             case 2 -> printTablesGetAndEditOrder(Restaurant.GET_INSTANCE());
             case 3 -> printTablesReadyToBeDelivered(Restaurant.GET_INSTANCE());
             case 4 -> printTablesReadyToBeClosed(Restaurant.GET_INSTANCE());
-            case 5 -> getTableNumberFromUserPromptForClosedOrders();
+            case 5 -> printClosedOrder();
         }
     }
 
@@ -78,7 +80,6 @@ public class OrdersOperationsMenuBuilder {
     }
 
     public static void kitchenOrdersMenuOptions(int option) {
-        // todo
         switch (option) {
             case 1 -> printTablesForKitchen(Restaurant.GET_INSTANCE());
             case 2 -> printTablesReadyToBeCooking(Restaurant.GET_INSTANCE());
@@ -108,17 +109,12 @@ public class OrdersOperationsMenuBuilder {
     }
 
     public static Order createNewOrder(Table table) {
-
         Order order = new Order(table);
-        // this.isPaid = false;
-        // this.orderedDishes = new ArrayList<>();
-        // this.orderStatus = OrderStatus.CREATED;
-        // tableNumber(set);
 
+        // Create an entry in DB: this.isPaid = false, OrderStatus.CREATED, tableNumber
         saveOrderToDB(order);
 
         boolean noDishesAddedToOrder = false;
-
         while (true) {
             OrderedDish orderedDish = getDishFromUserInput();
 
@@ -147,16 +143,11 @@ public class OrdersOperationsMenuBuilder {
     }
 
     private static void saveOrderToDB(Order order) {
-        // Write to DB
         DBOperations.addOrderToOrdersTable(order);
         DBOperations.updateOrderDishesToDB(order);  // Write Ordered Dishes to DB
     }
 
-    public static void printAllDishes() {
-        RestaurantMenuBuilder.deleteItemFromRestaurantMenu();
-    }
-
-    public static int tableSelection(Restaurant restaurant) {
+    public static int getFreeTableNumberFromUserPrompt(Restaurant restaurant) {
         int[] freeTables = restaurant.getFreeTablesArr();
         String frameLabel = "Free tables"; // No frame label on the Login Menu page.
         String topMenuLabel = "Please enter a table number:";
@@ -164,13 +155,12 @@ public class OrdersOperationsMenuBuilder {
         String optionZeroMsg = "Going back!";
         String tableText = "Free Table";
 
-        int selectedTable = buildMenuOrder(freeTables, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
-        return selectedTable;
+        return buildMenuOrder(freeTables, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
     }
 
     public static void printTablesGetAndEditOrder(Restaurant restaurant) {
         int tableNumber = getOccupiedTableNumberFromUserPrompt(restaurant);
-        if (tableNumber == 0){
+        if (tableNumber == 0) {
             return;
         }
 
@@ -183,7 +173,7 @@ public class OrdersOperationsMenuBuilder {
 
     public static void printTablesForKitchen(Restaurant restaurant) {
         int tableNumber = getOccupiedTableNumberFromUserPrompt(restaurant);
-        if (tableNumber == 0){
+        if (tableNumber == 0) {
             return;
         }
 
@@ -206,18 +196,12 @@ public class OrdersOperationsMenuBuilder {
     }
 
     public static void printTablesReadyToBeDelivered(Restaurant restaurant) {
-        // get tables with status COOKED - ready to be delivered.
-        int tableNumber = getTableNumberFromUserPromptReadyToDeliver(restaurant);
-        if (tableNumber == 0){
-            return;
-        }
-        Table selectedTable = restaurant.getTable(tableNumber);
-        Order selectedOrder = selectedTable.getCurrentOrder();
-        selectedOrder.setOrderStatusAndSaveToDB(OrderStatus.SERVED);
-        ConsolePrinter.printInfo("Order on table [" + tableNumber + "] is now served.");
+        // get tables with status "COOKED". Then set status to "SERVED".
+        int tableNumber = getTableNumberFromUserPromptWithStatusCooked(restaurant);
+        setOrderStatusForTableInDB(tableNumber, OrderStatus.SERVED, restaurant);
     }
 
-    public static int getTableNumberFromUserPromptReadyToDeliver(Restaurant restaurant) {
+    public static int getTableNumberFromUserPromptWithStatusCooked(Restaurant restaurant) {
         int[] occupiedTablesArr = restaurant.getCookedTablesArr();
         String frameLabel = "Cooked Orders";
         String topMenuLabel = "Select Table Number To View Order:";
@@ -229,19 +213,12 @@ public class OrdersOperationsMenuBuilder {
     }
 
     public static void printTablesReadyToBeClosed(Restaurant restaurant) {
-        // get tables with status COOKED - ready to be delivered.
-        int tableNumber = getTableNumberFromUserPromptReadyToClose(restaurant);
-        if (tableNumber == 0){
-            return;
-        }
-        Table selectedTable = restaurant.getTable(tableNumber);
-        Order selectedOrder = selectedTable.getCurrentOrder();
-        selectedOrder.setOrderStatusAndSaveToDB(OrderStatus.PAID);
-        ConsolePrinter.printInfo("Order on table [" + tableNumber + "] is now paid and closed.");
-        selectedTable.unOccupy(); // TODO: different from other methods.
+        // get tables with status "DELIVERED". Then set status to "PAID".
+        int tableNumber = getTableNumberFromUserPromptWithStatusDelivered(restaurant);
+        setOrderStatusForTableInDB(tableNumber, OrderStatus.PAID, restaurant);
     }
 
-    public static int getTableNumberFromUserPromptReadyToClose(Restaurant restaurant) {
+    public static int getTableNumberFromUserPromptWithStatusDelivered(Restaurant restaurant) {
         int[] occupiedTablesArr = restaurant.getDeliveredTablesArr();
         String frameLabel = "Delivered Orders";
         String topMenuLabel = "Select Table Number To View Order:";
@@ -253,18 +230,12 @@ public class OrdersOperationsMenuBuilder {
     }
 
     public static void printTablesReadyToBeCooking(Restaurant restaurant) {
-        // get tables with status CREATED or UPDATED - ready to be COOKED. Then set status to COOKING.
-        int tableNumber = getTableNumberFromUserPromptForKitchenCooking(restaurant);
-        if (tableNumber == 0){
-            return;
-        }
-        Table selectedTable = restaurant.getTable(tableNumber);
-        Order selectedOrder = selectedTable.getCurrentOrder();
-        selectedOrder.setOrderStatusAndSaveToDB(OrderStatus.COOKING);
-        ConsolePrinter.printInfo("Order on table [" + tableNumber + "] is now cooking.");
+        // get tables with status "CREATED" or "UPDATED" - ready to be "COOKED". Then set status to COOKING.
+        int tableNumber = getTableNumberFromUserPromptWithStatusCreatedOrUpdated(restaurant);
+        setOrderStatusForTableInDB(tableNumber, OrderStatus.COOKING, restaurant);
     }
 
-    public static int getTableNumberFromUserPromptForKitchenCooking(Restaurant restaurant) {
+    public static int getTableNumberFromUserPromptWithStatusCreatedOrUpdated(Restaurant restaurant) {
         int[] occupiedTablesArr = restaurant.getReadyForKitchenCookingTablesArr();
         String frameLabel = "Kitchen Orders";
         String topMenuLabel = "Select Table Number To View Order:";
@@ -276,18 +247,12 @@ public class OrdersOperationsMenuBuilder {
     }
 
     public static void printTablesReadyToBeCooked(Restaurant restaurant) {
-        // get tables with status COOKING - ready to be fully COOKED. Then set status to COOKED.
-        int tableNumber = getTableNumberFromUserPromptForKitchenCooked(restaurant);
-        if (tableNumber == 0){
-            return;
-        }
-        Table selectedTable = restaurant.getTable(tableNumber);
-        Order selectedOrder = selectedTable.getCurrentOrder();
-        selectedOrder.setOrderStatusAndSaveToDB(OrderStatus.COOKED);
-        ConsolePrinter.printInfo("Order on table [" + tableNumber + "] is now cooked.");
+        // get tables with status "COOKING". Then set status to "COOKED".
+        int tableNumber = getTableNumberFromUserPromptWithStatusCooking(restaurant);
+        setOrderStatusForTableInDB(tableNumber, OrderStatus.COOKED, restaurant);
     }
 
-    public static int getTableNumberFromUserPromptForKitchenCooked(Restaurant restaurant) {
+    public static int getTableNumberFromUserPromptWithStatusCooking(Restaurant restaurant) {
         int[] occupiedTablesArr = restaurant.getReadyForKitchenCookedTablesArr();
         String frameLabel = "Cooking Orders";
         String topMenuLabel = "Select Table Number To View Order:";
@@ -298,54 +263,60 @@ public class OrdersOperationsMenuBuilder {
         return buildMenuOrder(occupiedTablesArr, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
     }
 
-//    public static void showClosedOrders(Restaurant restaurant) {
-//        int tableNumber = getTableNumberFromUserPromptForClosedOrders(restaurant);
-//        if (tableNumber == 0){
-//            return;
-//        }
-//        // TODO - get ID from orders - then get menuitemname and quantity from ordersdishes where orderid = id
-//        // printAllOrderedDishesWithNumbers
-//
-//        Table selectedTable = restaurant.getTable(tableNumber);
-////        Order selectedOrder = selectedTable.getCurrentOrder();
-////        selectedOrder.setOrderStatusAndSaveToDB(OrderStatus.COOKED);
-////        ConsolePrinter.printInfo("Order on table [" + tableNumber + "] is now cooked.");
-//    }
-
-    public static void getTableNumberFromUserPromptForClosedOrders() {
-        List<String> closedOrdersInfo = getAllClosedOrdersInformation();
-        String columnNames = "Index, Table Number, Order Number";
-        int[] maxColumnLengths = MenuBuilder.getBiggestColumnNames(closedOrdersInfo, columnNames);
-
-        printMenuOptionsInFrameTableRestaurantMenu(closedOrdersInfo, "CLOSED ORDERS", columnNames, "Go Back", maxColumnLengths);
-        int userSelection = getUserInputFrom0toNumber(closedOrdersInfo.size());
-
-        if (userSelection == 0) {
+    private static void setOrderStatusForTableInDB(int tableNumber, OrderStatus orderStatus, Restaurant restaurant) {
+        if (tableNumber == 0) {
             return;
         }
 
-        long id = Long.parseLong(Objects.requireNonNull(getElementPositionFromIndex(userSelection, closedOrdersInfo, 2)));
+        Table selectedTable = restaurant.getTable(tableNumber);
+        Order selectedOrder = selectedTable.getCurrentOrder();
+        selectedOrder.setOrderStatusAndSaveToDB(orderStatus);
+        ConsolePrinter.printInfo("Order on table [" + tableNumber + "] is now " + orderStatus.toString().toLowerCase() + ".");
 
-        List<OrderedDish> orderedDishes = DBOperations.getOrdersDishesForID(id);
+        // Set table back to Free if order is paid.
+        if (orderStatus == OrderStatus.PAID) {
+            selectedTable.unOccupy();
+        }
+    }
+
+
+    public static void printClosedOrder() {
+        String columnNames = "Index, Table Number, Order Number";
+        List<String> allClosedOrdersInformation = getAllClosedOrdersInformation();
+
+        printMenuOptionsInFrameTableRestaurantMenu(allClosedOrdersInformation, "CLOSED ORDERS", columnNames, "Go Back");
+
+        int selectedIndex = getUserInputFrom0toNumber(allClosedOrdersInformation.size());
+
+        if (selectedIndex == 0) {
+            System.out.println("Going back..");
+            return;
+        }
+
+        long id = getOrderID(allClosedOrdersInformation, selectedIndex);
+        printAllDishesInOrder(id);
+    }
+
+    public static void printAllDishesInOrder(long id) {
+        List<OrderedDish> orderedDishes = Restaurant.getAllOrderedDishesFromDB(id);
 
         List<List<String>> allDishes = getAllThreeOrderedDishesForMenu(orderedDishes);
 
+        printAllOrderedDishesWithNumbers(allDishes);
 
-        printAllOrderedDishesWithNumbers(allDishes,"Go Back");
+        pressAnyKeyToContinue();
+        printClosedOrder();
     }
 
-    public static List<String> getAllClosedOrdersInformation() {
-        List<Order> closedOrders = DBOperations.getAllOrdersFromDBWithStatus(OrderStatus.PAID);
-        List<String> ordersInformation = new ArrayList<>();
-        int startingNumber = 1;
-        for (Order order : closedOrders) {
-            int tableNumber = order.getTableNumber();
-            long id = order.getOrderNumber();
+    public static long getOrderID(List<String> allClosedOrdersInformation, int selectedIndexByUser) {
+        int orderNumberPositionInString = 2;
+        String idString = getElementPositionFromIndex(selectedIndexByUser, allClosedOrdersInformation, orderNumberPositionInString);
 
-            ordersInformation.add(startingNumber + sep + tableNumber + sep + id);
-            startingNumber ++;
+        if (idString == null) {
+            throw new RuntimeException("The ID is null/not found/ at position [" + orderNumberPositionInString + "].");
         }
-        return ordersInformation;
+
+        return Long.parseLong(idString);
     }
 
     public static void viewSingleOpenOrderMenu(Order order) {
@@ -355,11 +326,9 @@ public class OrdersOperationsMenuBuilder {
         String optionZeroText = "Go back";
         String optionZeroMsg = "Going back...";
 
-        // buildMenu
         while (true) {
             int selectedOption = printMenuAndGetUsersChoice(menuOptions, topMenuLabel, optionZeroText, frameLabel);
 
-            // Exit if 0
             if (selectedOption == 0) {
                 System.out.println(optionZeroMsg);
                 break;
@@ -367,7 +336,6 @@ public class OrdersOperationsMenuBuilder {
 
             viewSingleOpenOrderMenuAction(selectedOption, order);
         }
-
     }
 
     public static void viewSingleOpenOrderMenuAction(int option, Order order) {
@@ -376,6 +344,7 @@ public class OrdersOperationsMenuBuilder {
                 printOrderInMenu(order);
                 System.out.println("Total: " + order.getCalculatedTotalPrice() + "\n");
                 // TODO: Add total in the menu
+                pressAnyKeyToContinue();
             }
             case 2 -> {
                 addDishToOrder(order);
@@ -449,37 +418,8 @@ public class OrdersOperationsMenuBuilder {
 
     }
 
-    public static void changeOrderStatus(OrderStatus orderStatus) {
-        // todo
-    }
-
     public static List<List<String>> getAllThreeOrderedDishesForMenu(Order order) {
-        List<OrderedDish> allFood = new ArrayList<>();
-        List<OrderedDish> allDrinks = new ArrayList<>();
-        List<OrderedDish> allDeserts = new ArrayList<>();
-
-        for (OrderedDish orderedDish : order.getOrderedDishesFromDB()) {
-            Dish dish = orderedDish.getDish();
-            DishType type = dish.getDishType();
-            if (type == DishType.FOOD) {
-                allFood.add(orderedDish);
-            } else if (type == DishType.DRINK) {
-                allDrinks.add(orderedDish);
-            } else {
-                allDeserts.add(orderedDish);
-            }
-        }
-
-        List<String> allFoodCommaSeparated = joinOrderedDishToString(allFood, false, true, 1);
-        List<String> allDrinkCommaSeparated = joinOrderedDishToString(allDrinks, false, true, allFoodCommaSeparated.size() + 1);
-        List<String> allDessertCommaSeparated = joinOrderedDishToString(allDeserts, false, true, allFoodCommaSeparated.size() + allDrinkCommaSeparated.size() + 1);
-
-        List<List<String>> result = new ArrayList<>();
-        result.add(allFoodCommaSeparated);
-        result.add(allDrinkCommaSeparated);
-        result.add(allDessertCommaSeparated);
-
-        return result;
+        return getAllThreeOrderedDishesForMenu(order.getOrderedDishesFromDB());
     }
 
     public static List<List<String>> getAllThreeOrderedDishesForMenu(List<OrderedDish> orderedDishList) {
@@ -503,12 +443,7 @@ public class OrdersOperationsMenuBuilder {
         List<String> allDrinkCommaSeparated = joinOrderedDishToString(allDrinks, false, true, allFoodCommaSeparated.size() + 1);
         List<String> allDessertCommaSeparated = joinOrderedDishToString(allDeserts, false, true, allFoodCommaSeparated.size() + allDrinkCommaSeparated.size() + 1);
 
-        List<List<String>> result = new ArrayList<>();
-        result.add(allFoodCommaSeparated);
-        result.add(allDrinkCommaSeparated);
-        result.add(allDessertCommaSeparated);
-
-        return result;
+        return MenuBuilder.combineLists(allFoodCommaSeparated, allDrinkCommaSeparated, allDessertCommaSeparated);
     }
 
     public static List<String> joinOrderedDishToString(List<OrderedDish> orderedDishes, boolean addDishType, boolean addNumbers, int startNumber) {
@@ -541,9 +476,7 @@ public class OrdersOperationsMenuBuilder {
 
         int[] maxColumnLengths = getBiggest(food, drink, dessert, columnNames);
 
-        int frameLength = MenuBuilder.getFrameLength(maxColumnLengths, columnNames);
-
-        MenuBuilder.printColumnNames(frameLength, maxColumnLengths, columnNames);
+        MenuBuilder.printColumnNames(maxColumnLengths, columnNames);
 
         if (!food.isEmpty()) {
             if (drink.isEmpty() && dessert.isEmpty()) {

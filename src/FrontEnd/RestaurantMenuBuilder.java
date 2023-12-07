@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static FrontEnd.MenuBuilder.*;
+import static FrontEnd.UserInput.getUserInputFrom0toNumber;
 
 public class RestaurantMenuBuilder {
 
@@ -109,7 +110,7 @@ public class RestaurantMenuBuilder {
 
         String columnNames = "Index, Name, Price";
 
-        int[] maxColumnLengths = getBiggest(food, drink, dessert, columnNames);
+        int[] maxColumnLengths = getBiggest(food, drink, dessert, columnNames);  // TODO: get this from allThreeDishes + columnNames
 
         printMenuOptionsInFrameTableRestaurantMenu(food, "Food", columnNames, "", maxColumnLengths);
         printMenuOptionsInFrameTableRestaurantMenu(drink, "Drinks", "", "", maxColumnLengths);
@@ -121,12 +122,7 @@ public class RestaurantMenuBuilder {
         List<String> allDrinkCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDrink(), false, true, allFoodCommaSeparated.size() + 1);
         List<String> allDessertCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDesert(), false, true, allFoodCommaSeparated.size() + allDrinkCommaSeparated.size() + 1);
 
-        List<List<String>> result = new ArrayList<>();
-        result.add(allFoodCommaSeparated);
-        result.add(allDrinkCommaSeparated);
-        result.add(allDessertCommaSeparated);
-
-        return result;
+        return MenuBuilder.combineLists(allFoodCommaSeparated, allDrinkCommaSeparated, allDessertCommaSeparated);
     }
 
 }

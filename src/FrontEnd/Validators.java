@@ -105,4 +105,32 @@ public class Validators {
         // Capitalized + all other letters lowercase
         return isFirstLetterCapital(name) && areAllLettersStartingAtSecondLowercase(name);
     }
+
+    static boolean isNumberInArray(int[] array, int targetNumber) {
+        for (int number : array) {
+            if (number == targetNumber) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static String intArrayToString(int[] array) {
+        String[] stringArray = new String[array.length];
+
+        for (int i = 0; i < array.length; i++) {
+            stringArray[i] = String.valueOf(array[i]);
+        }
+
+        return String.join(", ", stringArray);
+    }
+
+    static boolean isInteger(String integerToTest) {
+        try {
+            Integer.parseInt(integerToTest);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }

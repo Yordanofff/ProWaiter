@@ -7,6 +7,9 @@ import BackEnd.Users.UserType;
 import java.util.*;
 
 import static FrontEnd.MenuBuilderFrameDrawers.*;
+import static FrontEnd.UserInput.*;
+import static FrontEnd.Validators.isInteger;
+import static FrontEnd.Validators.isNumberInArray;
 
 public class MenuBuilder {
     public static final String sep = ",";  // separator for the strings when printing menus
@@ -27,7 +30,6 @@ public class MenuBuilder {
     }
 
     public static void LoginMenuAction(int option) {
-        // Call methods to run
         switch (option) {
             case 1 -> UserLoginMenuAction();
             case 2 -> aboutPage();
@@ -63,7 +65,6 @@ public class MenuBuilder {
     }
 
     public static void AdminMenuAction(int option, User user) {
-        // Call methods to run
         switch (option) {
             case 1 -> UserManagementMenuBuilder.UserManagementMenu(user);
             case 2 -> RestaurantMenuBuilder.restaurantMenuItemsMenu(user);
@@ -75,23 +76,13 @@ public class MenuBuilder {
         OrdersOperationsMenuBuilder.kitchenOrdersMenu(user);
     }
 
-    public static void KitchenMenuAction(int option, User user) {
-        // todo - use user somewhere?
-        switch (option) {
-            case 1 -> System.out.println("Showing orders..");
-            case 2 -> System.out.println("Showing orders.. + user input - select order - status cooking");
-            case 3 -> System.out.println("Showing orders.. + user input - select order - status ready");
-        }
-    }
-
-    public static void WaiterMenu(User user) {  // orders menu?
+    public static void WaiterMenu(User user) {
         String[] menuOptions = new String[]{"Restaurant Menu Options", "Orders Menu Options"};
         String frameLabel = "[" + user.getUserType() + "]";
         String topMenuLabel = "Hello, " + user.getFullName() + "!";
         String optionZeroText = "Log out";
         String optionZeroMsg = "Logging out...";
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction); // use this if user data is needed in WaiterMenuAction
-//        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> WaiterMenuAction(option), user);  // lambda function to ignore the user.
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction);
     }
 
     public static void WaiterMenuAction(int option, User user) {
@@ -118,7 +109,6 @@ public class MenuBuilder {
         while (true) {
             int selectedOption = printMenuAndGetUsersChoice(menuOptions, topMenuLabel, optionZeroText, frameLabel);
 
-            // Exit if 0
             if (selectedOption == 0) {
                 System.out.println(optionZeroMsg);
                 break;
@@ -145,7 +135,6 @@ public class MenuBuilder {
         while (true) {
             selectedOption = printMenuAndGetUsersChoiceOrder(menuOptions, topMenuLabel, optionZeroText, frameLabel, freeOrOccupiedTable);
 
-            // Exit if 0
             if (selectedOption == 0) {
                 System.out.println(optionZeroMsg);
                 break;
@@ -156,9 +145,7 @@ public class MenuBuilder {
                 break;
             }
 
-            // pause
-            System.out.print("Press any key to continue..: ");
-            scanner.nextLine();
+            pressAnyKeyToContinue();
 
             System.out.println();
         }
@@ -182,48 +169,6 @@ public class MenuBuilder {
 
         // Returning the user selection
         return getUserInputFrom0toNumberOrder(tables);
-    }
-
-    static int getUserInputFrom0toNumberOrder(int[] possibleTables) {
-        int choice;
-
-        while (true) {
-            String ans = scanner.nextLine().strip();
-
-            try {
-                choice = Integer.parseInt(ans);
-
-                if (choice == 0 || isNumberInArray(possibleTables, choice)) {
-                    break;
-                } else {
-                    ConsolePrinter.printError("Please enter a number from [" + intArrayToString(possibleTables) + "] or [0]");
-                }
-            } catch (NumberFormatException e) {
-                ConsolePrinter.printError("Invalid input [" + ans + "]! " +
-                        "Please enter an integer from [" + intArrayToString(possibleTables) + "] or [0]");
-            }
-        }
-
-        return choice;
-    }
-
-    private static boolean isNumberInArray(int[] array, int targetNumber) {
-        for (int number : array) {
-            if (number == targetNumber) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static String intArrayToString(int[] array) {
-        String[] stringArray = new String[array.length];
-
-        for (int i = 0; i < array.length; i++) {
-            stringArray[i] = String.valueOf(array[i]);
-        }
-
-        return String.join(", ", stringArray);
     }
 
     private static HashMap<Integer, String> generateHashMapMenuOptionsWithNumbersOrder(int[] tables, String optionZeroText, String freeOrOccupiedTable) {
@@ -252,29 +197,6 @@ public class MenuBuilder {
 
         // Returning the user selection
         return getUserInputFrom0toNumber(menuOptions.length);
-    }
-
-    static int getUserInputFrom0toNumber(int numOptions) {
-        int choice;
-
-        while (true) {
-            String ans = scanner.nextLine().strip();
-
-            try {
-                choice = Integer.parseInt(ans);
-
-                if (choice >= 0 && choice <= numOptions) {
-                    break;
-                } else {
-                    ConsolePrinter.printError("Please enter a number between [0 - " + numOptions + "]");
-                }
-            } catch (NumberFormatException e) {
-                ConsolePrinter.printError("Invalid input [" + ans + "]! " +
-                        "Please enter an integer in the range [0 - " + numOptions + "]");
-            }
-        }
-
-        return choice;
     }
 
     static int[] getUserInputMenuNumberAndQuantity(int numOptions) {
@@ -342,15 +264,6 @@ public class MenuBuilder {
         return choiceAndQuantity;
     }
 
-    private static boolean isInteger(String integerToTest) {
-        try {
-            Integer.parseInt(integerToTest);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
     private static HashMap<Integer, String> generateHashMapMenuOptionsWithNumbers(String[] menuOptionsWithoutExit, String optionZeroText) {
         // Will add Exit as position 0.
 
@@ -396,39 +309,6 @@ public class MenuBuilder {
         return dataToPrint;
     }
 
-    /**
-     * |      0 - Exit                                   |
-     * |      1 - Login                                  |
-     *
-     * @param frameLength - longest row data + min spaces on each side + 2
-     * @param rowData     - the actual data that needs to be printed "0 - Exit"
-     */
-    private static void printMiddleMenuLine(int frameLength, String rowData, String sideSymbol, int numberOfSymbolsFromLeftWall) {
-        String coloredFrameAndSpacesBeginningOfRow = ConsolePrinter.getGreenMsg(sideSymbol + " ".repeat(numberOfSymbolsFromLeftWall));
-        System.out.print(coloredFrameAndSpacesBeginningOfRow + rowData);
-        if (numberOfSymbolsFromLeftWall == MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU) {
-            System.out.println(ConsolePrinter.getGreenMsg(" ".repeat(getNumberOfRemainingSpacesToTheEndOfTheFrame(frameLength, rowData)) + sideSymbol));
-        } else {
-            int diff = MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU - numberOfSymbolsFromLeftWall;
-            frameLength = frameLength + diff;  // add more spaces when printing the frame so that the right wall is in the correct place.
-            System.out.println(ConsolePrinter.getGreenMsg(" ".repeat(getNumberOfRemainingSpacesToTheEndOfTheFrame(frameLength, rowData)) + sideSymbol));
-        }
-    }
-
-    private static void printMiddleMenuLine(int frameLength, String rowData, String sideSymbol) {
-        printMiddleMenuLine(frameLength, rowData, sideSymbol, MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU);
-    }
-
-    private static int getNumberOfRemainingSpacesToTheEndOfTheFrame(int frameLength, String rowData) {
-        return (frameLength - (getStringLengthWithoutANSI(rowData) + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU + 2));
-    }
-
-    private static int getTheNumberOfSymbolsInTheLongestString(String str, List<String> listOfStrings) {
-        // Create a new list that combines the current list and the string and get the length of the longest one.
-        List<String> menuQuestionAndOptions = new ArrayList<>(listOfStrings);
-        menuQuestionAndOptions.add(str);
-        return getLengthOfTheLongestStringInList(menuQuestionAndOptions);
-    }
 
     private static String addTrailingSpacesBeginningOfString(String str, int desiredLength) {
         return " ".repeat(desiredLength - str.length()) + str;
@@ -445,20 +325,6 @@ public class MenuBuilder {
         return longest;
     }
 
-    private static int getLengthOfTheLongestStringInList(List<String> list) {
-        int longest = 0;
-        for (String row : list) {
-            int currentLength = getStringLengthWithoutANSI(row);
-            if (currentLength > longest) {
-                longest = currentLength;
-            }
-        }
-        return longest;
-    }
-
-    private static int getStringLengthWithoutANSI(String str) {
-        return str.replaceAll("\u001B\\[[;\\d]*m", "").length();
-    }
 
     /**
      * ┌────────── [ADMIN] ───────────┐
@@ -483,7 +349,7 @@ public class MenuBuilder {
         int frameLength = longestRowWithData + (MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU * 2) + 2;
 
         System.out.println(getTopLineOfMenu(frameLength, frameLabel));
-        printMiddleMenuLine(frameLength, menuTopQuestion, SideWall);
+        printMiddleMenuLine(frameLength, menuTopQuestion);
         System.out.println(getMidLine(frameLength));
 
         // The first element will be [0 - Exit] or [0 - Log Out] etc.. Don't print it in the top part.
@@ -493,13 +359,13 @@ public class MenuBuilder {
                 isZeroElement = false;
                 continue;
             }
-            printMiddleMenuLine(frameLength, menuOptionRow, SideWall);
+            printMiddleMenuLine(frameLength, menuOptionRow);
         }
 
         System.out.println(getMidLine(frameLength));
 
         // Print the [0 - Exit] or [0 - Log Out] - at the bottom of the list below another separator
-        printMiddleMenuLine(frameLength, menuOptions.get(0), SideWall);
+        printMiddleMenuLine(frameLength, menuOptions.get(0));
 
         System.out.println(getBottomLine(frameLength));
     }
@@ -518,21 +384,21 @@ public class MenuBuilder {
         int frameLength = maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
 
         System.out.println(getTopLineOfMenu(frameLength, frameLabel));
-        System.out.println(getTopLineTableEndingUpDown(frameLength, maxColumnLengths));
+        System.out.println(getTopLineTableEndingUpDown(maxColumnLengths));
         columnNames = addExtraSeparatorsToLength(columnNames, numberOfColumns);
         printMiddleMenuLineTable(columnNames, maxColumnLengths, numSpacesAroundEachColumnWord);
-        System.out.println(getMidLineTable(frameLength, maxColumnLengths));
+        System.out.println(getMidLineTable(maxColumnLengths));
 
         for (String row : rowsWithCommaSeparatedColumns) {
             row = addExtraSeparatorsToLength(row, numberOfColumns);
             printMiddleMenuLineTable(row, maxColumnLengths, numSpacesAroundEachColumnWord);
         }
         if (zeroOptionText.isEmpty()) {
-            System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+            System.out.println(getBottomLineTable(maxColumnLengths));
         } else {
-            System.out.println(getBottomLineTableContinuingDownCorners(frameLength, maxColumnLengths));
+            System.out.println(getBottomLineTableContinuingDownCorners(maxColumnLengths));
             zeroOptionText = "0 - " + zeroOptionText;
-            printMiddleMenuLine(frameLength, zeroOptionText, SideWall, numSpacesAroundEachColumnWord);
+            printMiddleMenuLine(frameLength, zeroOptionText, numSpacesAroundEachColumnWord);
             System.out.println(getBottomLine(frameLength));
         }
     }
@@ -571,8 +437,13 @@ public class MenuBuilder {
      * @param columnNames                   Name, Price (When empty - not printing)
      * @param zeroOptionText                0, Go Back
      * @param maxColumnLengths              [14, 5] - the longest word on the left/right column or more columns
+     *                                      It is needed when printing more than one rowsWithCommaSeparatedColumns, and
+     *                                      it needs to be calculated prior to entering the method.
      */
     public static void printMenuOptionsInFrameTableRestaurantMenu(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText, int[] maxColumnLengths) {
+        if (maxColumnLengths == null) {
+            maxColumnLengths = MenuBuilder.getBiggestColumnNames(rowsWithCommaSeparatedColumns, columnNames);
+        }
 
         int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
 
@@ -585,34 +456,39 @@ public class MenuBuilder {
         int frameLength = maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
 
         if (!columnNames.isEmpty()) {
-            printColumnNames(frameLength, maxColumnLengths, columnNames);
+            printColumnNames(maxColumnLengths, columnNames);
         }
         System.out.println(getTopLineOfMenu(frameLength, frameLabel));
-        System.out.println(getTopLineTableEndingUpDown(frameLength, maxColumnLengths));
+        System.out.println(getTopLineTableEndingUpDown(maxColumnLengths));
 
         for (String row : rowsWithCommaSeparatedColumns) {
             row = addExtraSeparatorsToLength(row, numberOfColumns);
             printMiddleMenuLineTable(row, maxColumnLengths, numSpacesAroundEachColumnWord);
         }
         if (zeroOptionText.isEmpty()) {
-            System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+            System.out.println(getBottomLineTable(maxColumnLengths));
         } else {
             printZeroOptionText(frameLength, maxColumnLengths, zeroOptionText);
         }
     }
 
-    public static void printColumnNames(int frameLength, int[] maxColumnLengths, String columnNames){
+    // Use when printing single list rowsWithCommaSeparatedColumns, and there's no need to match frame sizes.
+    public static void printMenuOptionsInFrameTableRestaurantMenu(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText) {
+        printMenuOptionsInFrameTableRestaurantMenu(rowsWithCommaSeparatedColumns, frameLabel, columnNames, zeroOptionText, null);
+    }
+
+    public static void printColumnNames(int[] maxColumnLengths, String columnNames) {
         int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
-        System.out.println(getTopLineTable(frameLength, maxColumnLengths));
+        System.out.println(getTopLineTable(maxColumnLengths));
         columnNames = addExtraSeparatorsToLength(columnNames, numberOfColumns);
         printMiddleMenuLineTable(columnNames, maxColumnLengths, numSpacesAroundEachColumnWord);
-        System.out.println(getBottomLineTable(frameLength, maxColumnLengths));
+        System.out.println(getBottomLineTable(maxColumnLengths));
     }
 
     public static void printZeroOptionText(int frameLength, int[] maxColumnLengths, String zeroOptionText) {
-        System.out.println(getBottomLineTableContinuingDownCorners(frameLength, maxColumnLengths));
+        System.out.println(getBottomLineTableContinuingDownCorners(maxColumnLengths));
         zeroOptionText = "0 - " + zeroOptionText;
-        printMiddleMenuLine(frameLength, zeroOptionText, SideWall, numSpacesAroundEachColumnWord);
+        printMiddleMenuLine(frameLength, zeroOptionText, numSpacesAroundEachColumnWord);
         System.out.println(getBottomLine(frameLength));
     }
 
@@ -794,5 +670,18 @@ public class MenuBuilder {
             merged = getMergedLists(merged, singleList);
         }
         return merged;
+    }
+
+    @SafeVarargs
+    static List<List<String>> combineLists(List<String>... lists) {
+        List<List<String>> combinedList = new ArrayList<>();
+
+        for (List<String> list : lists) {
+            // Make a defensive copy to ensure the original lists are not modified externally
+            List<String> newList = new ArrayList<>(list);
+            combinedList.add(newList);
+        }
+
+        return combinedList;
     }
 }
