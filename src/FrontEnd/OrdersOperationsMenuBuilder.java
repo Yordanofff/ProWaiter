@@ -345,6 +345,7 @@ public class OrdersOperationsMenuBuilder {
                 printOrderInMenu(order);
                 System.out.println("Total: " + order.getCalculatedTotalPrice() + "\n");
                 // TODO: Add total in the menu
+                pressAnyKeyToContinue();
             }
             case 2 -> {
                 addDishToOrder(order);
