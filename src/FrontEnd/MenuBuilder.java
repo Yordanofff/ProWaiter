@@ -795,4 +795,10 @@ public class MenuBuilder {
         }
         return merged;
     }
+
+    static void pressAnyKeyToContinue() {
+        ConsolePrinter.printQuestion("Press [Enter] to continue...");
+        Scanner scanner = new Scanner(System.in);
+        scanner.nextLine();
+    }
 }

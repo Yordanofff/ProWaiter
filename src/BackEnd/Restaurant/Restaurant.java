@@ -1,12 +1,15 @@
 package BackEnd.Restaurant;
 
 import BackEnd.DB.DBOperations;
+import BackEnd.Restaurant.Dishes.OrderedDish;
 import FrontEnd.ConsolePrinter;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.ArrayList;
 import java.util.List;
+
+import static FrontEnd.MenuBuilder.sep;
 
 public class Restaurant {
 
@@ -22,7 +25,7 @@ public class Restaurant {
 //    }
 
     private RestaurantInfo restaurantInfo = loadRestaurantInfo();
-    private List<Table> tables = getTablesFromDBorPopulateTheTablesIfNone() ;//= new ArrayList<>();
+    private List<Table> tables = getTablesFromDBorPopulateTheTablesIfNone();//= new ArrayList<>();
 //    private static List<User> users = new ArrayList<>();
 
     public RestaurantInfo loadRestaurantInfo() {
@@ -52,7 +55,7 @@ public class Restaurant {
             return newTableList;
         }
         ConsolePrinter.printInfo("Tables loaded from DB.");
-            return tablesFromDB;
+        return tablesFromDB;
     }
 
     public static List<Table> generateNewTables(int numberOfTables) {
@@ -114,6 +117,7 @@ public class Restaurant {
 
         return getTablesFromOrders(cookedOrders);
     }
+
     public List<Table> getDeliveredTables() {
         List<Order> servedOrders = DBOperations.getAllOrdersFromDBWithStatus(OrderStatus.SERVED);
 
@@ -140,15 +144,30 @@ public class Restaurant {
         return getTablesFromOrders(createdOrders);
     }
 
-//    public List<Order> getClosedOrders() {
-//        List<Order> createdOrders = DBOperations.getAllOrdersFromDBWithStatus(OrderStatus.PAID);
-//        createdOrders
-//        return createdOrders;
-//    }
+    public static List<Order> getAllClosedOrders() {
+        return DBOperations.getAllOrdersFromDBWithStatus(OrderStatus.PAID);
+    }
 
-    public static List<Table> getTablesFromOrders(List<Order> orders){
+    public static List<String> getAllClosedOrdersInformation() {
+        List<Order> closedOrders = getAllClosedOrders();
+        List<String> ordersInformation = new ArrayList<>();
+
+        for (int i = 0; i < closedOrders.size(); i++) {
+            int tableNumber = closedOrders.get(i).getTableNumber();
+            long id = closedOrders.get(i).getOrderNumber();
+            ordersInformation.add((i + 1) + sep + tableNumber + sep + id);
+        }
+
+        return ordersInformation;
+    }
+
+    public static List<OrderedDish> getAllOrderedDishesFromDB(long id) {
+        return DBOperations.getOrdersDishesForID(id);
+    }
+
+    public static List<Table> getTablesFromOrders(List<Order> orders) {
         List<Table> tables = new ArrayList<>();
-        for (Order order:orders) {
+        for (Order order : orders) {
             Table table = new Table(order.getTableNumber());
             tables.add(table);
         }
