@@ -61,7 +61,7 @@ public class Order {
      * and keep looking for the remaining 15. Don't attempt to remove the OrderedDish from the original list, or it will
      * crash with "java.util.ConcurrentModificationException".
      *
-     * @param dishNameToRemove - the name of the Dish that we want to remove
+     * @param dishNameToRemove  - the name of the Dish that we want to remove
      * @param numDishesToRemove - number of that dish that we want to remove
      */
     public void removeOrderedDish(String dishNameToRemove, int numDishesToRemove) {
@@ -119,11 +119,6 @@ public class Order {
             }
         }
         return total;
-    }
-
-    public void removeDish(Dish dish) {
-        orderedDishes.remove(dish);
-        setTotalPrice(getTotalPrice() - dish.getPrice());
     }
 
     public boolean isPaid() {
