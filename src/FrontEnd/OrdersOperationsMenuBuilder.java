@@ -20,16 +20,10 @@ import java.util.List;
 import static BackEnd.Restaurant.Restaurant.getAllClosedOrdersInformation;
 import static FrontEnd.MenuBuilder.*;
 import static FrontEnd.RestaurantMenuBuilder.*;
-import static FrontEnd.UserInput.getUserInputFrom0toNumber;
-import static FrontEnd.UserInput.pressAnyKeyToContinue;
+import static FrontEnd.UserInput.*;
 import static FrontEnd.Validators.formatDecimalNumber;
 
 public class OrdersOperationsMenuBuilder {
-    // Всяка поръчка си има дата и час на създаване и номер на маса. Не може да се създаде повече от една поръчка за маса.
-    //Към всяка поръчка може да се добавят или премахват ястия. Всяко ястие може да се добави веднъж или много пъти. Общата цена на поръчката се показва в реално време.
-    // Сервитьорът може да смени статуса на поръчка на “платена”. Тогава му се показва обобщение на поръчката, тя изчезва от списъка с активни поръчки и на тази маса вече може да се прави нова поръчка.
-    // Drink/Desert - cannot be cooked but still need to be ready for delivery? If new item is Food - wait for cook status before able to deliver?
-
     public static void ordersMenu(User user) {
         String[] menuOptions = new String[]{"New order", "Show open orders", "Deliver order", "Close order", "Show completed orders"};
         String frameLabel = "[" + user.getUserType() + "]";
@@ -169,7 +163,6 @@ public class OrdersOperationsMenuBuilder {
         }
 
         Table selectedTable = restaurant.getTable(tableNumber);
-
         Order selectedOrder = selectedTable.getCurrentOrder();
 
         viewSingleOpenOrderMenu(selectedOrder);
@@ -281,6 +274,10 @@ public class OrdersOperationsMenuBuilder {
         if (orderStatus == OrderStatus.PAID) {
             ConsolePrinter.printInfo("Total stay time: " + getStayTimeInMinutes(selectedOrder.getCreationDateTime()) + " minutes.");
             selectedTable.unOccupy();
+            boolean isOrderSummary = getConfirmation("Do you want to see order summary?");
+            if (isOrderSummary) {
+                printReceipt(selectedOrder);
+            }
         }
     }
 
@@ -463,7 +460,7 @@ public class OrdersOperationsMenuBuilder {
 
             order.addOrderedDish(orderedDish);
             ConsolePrinter.printInfo("Added [" + orderedDish.getQuantity() + " x " + orderedDish.getDish().getName() + "] to the order.\n");
-//            order.printCurrentOrder();  // this was more for a debug - to be deleted ?
+            order.printCurrentOrder();
         }
 
     }

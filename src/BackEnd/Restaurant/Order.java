@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDateTime;
 
+import static FrontEnd.Validators.formatDecimalNumber;
+
 public class Order {
     private List<OrderedDish> orderedDishes;
     private double totalPrice = 0;
@@ -212,8 +214,9 @@ public class Order {
         List<OrderedDish> orderedDishes = getOrderedDishesFromDB();
         for (OrderedDish d : orderedDishes) {
             System.out.println("Ordered " + d.getQuantity() + " x " + d.getDish().getName() + " - " +
-                    d.getDish().getPrice() + " Total: " + d.getDish().getPrice() * d.getQuantity());
+                    formatDecimalNumber(d.getDish().getPrice()) +
+                    " Total: " + formatDecimalNumber(d.getDish().getPrice() * d.getQuantity()));
         }
-        System.out.println("Total: " + getCalculatedTotalPrice());
+        System.out.println("Total: " + formatDecimalNumber(getCalculatedTotalPrice()));
     }
 }

@@ -82,7 +82,7 @@ public class MenuBuilder {
         String topMenuLabel = "Hello, " + user.getFullName() + "!";
         String optionZeroText = "Log out";
         String optionZeroMsg = "Logging out...";
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction);
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, MenuBuilder::WaiterMenuAction, user);
     }
 
     public static void WaiterMenuAction(int option, User user) {
