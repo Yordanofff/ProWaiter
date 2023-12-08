@@ -7,6 +7,8 @@ import FrontEnd.ConsolePrinter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static FrontEnd.Validators.formatDecimalNumber;
+
 public class RestaurantMenu {
     //  Static fields, as the data will be the same for all.
     private static List<Dish> dishes = new ArrayList<>();
@@ -128,7 +130,7 @@ public class RestaurantMenu {
                 dataToAdd += startNumber + ", ";
                 startNumber++;
             }
-            dataToAdd += dish.getName() + ", " + dish.getPrice();
+            dataToAdd += dish.getName() + ", " + formatDecimalNumber(dish.getPrice());
             if (addDishType) {
                 dataToAdd += ", " + dish.getDishType();
 

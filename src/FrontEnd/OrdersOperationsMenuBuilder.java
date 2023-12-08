@@ -19,6 +19,7 @@ import static FrontEnd.MenuBuilder.*;
 import static FrontEnd.RestaurantMenuBuilder.*;
 import static FrontEnd.UserInput.getUserInputFrom0toNumber;
 import static FrontEnd.UserInput.pressAnyKeyToContinue;
+import static FrontEnd.Validators.formatDecimalNumber;
 
 public class OrdersOperationsMenuBuilder {
     // Всяка поръчка си има дата и час на създаване и номер на маса. Не може да се създаде повече от една поръчка за маса.
@@ -490,7 +491,7 @@ public class OrdersOperationsMenuBuilder {
                 startNumber++;
             }
             Dish dish = orderedDish.getDish();
-            dataToAdd += dish.getName() + ", " + dish.getPrice() + ", " + orderedDish.getQuantity() + ", " + dish.getPrice() * orderedDish.getQuantity();
+            dataToAdd += dish.getName() + ", " + formatDecimalNumber(dish.getPrice()) + ", " + orderedDish.getQuantity() + ", " + formatDecimalNumber(dish.getPrice() * orderedDish.getQuantity());
             if (addDishType) {
                 dataToAdd += ", " + dish.getDishType();
 
