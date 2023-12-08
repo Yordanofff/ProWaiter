@@ -320,7 +320,7 @@ public class OrdersOperationsMenuBuilder {
     }
 
     public static void viewSingleOpenOrderMenu(Order order) {
-        String[] menuOptions = new String[]{"Show order", "Add dish", "Remove dish"};
+        String[] menuOptions = new String[]{"Show order", "Add dish", "Remove dish", "Print Receipt"};
         String frameLabel = "[Table " + order.getTableNumber() + "]";
         String topMenuLabel = "Select option: ";
         String optionZeroText = "Go back";
@@ -351,7 +351,40 @@ public class OrdersOperationsMenuBuilder {
                 order.setOrderStatusAndSaveToDB(OrderStatus.UPDATED);
             }
             case 3 -> removeDishFromOrder(order);  // Keep order status.
+            case 4 -> printReceipt(order);
         }
+    }
+
+    public static void printReceipt(Order order) {
+        List<OrderedDish> orderedDishes = order.getOrderedDishesFromDB();
+        List<OrderedDish> summarizedOrderedDishes = getSummarizeOrderedDishes(orderedDishes);
+        List<List<String>> summarizedAsStrings = getAllThreeOrderedDishesForMenu(summarizedOrderedDishes);
+        printAllOrderedDishesWithNumbers(summarizedAsStrings);
+        pressAnyKeyToContinue();
+    }
+
+    public static List<OrderedDish> getSummarizeOrderedDishes(List<OrderedDish> orderedDishes) {
+        List<OrderedDish> summarizedList = new ArrayList<>();
+
+        for (OrderedDish orderedDish : orderedDishes) {
+            OrderedDish existingOrderedDish = getOrderedDishFromList(summarizedList, orderedDish.getDish());
+            if (existingOrderedDish == null) {
+                summarizedList.add(orderedDish);
+            } else {
+                // Dish already in summarizedList
+                existingOrderedDish.increaseQuantity(orderedDish.getQuantity());
+            }
+        }
+        return summarizedList;
+    }
+
+    public static OrderedDish getOrderedDishFromList(List<OrderedDish> orderedDishes, Dish dish) {
+        for (OrderedDish orderedDish : orderedDishes) {
+            if (orderedDish.getDish().equals(dish)) {
+                return orderedDish;
+            }
+        }
+        return null;
     }
 
     public static void printOrderInMenu(Order order, String optionZeroText) {
