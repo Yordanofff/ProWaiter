@@ -4,6 +4,7 @@ import BackEnd.DB.DBOperations;
 import BackEnd.Restaurant.Dishes.*;
 import FrontEnd.ConsolePrinter;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,10 +35,11 @@ public class RestaurantMenu {
         setDishes(allDishes);
     }
 
-    public static void removeDish(Dish dish) {
+    public static void removeDish(Dish dish) throws SQLException {
         if (isDishAlreadyInMenu(dish, false)) {
-            dishes.remove(dish);
+            // Try to remove it from DB first, so if it fails - it will still be shown in the menu.
             boolean result = DBOperations.removeDishFromRestaurantMenuItems(dish);
+            dishes.remove(dish);
             if (result) {
                 ConsolePrinter.printInfo("Dish [" + dish.getName() + "] removed successfully.");
             }
@@ -46,7 +48,7 @@ public class RestaurantMenu {
         }
     }
 
-    public static void removeDishName(String dishName) {
+    public static void removeDishName(String dishName) throws SQLException {
         Dish dishToRemove = getDishFromDishName(dishName);
         if (dishToRemove == null) {
             return;
@@ -109,7 +111,9 @@ public class RestaurantMenu {
     private static boolean isDishAlreadyInMenu(Dish dish, boolean printError) {
         for (Dish dishInMenu : getDishes()) {
             if (dishInMenu.getName().equalsIgnoreCase(dish.getName())) {
-                ConsolePrinter.printError("Dish [" + dish.getName() + "] already in the menu.");
+                if (printError) {
+                    ConsolePrinter.printError("Dish [" + dish.getName() + "] already in the menu.");
+                }
                 return true;
             }
         }

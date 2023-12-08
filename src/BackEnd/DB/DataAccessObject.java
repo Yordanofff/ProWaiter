@@ -357,20 +357,16 @@ public class DataAccessObject {
         }
     }
 
-    public boolean removeDishFromRestaurantMenuItems(Dish dish) {
-        try (Connection connection = ds.getConnection()) {
-            String sql = "DELETE FROM restaurantMenuItems WHERE name = ?";
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                // Set parameter for the prepared statement
-                statement.setString(1, dish.getName());
+    public boolean removeDishFromRestaurantMenuItems(Dish dish) throws SQLException {
+        Connection connection = ds.getConnection();
+        String sql = "DELETE FROM restaurantMenuItems WHERE name = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            // Set parameter for the prepared statement
+            statement.setString(1, dish.getName());
 
-                // Execute the update
-                int rowsAffected = statement.executeUpdate();
-                return rowsAffected > 0;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace(); // Handle the exception according to your application's error handling strategy
-            return false;
+            // Execute the update
+            int rowsAffected = statement.executeUpdate();
+            return rowsAffected > 0;
         }
     }
 
