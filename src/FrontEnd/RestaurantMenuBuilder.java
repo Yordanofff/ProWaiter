@@ -31,19 +31,31 @@ public class RestaurantMenuBuilder {
     }
 
     public static void printRestaurantMenu() {
-        List<String> allFoodCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllFood(), false);
-        List<String> allDrinkCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDrink(), false);
-        List<String> allDessertCommaSeparated = RestaurantMenu.joinDishToString(RestaurantMenu.getAllDesert(), false);
+        List<Dish> allFood = RestaurantMenu.getAllFood();
+        List<Dish> allDrink = RestaurantMenu.getAllDrink();
+        List<Dish> allDesert = RestaurantMenu.getAllDesert();
 
         String columnNames = "Name, Price";
 
-        int[] maxColumnLengths = getBiggest(allFoodCommaSeparated, allDrinkCommaSeparated, allDessertCommaSeparated, columnNames);
+        int[] maxColumnLengths = getBiggest(
+                RestaurantMenu.joinDishToString(allFood, false),
+                RestaurantMenu.joinDishToString(allDrink, false),
+                RestaurantMenu.joinDishToString(allDesert, false),
+                columnNames
+        );
 
-        printMenuOptionsInFrameTableRestaurantMenu(allFoodCommaSeparated, "Food", columnNames, "", maxColumnLengths);
-        printMenuOptionsInFrameTableRestaurantMenu(allDrinkCommaSeparated, "Drinks", "", "", maxColumnLengths);
-        printMenuOptionsInFrameTableRestaurantMenu(allDessertCommaSeparated, "Deserts", "", "Go Back", maxColumnLengths);
+        printColumnNames(maxColumnLengths, columnNames);
+
+        printCategoryMenu(allFood, "Food", maxColumnLengths);
+        printCategoryMenu(allDrink, "Drinks", maxColumnLengths);
+        printCategoryMenu(allDesert, "Deserts", maxColumnLengths);
 
         pressAnyKeyToContinue();
+    }
+
+    public static void printCategoryMenu(List<Dish> categoryDishes, String categoryName, int[] maxColumnLengths) {
+        List<String> categoryCommaSeparated = RestaurantMenu.joinDishToString(categoryDishes, false);
+        printMenuOptionsInFrameTableRestaurantMenu(categoryCommaSeparated, categoryName, "", "", maxColumnLengths);
     }
 
     public static void addNewItemToRestaurantMenu(User user) {
