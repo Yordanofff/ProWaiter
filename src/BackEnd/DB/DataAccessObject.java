@@ -15,6 +15,7 @@ import FrontEnd.ConsolePrinter;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
 
@@ -498,6 +499,7 @@ public class DataAccessObject {
                 "tableNumber INT," +
                 "isPaid BOOLEAN," +
                 "statusName VARCHAR(50) NOT NULL," +
+                "creationDateTime TIMESTAMP NOT NULL," +
                 "FOREIGN KEY (tableNumber) REFERENCES Tables(tableNumber)," +
                 "FOREIGN KEY (statusName) REFERENCES OrderStatuses(statusName))"
         );
@@ -505,17 +507,18 @@ public class DataAccessObject {
 
     public void addOrderToOrdersTable(Order order) {
         try (Connection connection = ds.getConnection()) {
-            String sql = "INSERT INTO Orders (tableNumber, isPaid, statusName) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO Orders (tableNumber, isPaid, statusName, creationDateTime) VALUES (?, ?, ?, ?)";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
                 preparedStatement.setInt(1, order.getTableNumber());
                 preparedStatement.setBoolean(2, order.isPaid());
                 preparedStatement.setString(3, order.getOrderStatusLocal().toString());
+                preparedStatement.setTimestamp(4, Timestamp.valueOf(order.getCreationDateTime()));
 
                 preparedStatement.executeUpdate();
 
-                order.setOrderNumber(getOrderID(order));
+                order.setOrderNumber(getOpenOrderID(order));
 
             }
         } catch (SQLException e) {
@@ -523,14 +526,12 @@ public class DataAccessObject {
         }
     }
 
-    public long getOrderID(Order order) throws SQLException {
+    public long getOpenOrderID(Order order) throws SQLException {
         Connection connection = ds.getConnection();
         String sql = "SELECT id FROM Orders WHERE tableNumber = ? AND statusName != ?";
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
-
         preparedStatement.setInt(1, order.getTableNumber());
-
         preparedStatement.setString(2, OrderStatus.PAID.toString());
 
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -540,7 +541,7 @@ public class DataAccessObject {
         return resultSet.getLong("id");
     }
 
-    public long getOrderID(int tableNumber) throws SQLException {
+    public long getOpenOrderID(int tableNumber) throws SQLException {
         Connection connection = ds.getConnection();
         String sql = "SELECT id FROM Orders WHERE tableNumber = ? AND statusname != ?";
 
@@ -564,7 +565,7 @@ public class DataAccessObject {
         List<Order> orders = new ArrayList<>();
 
         try (Connection connection = ds.getConnection()) {
-            String sql = "SELECT id, tableNumber, isPaid, statusName FROM Orders";
+            String sql = "SELECT id, tableNumber, isPaid, statusName, creationDateTime FROM Orders";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
                  ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -574,8 +575,9 @@ public class DataAccessObject {
                     boolean isPaid = resultSet.getBoolean("isPaid");
                     String statusName = resultSet.getString("statusName");
                     int id = resultSet.getInt("id");
+                    LocalDateTime creationDateTime = resultSet.getTimestamp("creationDateTime").toLocalDateTime();
 
-                    Order order = new Order(id, tableNumber, isPaid, OrderStatus.valueOf(statusName));
+                    Order order = new Order(id, tableNumber, isPaid, OrderStatus.valueOf(statusName), creationDateTime);
                     orders.add(order);
                 }
             }
@@ -592,18 +594,19 @@ public class DataAccessObject {
         List<Order> orders = new ArrayList<>();
 
         try (Connection connection = ds.getConnection()) {
-            String sql = "SELECT id, tableNumber, isPaid FROM Orders WHERE statusName = ?";
+            String sql = "SELECT id, tableNumber, isPaid, creationDateTime FROM Orders WHERE statusName = ?";
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 preparedStatement.setString(1, orderStatus.toString());
 
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
 
                     while (resultSet.next()) {
+                        long id = resultSet.getLong("id");
                         int tableNumber = resultSet.getInt("tableNumber");
                         boolean isPaid = resultSet.getBoolean("isPaid");
-                        long id = resultSet.getLong("id");
+                        LocalDateTime creationDateTime = resultSet.getTimestamp("creationDateTime").toLocalDateTime();
 
-                        Order order = new Order(id, tableNumber, isPaid, orderStatus);
+                        Order order = new Order(id, tableNumber, isPaid, orderStatus, creationDateTime);
                         orders.add(order);
                     }
                 }
@@ -621,7 +624,7 @@ public class DataAccessObject {
         List<Order> orders = new ArrayList<>();
 
         try (Connection connection = ds.getConnection()) {
-            String sql = "SELECT id, statusName FROM Orders WHERE isPaid = false and tablenumber = ?";
+            String sql = "SELECT id, statusName, creationDateTime FROM Orders WHERE isPaid = false and tablenumber = ?";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 preparedStatement.setLong(1, tableNumber);
@@ -630,8 +633,9 @@ public class DataAccessObject {
                     while (resultSet.next()) {
                         String statusName = resultSet.getString("statusName");
                         long id = resultSet.getLong("id");
+                        LocalDateTime creationDateTime = resultSet.getTimestamp("creationDateTime").toLocalDateTime();
 
-                        Order order = new Order(id, tableNumber, false, OrderStatus.valueOf(statusName));
+                        Order order = new Order(id, tableNumber, false, OrderStatus.valueOf(statusName), creationDateTime);
                         orders.add(order);
                     }
                     if (orders.size() == 1) {
@@ -653,7 +657,7 @@ public class DataAccessObject {
     public long getOrderIDOfOccupiedTable(int tableNumber) {
         long orderID = 0;
         try {
-            orderID = getOrderID(tableNumber);
+            orderID = getOpenOrderID(tableNumber);
 
         } catch (SQLException e) {
             // Consider throwing a custom exception or logging the error for better error handling
@@ -791,7 +795,7 @@ public class DataAccessObject {
         List<OrderedDish> orderedDishes = new ArrayList<>();
 
         try (Connection connection = ds.getConnection()) {
-            long orderId = getOrderID(tableNumber);
+            long orderId = getOpenOrderID(tableNumber);
             String sql = "SELECT menuitemname, quantity FROM ordersdishes WHERE orderid = ?";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {

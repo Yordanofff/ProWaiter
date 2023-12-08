@@ -8,6 +8,7 @@ import FrontEnd.ConsolePrinter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
 
 public class Order {
     private List<OrderedDish> orderedDishes;
@@ -16,20 +17,24 @@ public class Order {
     private OrderStatus orderStatus;
     private int tableNumber;
     private long orderNumber;  // Very long in the DB. Int might not be long enough. Will be created from the DB.
+    private LocalDateTime creationDateTime;
+
 
     public Order(Table table) {
         this.isPaid = false;
         this.orderedDishes = new ArrayList<>();
         this.orderStatus = OrderStatus.CREATED;
         this.tableNumber = table.getTableNumber();
+        this.creationDateTime = LocalDateTime.now();
     }
 
     // From DB;
-    public Order(long orderNumber, int tableNumber, boolean isPaid, OrderStatus orderStatus) {
+    public Order(long orderNumber, int tableNumber, boolean isPaid, OrderStatus orderStatus, LocalDateTime creationDateTime) {
         this.orderNumber = orderNumber;
         this.tableNumber = tableNumber;
         this.isPaid = isPaid;
         this.orderStatus = orderStatus;
+        this.creationDateTime = creationDateTime;
     }
 
     @Override
@@ -53,6 +58,10 @@ public class Order {
 
         DBOperations.updateOrderDishesToDB(this);
         setTotalPrice(getTotalPrice() + orderedDish.getDish().getPrice() * orderedDish.getQuantity()); // TODO - recalc?
+    }
+
+    public LocalDateTime getCreationDateTime() {
+        return creationDateTime;
     }
 
     /**
