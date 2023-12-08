@@ -462,15 +462,14 @@ public class DataAccessObject {
         return false;
     }
 
-    public boolean updateOccupyTable(Table table) {
+    public boolean updateOccupyTable(Table table) throws TableOccupationException {
         if (table == null) {
             throw new BadSqlDataException("No table to write to the database.");
         }
 
-        if (table.isOccupied()) {
-            // TODO: get table from DB
-            // IF occupied already => throw exception
-            // throw new TableOccupationException(); add throw in method.
+        // Check if the table is already occupied. (2 waiters in the same time)
+        if (table.isOccupied() && isTableOccupiedInDB(table.getTableNumber())) {
+            throw new TableOccupationException("Table already occupied.");
         }
 
         try (Connection connection = ds.getConnection()) {
@@ -489,6 +488,16 @@ public class DataAccessObject {
             e.printStackTrace();
         }
         return false;
+    }
+
+    private boolean isTableOccupiedInDB(int tableNumber) throws TableOccupationException {
+        List<Table> tablesInDB = getAllTablesFromDB();
+        for (Table DBtable : tablesInDB) {
+            if (DBtable.getTableNumber() == tableNumber) {
+                return DBtable.isOccupied();
+            }
+        }
+        throw new TableOccupationException("Table number not found in the DB");
     }
 
 

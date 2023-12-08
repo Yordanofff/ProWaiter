@@ -1,6 +1,8 @@
 package BackEnd.Restaurant;
 
 import BackEnd.DB.DBOperations;
+import BackEnd.DB.TableOccupationException;
+import FrontEnd.ConsolePrinter;
 
 import java.util.List;
 
@@ -63,13 +65,18 @@ public class Table {
         // TODO: get from DB ? - to make sure another person hasn't changed it?
     }
 
-    public void occupy() {
+    public void occupy() throws TableOccupationException {
         isOccupied = true;
         DBOperations.updateOccupyTable(this);
     }
 
     public void unOccupy() {
         isOccupied = false;
-        DBOperations.updateOccupyTable(this);
+        try {
+            DBOperations.updateOccupyTable(this);
+        } catch (TableOccupationException e) {
+            // unOccupy will never throw an error.
+            ConsolePrinter.printError(e.toString());
+        }
     }
 }

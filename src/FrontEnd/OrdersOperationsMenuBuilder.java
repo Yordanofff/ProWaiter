@@ -1,6 +1,7 @@
 package FrontEnd;
 
 import BackEnd.DB.DBOperations;
+import BackEnd.DB.TableOccupationException;
 import BackEnd.Restaurant.Dishes.Dish;
 import BackEnd.Restaurant.Dishes.DishType;
 import BackEnd.Restaurant.Dishes.OrderedDish;
@@ -34,31 +35,35 @@ public class OrdersOperationsMenuBuilder {
                 (option, nouser) -> ordersMenuOptions(option), user);  // lambda function to ignore the user.
     }
 
-    private static Table getFreeTable() {
-        int selectedTable = getFreeTableNumberFromUserPrompt(Restaurant.GET_INSTANCE());
+    private static Table getFreeTableFromUserPrompt() {
+        int selectedTableNumber = getFreeTableNumberFromUserPrompt(Restaurant.GET_INSTANCE());
 
-        if (selectedTable == 0) {
+        if (selectedTableNumber == 0) {
             return null;
         }
 
-        Table table = new Table(selectedTable);
-
-        // TODO: try {} catch === exception if table alread occupied ?
-
-        return table;
+        return new Table(selectedTableNumber);
     }
 
     public static void ordersMenuOptions(int option) {
         switch (option) {
             case 1 -> {
-                Table table = getFreeTable();
+                Table table = getFreeTableFromUserPrompt();
                 if (table == null) {
                     break;
                 }
-                table.occupy();
+
+                try {
+                    // Update the occupancy of the table in the DB, so no one else can create orders on it.
+                    table.occupy();
+                } catch (TableOccupationException e){
+                    ConsolePrinter.printError("The table is already occupied. Please choose another table.");
+                    ordersMenuOptions(1);
+                }
+
                 Order order = createNewOrder(table);
                 if (order != null) {
-                    table.assignOrder(order); // TODO: is it needed?
+                    table.assignOrder(order);
                 }
             }
             case 2 -> printTablesGetAndEditOrder(Restaurant.GET_INSTANCE());

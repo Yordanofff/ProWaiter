@@ -5,7 +5,6 @@ import BackEnd.Restaurant.Menu.RestaurantMenu;
 import BackEnd.Users.User;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static FrontEnd.MenuBuilder.*;

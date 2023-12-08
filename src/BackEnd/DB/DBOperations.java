@@ -59,7 +59,7 @@ public class DBOperations {
         return database.writeTablesToDB(tables);
     }
 
-    public static boolean updateOccupyTable(Table table) {
+    public static boolean updateOccupyTable(Table table) throws TableOccupationException {
         return database.updateOccupyTable(table);
     }
 
