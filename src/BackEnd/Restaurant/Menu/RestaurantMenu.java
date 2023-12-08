@@ -67,10 +67,10 @@ public class RestaurantMenu {
     }
 
     public static List<Dish> getDishes() {
-        // Populate the dishes list when the app starts.
-        if (dishes.isEmpty()) {
-            setDishesFromDB();
-        }
+        // Get the dishes from the DB every single time. (Print menu, New order, Add dish to existing order..)
+        // When dish is added or removed from the menu from another computer, we need to get updated.
+        // if (dishes.isEmpty()) {} won't work.
+        setDishesFromDB();
         return dishes;
     }
 
