@@ -9,6 +9,7 @@ import java.util.List;
 
 import static FrontEnd.MenuBuilder.*;
 import static FrontEnd.UserInput.getUserInputFrom0toNumber;
+import static FrontEnd.UserInput.pressAnyKeyToContinue;
 
 public class RestaurantMenuBuilder {
 
@@ -42,12 +43,7 @@ public class RestaurantMenuBuilder {
         printMenuOptionsInFrameTableRestaurantMenu(allDrinkCommaSeparated, "Drinks", "", "", maxColumnLengths);
         printMenuOptionsInFrameTableRestaurantMenu(allDessertCommaSeparated, "Deserts", "", "Go Back", maxColumnLengths);
 
-        int selection = getUserInputFrom0toNumber(0);
-
-        if (selection == 0) {
-            System.out.println("Going back..");
-        }
-        // todo - press any key to exit?
+        pressAnyKeyToContinue();
     }
 
     public static void addNewItemToRestaurantMenu(User user) {
