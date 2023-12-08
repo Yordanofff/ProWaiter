@@ -11,6 +11,9 @@ import BackEnd.Restaurant.Restaurant;
 import BackEnd.Restaurant.Table;
 import BackEnd.Users.User;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -276,16 +279,22 @@ public class OrdersOperationsMenuBuilder {
 
         // Set table back to Free if order is paid.
         if (orderStatus == OrderStatus.PAID) {
+            ConsolePrinter.printInfo("Total stay time: " + getStayTimeInMinutes(selectedOrder.getCreationDateTime()) + " minutes.");
             selectedTable.unOccupy();
         }
     }
 
+    private static long getStayTimeInMinutes(LocalDateTime start){
+        return ChronoUnit.MINUTES.between(start, LocalDateTime.now());
+    }
 
     public static void printClosedOrder() {
         String columnNames = "Index, Table Number, Order Number";
         List<String> allClosedOrdersInformation = getAllClosedOrdersInformation();
 
         printMenuOptionsInFrameTableRestaurantMenu(allClosedOrdersInformation, "CLOSED ORDERS", columnNames, "Go Back");
+
+        ConsolePrinter.printQuestion("Enter an [index] number to view order.");
 
         int selectedIndex = getUserInputFrom0toNumber(allClosedOrdersInformation.size());
 
@@ -342,6 +351,7 @@ public class OrdersOperationsMenuBuilder {
     public static void viewSingleOpenOrderMenuAction(int option, Order order) {
         switch (option) {
             case 1 -> {
+                ConsolePrinter.printInfo("Order created at: " + convertDateTimeToHumanReadable(order.getCreationDateTime()));
                 printOrderInMenu(order);
                 System.out.println("Total: " + order.getCalculatedTotalPrice() + "\n");
                 // TODO: Add total in the menu
@@ -354,6 +364,12 @@ public class OrdersOperationsMenuBuilder {
             case 3 -> removeDishFromOrder(order);  // Keep order status.
             case 4 -> printReceipt(order);
         }
+    }
+
+    private static String convertDateTimeToHumanReadable(LocalDateTime dt) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        return dt.format(formatter);
     }
 
     public static void printReceipt(Order order) {
