@@ -8,6 +8,7 @@ import FrontEnd.ConsolePrinter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
 
 public class Order {
     private List<OrderedDish> orderedDishes;
@@ -16,20 +17,24 @@ public class Order {
     private OrderStatus orderStatus;
     private int tableNumber;
     private long orderNumber;  // Very long in the DB. Int might not be long enough. Will be created from the DB.
+    private LocalDateTime creationDateTime;
+
 
     public Order(Table table) {
         this.isPaid = false;
         this.orderedDishes = new ArrayList<>();
         this.orderStatus = OrderStatus.CREATED;
         this.tableNumber = table.getTableNumber();
+        this.creationDateTime = LocalDateTime.now();
     }
 
     // From DB;
-    public Order(long orderNumber, int tableNumber, boolean isPaid, OrderStatus orderStatus) {
+    public Order(long orderNumber, int tableNumber, boolean isPaid, OrderStatus orderStatus, LocalDateTime creationDateTime) {
         this.orderNumber = orderNumber;
         this.tableNumber = tableNumber;
         this.isPaid = isPaid;
         this.orderStatus = orderStatus;
+        this.creationDateTime = creationDateTime;
     }
 
     @Override
@@ -55,13 +60,17 @@ public class Order {
         setTotalPrice(getTotalPrice() + orderedDish.getDish().getPrice() * orderedDish.getQuantity()); // TODO - recalc?
     }
 
+    public LocalDateTime getCreationDateTime() {
+        return creationDateTime;
+    }
+
     /**
      * There might be multiple rows with the same dish name if the items weren't ordered in the same time.
      * If we are trying to remove 20 items, and the current row has 5 - remove all 5 (don't add the row to the new list)
      * and keep looking for the remaining 15. Don't attempt to remove the OrderedDish from the original list, or it will
      * crash with "java.util.ConcurrentModificationException".
      *
-     * @param dishNameToRemove - the name of the Dish that we want to remove
+     * @param dishNameToRemove  - the name of the Dish that we want to remove
      * @param numDishesToRemove - number of that dish that we want to remove
      */
     public void removeOrderedDish(String dishNameToRemove, int numDishesToRemove) {
@@ -119,11 +128,6 @@ public class Order {
             }
         }
         return total;
-    }
-
-    public void removeDish(Dish dish) {
-        orderedDishes.remove(dish);
-        setTotalPrice(getTotalPrice() - dish.getPrice());
     }
 
     public boolean isPaid() {

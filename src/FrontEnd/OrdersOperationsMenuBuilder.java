@@ -11,6 +11,9 @@ import BackEnd.Restaurant.Restaurant;
 import BackEnd.Restaurant.Table;
 import BackEnd.Users.User;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +22,7 @@ import static FrontEnd.MenuBuilder.*;
 import static FrontEnd.RestaurantMenuBuilder.*;
 import static FrontEnd.UserInput.getUserInputFrom0toNumber;
 import static FrontEnd.UserInput.pressAnyKeyToContinue;
+import static FrontEnd.Validators.formatDecimalNumber;
 
 public class OrdersOperationsMenuBuilder {
     // Всяка поръчка си има дата и час на създаване и номер на маса. Не може да се създаде повече от една поръчка за маса.
@@ -275,16 +279,22 @@ public class OrdersOperationsMenuBuilder {
 
         // Set table back to Free if order is paid.
         if (orderStatus == OrderStatus.PAID) {
+            ConsolePrinter.printInfo("Total stay time: " + getStayTimeInMinutes(selectedOrder.getCreationDateTime()) + " minutes.");
             selectedTable.unOccupy();
         }
     }
 
+    private static long getStayTimeInMinutes(LocalDateTime start){
+        return ChronoUnit.MINUTES.between(start, LocalDateTime.now());
+    }
 
     public static void printClosedOrder() {
         String columnNames = "Index, Table Number, Order Number";
         List<String> allClosedOrdersInformation = getAllClosedOrdersInformation();
 
         printMenuOptionsInFrameTableRestaurantMenu(allClosedOrdersInformation, "CLOSED ORDERS", columnNames, "Go Back");
+
+        ConsolePrinter.printQuestion("Enter an [index] number to view order.");
 
         int selectedIndex = getUserInputFrom0toNumber(allClosedOrdersInformation.size());
 
@@ -320,7 +330,7 @@ public class OrdersOperationsMenuBuilder {
     }
 
     public static void viewSingleOpenOrderMenu(Order order) {
-        String[] menuOptions = new String[]{"Show order", "Add dish", "Remove dish"};
+        String[] menuOptions = new String[]{"Show order", "Add dish", "Remove dish", "Print Receipt"};
         String frameLabel = "[Table " + order.getTableNumber() + "]";
         String topMenuLabel = "Select option: ";
         String optionZeroText = "Go back";
@@ -341,6 +351,7 @@ public class OrdersOperationsMenuBuilder {
     public static void viewSingleOpenOrderMenuAction(int option, Order order) {
         switch (option) {
             case 1 -> {
+                ConsolePrinter.printInfo("Order created at: " + convertDateTimeToHumanReadable(order.getCreationDateTime()));
                 printOrderInMenu(order);
                 System.out.println("Total: " + order.getCalculatedTotalPrice() + "\n");
                 // TODO: Add total in the menu
@@ -351,7 +362,46 @@ public class OrdersOperationsMenuBuilder {
                 order.setOrderStatusAndSaveToDB(OrderStatus.UPDATED);
             }
             case 3 -> removeDishFromOrder(order);  // Keep order status.
+            case 4 -> printReceipt(order);
         }
+    }
+
+    private static String convertDateTimeToHumanReadable(LocalDateTime dt) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        return dt.format(formatter);
+    }
+
+    public static void printReceipt(Order order) {
+        List<OrderedDish> orderedDishes = order.getOrderedDishesFromDB();
+        List<OrderedDish> summarizedOrderedDishes = getSummarizeOrderedDishes(orderedDishes);
+        List<List<String>> summarizedAsStrings = getAllThreeOrderedDishesForMenu(summarizedOrderedDishes);
+        printAllOrderedDishesWithNumbers(summarizedAsStrings);
+        pressAnyKeyToContinue();
+    }
+
+    public static List<OrderedDish> getSummarizeOrderedDishes(List<OrderedDish> orderedDishes) {
+        List<OrderedDish> summarizedList = new ArrayList<>();
+
+        for (OrderedDish orderedDish : orderedDishes) {
+            OrderedDish existingOrderedDish = getOrderedDishFromList(summarizedList, orderedDish.getDish());
+            if (existingOrderedDish == null) {
+                summarizedList.add(orderedDish);
+            } else {
+                // Dish already in summarizedList
+                existingOrderedDish.increaseQuantity(orderedDish.getQuantity());
+            }
+        }
+        return summarizedList;
+    }
+
+    public static OrderedDish getOrderedDishFromList(List<OrderedDish> orderedDishes, Dish dish) {
+        for (OrderedDish orderedDish : orderedDishes) {
+            if (orderedDish.getDish().equals(dish)) {
+                return orderedDish;
+            }
+        }
+        return null;
     }
 
     public static void printOrderInMenu(Order order, String optionZeroText) {
@@ -457,7 +507,7 @@ public class OrdersOperationsMenuBuilder {
                 startNumber++;
             }
             Dish dish = orderedDish.getDish();
-            dataToAdd += dish.getName() + ", " + dish.getPrice() + ", " + orderedDish.getQuantity() + ", " + dish.getPrice() * orderedDish.getQuantity();
+            dataToAdd += dish.getName() + ", " + formatDecimalNumber(dish.getPrice()) + ", " + orderedDish.getQuantity() + ", " + formatDecimalNumber(dish.getPrice() * orderedDish.getQuantity());
             if (addDishType) {
                 dataToAdd += ", " + dish.getDishType();
 

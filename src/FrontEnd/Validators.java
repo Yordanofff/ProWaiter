@@ -1,5 +1,7 @@
 package FrontEnd;
 
+import java.text.DecimalFormat;
+
 public class Validators {
     public static boolean isValidName(String name) {
         if (name.matches("[a-zA-Z]+")) {
@@ -132,5 +134,10 @@ public class Validators {
         } catch (NumberFormatException e) {
             return false;
         }
+    }
+
+    public static String formatDecimalNumber(double number) {
+        DecimalFormat decimalFormat = new DecimalFormat("#.00");
+        return decimalFormat.format(number);
     }
 }

@@ -10,6 +10,7 @@ import BackEnd.Users.User;
 import FrontEnd.ConsolePrinter;
 import org.postgresql.ds.PGSimpleDataSource;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class PostgreSQL {
@@ -97,7 +98,7 @@ public class PostgreSQL {
         return dao.getAllDishesFromRestaurantMenuItems();
     }
 
-    public boolean removeDishFromRestaurantMenuItems(Dish dish) {
+    public boolean removeDishFromRestaurantMenuItems(Dish dish) throws SQLException {
         return dao.removeDishFromRestaurantMenuItems(dish);
     }
 

@@ -8,6 +8,7 @@ import BackEnd.Restaurant.RestaurantInfo;
 import BackEnd.Restaurant.Table;
 import BackEnd.Users.User;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class DBOperations {
@@ -38,7 +39,7 @@ public class DBOperations {
         return database.getAllDishesFromRestaurantMenuItems();
     }
 
-    public static boolean removeDishFromRestaurantMenuItems(Dish dish) {
+    public static boolean removeDishFromRestaurantMenuItems(Dish dish) throws SQLException {
         return database.removeDishFromRestaurantMenuItems(dish);
     }
 

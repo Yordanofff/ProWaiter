@@ -372,7 +372,7 @@ public class MenuBuilder {
 
     public static void printMenuOptionsInFrameTable(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText) {
 
-        int[] maxColumnLengths = getBiggestColumnNames(rowsWithCommaSeparatedColumns, columnNames);
+        int[] maxColumnLengths = getMaxColumnLengths(rowsWithCommaSeparatedColumns, columnNames);
         int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
 
         // This sums up the longest word in each column
@@ -442,7 +442,7 @@ public class MenuBuilder {
      */
     public static void printMenuOptionsInFrameTableRestaurantMenu(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText, int[] maxColumnLengths) {
         if (maxColumnLengths == null) {
-            maxColumnLengths = MenuBuilder.getBiggestColumnNames(rowsWithCommaSeparatedColumns, columnNames);
+            maxColumnLengths = MenuBuilder.getMaxColumnLengths(rowsWithCommaSeparatedColumns, columnNames);
         }
 
         int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
@@ -516,7 +516,7 @@ public class MenuBuilder {
         return numberOfColumns;
     }
 
-    static int[] getBiggestColumnNames(List<String> rowsWithCommaSeparatedColumns, String columnNames) {
+    static int[] getMaxColumnLengths(List<String> rowsWithCommaSeparatedColumns, String columnNames) {
         int[] maxColumnLengths = getMaxColumnLengths(rowsWithCommaSeparatedColumns);
         // Get the length of the elements in the columnNames
         int[] maxColumnLengthDescription = getMaxColumnLength(columnNames);
@@ -544,11 +544,20 @@ public class MenuBuilder {
     }
 
     static int[] getBiggest(List<String> l1, List<String> l2, List<String> l3, String columnNames) {
-        int[] maxColumnLengthsFood = getBiggestColumnNames(l1, columnNames);
-        int[] maxColumnLengthsDrink = getBiggestColumnNames(l2, columnNames);
-        int[] maxColumnLengthsDesert = getBiggestColumnNames(l3, columnNames);
+        int[] maxColumnLengthsFood = getMaxColumnLengths(l1, columnNames);
+        int[] maxColumnLengthsDrink = getMaxColumnLengths(l2, columnNames);
+        int[] maxColumnLengthsDesert = getMaxColumnLengths(l3, columnNames);
 
         int[] maxColumnLengths = getBiggest(maxColumnLengthsFood, maxColumnLengthsDrink, maxColumnLengthsDesert);
+        return maxColumnLengths;
+    }
+
+    static int[] getMaxColumnLengthsAcrossLists(List<List<String>> nestedList, String columnNames) {
+        int[] maxColumnLengths = getMaxColumnLengths(nestedList.get(0), columnNames);
+        for (int i = 1; i < nestedList.size(); i++) {
+            int[] current = getMaxColumnLengths(nestedList.get(i));
+            maxColumnLengths = getBiggest(maxColumnLengths, current);
+        }
         return maxColumnLengths;
     }
 

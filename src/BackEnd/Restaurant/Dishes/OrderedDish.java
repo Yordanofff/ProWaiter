@@ -33,4 +33,8 @@ public class OrderedDish {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
+
+    public void increaseQuantity(int additionalQuantity) {
+        this.quantity += additionalQuantity;
+    }
 }
