@@ -137,7 +137,7 @@ public class Validators {
     }
 
     public static String formatDecimalNumber(double number) {
-        DecimalFormat decimalFormat = new DecimalFormat("#.00");
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
         return decimalFormat.format(number);
     }
 }
