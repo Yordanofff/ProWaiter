@@ -117,10 +117,6 @@ public class MenuBuilder {
             // Executing the selected option
             menuAction.execute(selectedOption, user);
 
-            // pause
-//            System.out.print("Press any key to continue..: ");
-//            scanner.nextLine();
-
             System.out.println();
         }
     }
@@ -309,7 +305,6 @@ public class MenuBuilder {
         return dataToPrint;
     }
 
-
     private static String addTrailingSpacesBeginningOfString(String str, int desiredLength) {
         return " ".repeat(desiredLength - str.length()) + str;
     }
@@ -403,9 +398,9 @@ public class MenuBuilder {
         }
     }
 
-    public static void printMenuOptionsInFrameTable(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames) {
-        printMenuOptionsInFrameTable(rowsWithCommaSeparatedColumns, frameLabel, columnNames, "");
-    }
+//    public static void printMenuOptionsInFrameTable(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames) {
+//        printMenuOptionsInFrameTable(rowsWithCommaSeparatedColumns, frameLabel, columnNames, "");
+//    }
 
     /**
      * ┌──────────────────┬─────────┐
@@ -492,12 +487,12 @@ public class MenuBuilder {
         System.out.println(getBottomLine(frameLength));
     }
 
-    public static int getFrameLength(int[] maxColumnLengths, String columnNames) {
-        int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
-        int maxNumberOfSymbolsAllRows = getMaxNumberOfSymbolsAllRows(maxColumnLengths);
-        int numAddedSpaces = numberOfColumns * 2 * numSpacesAroundEachColumnWord;
-        return maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
-    }
+//    public static int getFrameLength(int[] maxColumnLengths, String columnNames) {
+//        int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
+//        int maxNumberOfSymbolsAllRows = getMaxNumberOfSymbolsAllRows(maxColumnLengths);
+//        int numAddedSpaces = numberOfColumns * 2 * numSpacesAroundEachColumnWord;
+//        return maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
+//    }
 
     private static String addExtraSeparatorsToLength(String columnNames, int numberOfColumns) {
         // Add extra , to the columns so that it prints walls on right side if columns are more than column names.
@@ -548,8 +543,7 @@ public class MenuBuilder {
         int[] maxColumnLengthsDrink = getMaxColumnLengths(l2, columnNames);
         int[] maxColumnLengthsDesert = getMaxColumnLengths(l3, columnNames);
 
-        int[] maxColumnLengths = getBiggest(maxColumnLengthsFood, maxColumnLengthsDrink, maxColumnLengthsDesert);
-        return maxColumnLengths;
+        return getBiggest(maxColumnLengthsFood, maxColumnLengthsDrink, maxColumnLengthsDesert);
     }
 
     static int[] getMaxColumnLengthsAcrossLists(List<List<String>> nestedList, String columnNames) {
@@ -561,19 +555,19 @@ public class MenuBuilder {
         return maxColumnLengths;
     }
 
-    private static int[] getLastXElements(int[] sourceArray, int x) {
-        // Ensure x is not greater than the length of the source array
-        x = Math.min(x, sourceArray.length);
-
-        int[] resultArray = new int[x];
-
-        // Copy the last x elements from the source array to the result array
-        for (int i = 0; i < x; i++) {
-            resultArray[i] = sourceArray[sourceArray.length - x + i];
-        }
-
-        return resultArray;
-    }
+//    private static int[] getLastXElements(int[] sourceArray, int x) {
+//        // Ensure x is not greater than the length of the source array
+//        x = Math.min(x, sourceArray.length);
+//
+//        int[] resultArray = new int[x];
+//
+//        // Copy the last x elements from the source array to the result array
+//        for (int i = 0; i < x; i++) {
+//            resultArray[i] = sourceArray[sourceArray.length - x + i];
+//        }
+//
+//        return resultArray;
+//    }
 
     static int getMaxNumberOfSymbolsAllRows(int[] maxColumnLengths) {
         int n = 0;
