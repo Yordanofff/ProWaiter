@@ -202,15 +202,22 @@ public class UserManager {
         for (User user : getActiveUsers()) {
             if (user.getUserType() == userType) {
                 if (addNumbers) {
-                    userInfoToAdd = startingNumber + sep + user.getUserInformation((withPassword));
+                    userInfoToAdd = startingNumber + sep + getUserInformationString(withPassword, user);
                     startingNumber ++;
                 } else {
-                    userInfoToAdd = user.getUserInformation(withPassword);
+                    userInfoToAdd = getUserInformationString(withPassword, user);
                 }
                 usersInformation.add(userInfoToAdd);
             }
         }
         return usersInformation;
+    }
+
+    public static String getUserInformationString(boolean withPassword, User user) {
+        if (withPassword) {
+            return user.getUsername() + sep + user.getFullName() + sep + user.getPassword();
+        }
+        return user.getUsername() + sep + user.getFullName();
     }
 
     public static List<String> getAllUsersInformationByUserType(UserType userType, boolean withPassword) {

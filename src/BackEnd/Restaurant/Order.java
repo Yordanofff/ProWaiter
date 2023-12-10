@@ -15,12 +15,11 @@ import static FrontEnd.Validators.formatDecimalNumber;
 public class Order {
     private List<OrderedDish> orderedDishes;
     private double totalPrice = 0;
-    boolean isPaid;
+    private boolean isPaid;
     private OrderStatus orderStatus;
     private final int tableNumber;
     private long orderNumber;  // Very long in the DB. Int might not be long enough. Will be created from the DB.
     private final LocalDateTime creationDateTime;
-
 
     public Order(Table table) {
         this.isPaid = false;
