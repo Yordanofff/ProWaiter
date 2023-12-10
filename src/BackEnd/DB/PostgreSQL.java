@@ -118,7 +118,7 @@ public class PostgreSQL {
         return dao.writeTablesToDB(tables);
     }
 
-    public boolean updateOccupyTable(Table table) {
+    public boolean updateOccupyTable(Table table) throws TableOccupationException {
         return dao.updateOccupyTable(table);
     }
 
