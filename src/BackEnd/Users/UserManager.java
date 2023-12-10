@@ -6,6 +6,7 @@ import FrontEnd.UserInput;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static FrontEnd.MenuBuilder.sep;
 
@@ -168,6 +169,19 @@ public class UserManager {
             return user.getUsername() + sep + user.getFullName() + sep + user.getPassword();
         }
         return user.getUsername() + sep + user.getFullName();
+    }
+
+    public static User createUser(UserType userType, String firstName, String lastName, String username, String password) {
+        User user = switch (userType) {
+            case ADMIN -> new Administrator(firstName, lastName, username, password);
+            case WAITER -> new Waiter(firstName, lastName, username, password);
+            case COOK -> new Cook(firstName, lastName, username, password);
+        };
+
+        // Assign a unique ID
+        user.setId(UUID.randomUUID());
+
+        return user;
     }
 }
 

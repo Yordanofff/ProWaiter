@@ -67,7 +67,7 @@ public class RestaurantMenu {
     }
 
     public static List<Dish> getDishes() {
-        // Get the dishes from the DB every single time. (Print menu, New order, Add dish to existing order..)
+        // Get the dishes from the DB every single time. (Print menu, New order, Add dish to existing order, etc.)
         // When dish is added or removed from the menu from another computer, we need to get updated.
         // if (dishes.isEmpty()) {} won't work.
         setDishesFromDB();
@@ -126,7 +126,7 @@ public class RestaurantMenu {
 
     public static List<String> joinDishToString(List<Dish> dishes, boolean addDishType, boolean addNumbers, int startNumber) {
         List<String> result = new ArrayList<>();
-        String dataToAdd = "";
+        String dataToAdd;
 
         for (Dish dish : dishes) {
             dataToAdd = "";
