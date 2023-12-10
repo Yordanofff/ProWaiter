@@ -9,7 +9,7 @@ import BackEnd.Restaurant.OrderStatus;
 import BackEnd.Restaurant.RestaurantInfo;
 import BackEnd.Restaurant.Table;
 import BackEnd.Users.User;
-import BackEnd.Users.UserByUserType;
+import BackEnd.Users.UserManager;
 import BackEnd.Users.UserType;
 import FrontEnd.ConsolePrinter;
 
@@ -259,7 +259,7 @@ public class DataAccessObject {
                         UserType userType = UserType.valueOf(resultSet.getString("userType"));
 
                         // Create user using UserByUserType
-                        User user = UserByUserType.createUser(
+                        User user = UserManager.createUser(
                                 userType,
                                 resultSet.getString("firstName"),
                                 resultSet.getString("lastName"),

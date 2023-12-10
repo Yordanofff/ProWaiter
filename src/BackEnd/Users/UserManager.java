@@ -5,28 +5,19 @@ import FrontEnd.ConsolePrinter;
 import FrontEnd.UserInput;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
 import static FrontEnd.MenuBuilder.sep;
 
 public class UserManager {
-    // todo - part of BackEnd.Users.Administrator?
-    // todo - load/update users from DB before login
-    // todo - change user type /promotion from-to/
-    // TODO - MINIMIZE CALLS TO THE DB. Caching? If user is created from one computer but needs to be logged in from
-    //  another? Or user is deleted..? Every machine will need to connect to the DB to make sure it has the latest information.
-    private static List<User> activeUsers = new ArrayList<>();
-    private static Map<UserType, List<User>> usersByType = new HashMap<>();
-
     public static User getTheLoginUserIfUsernameAndPasswordAreCorrect() {
-        String[] creds = UserInput.getLoginUserAndPassword();
+        String[] credentials = UserInput.getLoginUserAndPassword();
 
         boolean usernameAndPasswordCorrect = false;
         User currentUser = null;
         for (User user : getActiveUsers()) {
-            if (user.getUsername().equalsIgnoreCase(creds[0]) && user.getPassword().equals(creds[1])) {
+            if (user.getUsername().equalsIgnoreCase(credentials[0]) && user.getPassword().equals(credentials[1])) {
                 usernameAndPasswordCorrect = true;
                 currentUser = user;
                 break;
@@ -38,7 +29,7 @@ public class UserManager {
             return currentUser;
         }
 
-        printErrorMsgIfUserOrPasswordIsWrong(creds[0]);
+        printErrorMsgIfUserOrPasswordIsWrong(credentials[0]);
         return null;
     }
 
@@ -63,10 +54,6 @@ public class UserManager {
     public static List<User> getActiveUsers() {
         return DBOperations.getUsers(10);
     }  // todo - remove limit ?
-
-    public static Map<UserType, List<User>> getUsersByType() {
-        return usersByType;
-    }
 
     public static void addUser(User user) {
         boolean userNameAlreadySet = false;
@@ -98,16 +85,6 @@ public class UserManager {
 
     }
 
-    public static boolean isInitialAdminAccountCreated() {
-        // todo - delete? not needed
-        for (User user : activeUsers) {
-            if (user.getUsername().equalsIgnoreCase("admin")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static void addAdmin() {
         User admin = new Administrator();
         addUser(admin);
@@ -131,32 +108,6 @@ public class UserManager {
         } else {
             DBOperations.deleteUserByUsername(userName);
             return true;
-        }
-    }
-
-    public static void displayActiveUsers() {
-        System.out.println("Active BackEnd.Users:");
-        for (User user : activeUsers) {
-            System.out.println(user.getUserType() + " - " + user.getUsername() + " - " + user.getFullName());
-        }
-    }
-
-    public static void displayUsersByType(UserType userTypeToCheck) {
-        if (usersByType.containsKey(userTypeToCheck) && usersByType.get(userTypeToCheck) != null) {
-
-            System.out.println("BackEnd.Users with BackEnd.Users.UserType " + userTypeToCheck + ":");
-            List<User> userList = usersByType.get(userTypeToCheck);
-            for (User user : userList) {
-                System.out.println("Name: " + user.getFullName() + ", Username: " + user.getUsername());
-            }
-        } else {
-            System.out.println("No users found for BackEnd.Users.UserType: " + userTypeToCheck);
-        }
-    }
-
-    public static void displayAllUsersByType() {
-        for (UserType type : UserType.values()) {
-            displayUsersByType(type);
         }
     }
 
@@ -202,10 +153,10 @@ public class UserManager {
         for (User user : getActiveUsers()) {
             if (user.getUserType() == userType) {
                 if (addNumbers) {
-                    userInfoToAdd = startingNumber + sep + user.getUserInformation((withPassword));
+                    userInfoToAdd = startingNumber + sep + getUserInformationString(withPassword, user);
                     startingNumber ++;
                 } else {
-                    userInfoToAdd = user.getUserInformation(withPassword);
+                    userInfoToAdd = getUserInformationString(withPassword, user);
                 }
                 usersInformation.add(userInfoToAdd);
             }
@@ -213,9 +164,24 @@ public class UserManager {
         return usersInformation;
     }
 
-    public static List<String> getAllUsersInformationByUserType(UserType userType, boolean withPassword) {
-        return getAllUsersInformationByUserType(userType, withPassword, false, 0);
+    public static String getUserInformationString(boolean withPassword, User user) {
+        if (withPassword) {
+            return user.getUsername() + sep + user.getFullName() + sep + user.getPassword();
+        }
+        return user.getUsername() + sep + user.getFullName();
     }
 
+    public static User createUser(UserType userType, String firstName, String lastName, String username, String password) {
+        User user = switch (userType) {
+            case ADMIN -> new Administrator(firstName, lastName, username, password);
+            case WAITER -> new Waiter(firstName, lastName, username, password);
+            case COOK -> new Cook(firstName, lastName, username, password);
+        };
+
+        // Assign a unique ID
+        user.setId(UUID.randomUUID());
+
+        return user;
+    }
 }
 

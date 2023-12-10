@@ -15,12 +15,11 @@ import static FrontEnd.Validators.formatDecimalNumber;
 public class Order {
     private List<OrderedDish> orderedDishes;
     private double totalPrice = 0;
-    boolean isPaid;
+    private final boolean isPaid;
     private OrderStatus orderStatus;
-    private int tableNumber;
+    private final int tableNumber;
     private long orderNumber;  // Very long in the DB. Int might not be long enough. Will be created from the DB.
-    private LocalDateTime creationDateTime;
-
+    private final LocalDateTime creationDateTime;
 
     public Order(Table table) {
         this.isPaid = false;
@@ -59,7 +58,7 @@ public class Order {
         orderedDishes.add(orderedDish);
 
         DBOperations.updateOrderDishesToDB(this);
-        setTotalPrice(getTotalPrice() + orderedDish.getDish().getPrice() * orderedDish.getQuantity()); // TODO - recalc?
+        setTotalPrice(getTotalPrice() + orderedDish.getDish().getPrice() * orderedDish.getQuantity());
     }
 
     public LocalDateTime getCreationDateTime() {
@@ -134,10 +133,6 @@ public class Order {
 
     public boolean isPaid() {
         return isPaid;
-    }
-
-    public void setPaid(boolean paid) {
-        isPaid = paid;
     }
 
     public int getTableNumber() {

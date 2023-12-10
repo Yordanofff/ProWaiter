@@ -28,16 +28,8 @@ public class RestaurantInfo {
         return restaurantName;
     }
 
-    public void setRestaurantName(String newRestaurantName) {
-        restaurantName = newRestaurantName;
-    }
-
     public int getNumberOfTables() {
         return numberOfTables;
-    }
-
-    public void setNumberOfTables(int numberTables) {
-        numberOfTables = numberTables;
     }
 
     static void saveRestaurantInfoInDB(RestaurantInfo restaurantInfo) {

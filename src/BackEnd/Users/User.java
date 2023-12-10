@@ -2,8 +2,6 @@ package BackEnd.Users;
 
 import java.util.UUID;
 
-import static FrontEnd.MenuBuilder.sep;
-
 public abstract class User {
     private UUID id;
     private String username;
@@ -25,13 +23,6 @@ public abstract class User {
 
     public User() {
         this.id = UUID.randomUUID();
-    }
-
-    public String getUserInformation(boolean withPassword) {
-        if (withPassword) {
-            return this.getUsername() + sep + this.getFullName() + sep + this.getPassword();
-        }
-        return this.getUsername() + sep + this.getFullName();
     }
 
     public String getFirstName() {
