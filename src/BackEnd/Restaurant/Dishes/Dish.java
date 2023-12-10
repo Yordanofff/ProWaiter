@@ -5,7 +5,6 @@ public class Dish {
     private String name;
     private double price;
     private DishType dishType;
-//    private int size;  // todo - grams for food ? ml for drinks? Not added in the Constructor
 
     public Dish(String name, double price, DishType dishType) {
         this.name = name;
@@ -43,16 +42,8 @@ public class Dish {
         return price;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
     public DishType getDishType() {
         return dishType;
-    }
-
-    public void setDishType(DishType dishType) {
-        this.dishType = dishType;
     }
 
     public static String[] getDishTypeNames() {

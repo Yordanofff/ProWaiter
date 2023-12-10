@@ -7,7 +7,7 @@ import FrontEnd.ConsolePrinter;
 import java.util.List;
 
 public class Table {
-    private int tableNumber;
+    private final int tableNumber;
     private Order currentOrder;
     private boolean isOccupied;
 
@@ -22,14 +22,6 @@ public class Table {
         this.isOccupied = isOccupied;
         this.currentOrder = null;
     }
-
-//    public static Order loadOrderFromDB() {
-//      // TODO: To be implemented.
-//    }
-//
-//    public static void saveOrderToDB(Order order) {
-//      // TODO: I think I already created this method somewhere - don't add it here for now.
-//    }
 
     @Override
     public String toString() {
@@ -52,17 +44,12 @@ public class Table {
         this.currentOrder = order;
     }
 
-    private void clearOrder() {
-        this.currentOrder = null;
-    }
-
     public int getTableNumber() {
         return tableNumber;
     }
 
     public boolean isOccupied() {
         return isOccupied;
-        // TODO: get from DB ? - to make sure another person hasn't changed it?
     }
 
     public void occupy() throws TableOccupationException {

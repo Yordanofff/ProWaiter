@@ -21,7 +21,7 @@ public class Restaurant {
     }
 
     private RestaurantInfo restaurantInfo = loadRestaurantInfo();
-    private List<Table> tables = getTablesFromDBorPopulateTheTablesIfNone();//= new ArrayList<>();
+    private final List<Table> tables = getTablesFromDBorPopulateTheTablesIfNone();//= new ArrayList<>();
 
     public RestaurantInfo loadRestaurantInfo() {
         // Load restaurantInfo from DB. If not in DB - Ask User + write to DB.
@@ -200,28 +200,4 @@ public class Restaurant {
         this.restaurantInfo = restaurantInfo;
         RestaurantInfo.saveRestaurantInfoInDB(restaurantInfo);
     }
-
-//    public int getNumberOfTables() {
-//        return restaurantInfo.getNumberOfTables();
-//    }
-//
-//    public String getRestaurantName() {
-//        return restaurantInfo.getRestaurantName();
-//    }
-//
-//    public RestaurantInfo getRestaurantInfo() {
-//        return restaurantInfo;
-//    }
-//
-//    public List<Table> getTables() {
-//        return tables;
-//    }
-//
-//    public void setTables(List<Table> tables) {
-//        this.tables = tables;
-//        if (DBOperations.writeTablesToDB(tables)) {
-//            ConsolePrinter.printInfo("Successfully wrote tables to DB.");
-//        }
-//    }
-
 }

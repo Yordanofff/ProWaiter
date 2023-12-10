@@ -1,11 +1,7 @@
 package BackEnd.Restaurant.Dishes;
 
 public class Food extends Dish {
-    public static final DishType dishType = DishType.FOOD;
-
-    public Food() {
-        super(dishType);
-    }
+    private static final DishType dishType = DishType.FOOD;
 
     public Food(String name, double price) {
         super(name, price, dishType);

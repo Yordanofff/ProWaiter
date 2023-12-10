@@ -69,12 +69,17 @@ public class RestaurantMenuBuilder {
     }
 
     public static void addNewItemToRestaurantMenuAction(int option) {
-        switch (option) {
-            case 1 -> addNewItemToRestaurantMenuDish(Food.dishType);
-            case 2 -> addNewItemToRestaurantMenuDish(Drink.dishType);
-            case 3 -> addNewItemToRestaurantMenuDish(Dessert.dishType);
-            default -> throw new RuntimeException("DishType not implemented!");
-        }
+        DishType selectedDishType = getDishTypeFromOption(option);
+        addNewItemToRestaurantMenuDish(selectedDishType);
+    }
+
+    private static DishType getDishTypeFromOption(int option) {
+        return switch (option) {
+            case 1 -> DishType.FOOD;
+            case 2 -> DishType.DRINK;
+            case 3 -> DishType.DESSERT;
+            default -> throw new IllegalArgumentException("Invalid DishType option: " + option);
+        };
     }
 
     public static void addNewItemToRestaurantMenuDish(DishType dishType) {
