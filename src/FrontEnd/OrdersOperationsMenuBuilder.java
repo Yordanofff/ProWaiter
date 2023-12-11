@@ -20,6 +20,7 @@ import java.util.List;
 
 import static BackEnd.Restaurant.Restaurant.getAllClosedOrdersInformation;
 import static FrontEnd.MenuBuilder.*;
+import static FrontEnd.MenuBuilder.printMenuOptionsInFrameTableRestaurantMenu;
 import static FrontEnd.RestaurantMenuBuilder.*;
 import static FrontEnd.UserInput.*;
 import static FrontEnd.Validators.formatDecimalNumber;
@@ -56,7 +57,7 @@ public class OrdersOperationsMenuBuilder {
                 try {
                     // Update the occupancy of the table in the DB, so no one else can create orders on it.
                     table.occupy();
-                } catch (TableOccupationException e){
+                } catch (TableOccupationException e) {
                     ConsolePrinter.printError("The table is already occupied. Please choose another table.");
                     ordersMenuOptions(1);
                 }
@@ -286,7 +287,7 @@ public class OrdersOperationsMenuBuilder {
         }
     }
 
-    private static long getStayTimeInMinutes(LocalDateTime start){
+    private static long getStayTimeInMinutes(LocalDateTime start) {
         return ChronoUnit.MINUTES.between(start, LocalDateTime.now());
     }
 
@@ -314,8 +315,7 @@ public class OrdersOperationsMenuBuilder {
 
         List<List<String>> allDishes = getAllThreeOrderedDishesForMenu(orderedDishes);
 
-        printAllOrderedDishesWithNumbers(allDishes);
-
+        printAllOrderedDishesWithNumbers(allDishes, orderedDishes);
         pressAnyKeyToContinue();
         printClosedOrder();
     }
@@ -354,9 +354,9 @@ public class OrdersOperationsMenuBuilder {
         switch (option) {
             case 1 -> {
                 ConsolePrinter.printInfo("Order created at: " + convertDateTimeToHumanReadable(order.getCreationDateTime()));
-                printOrderInMenu(order);
-                System.out.println("Total: " + order.getCalculatedTotalPrice() + "\n");
-                // TODO: Add total in the menu
+                List<List<String>> allThreeOrderedDishesForMenu = getAllThreeOrderedDishesForMenu(order);
+                printAllOrderedDishesWithNumbers(allThreeOrderedDishesForMenu, order);
+
                 pressAnyKeyToContinue();
             }
             case 2 -> {
@@ -378,7 +378,7 @@ public class OrdersOperationsMenuBuilder {
         List<OrderedDish> orderedDishes = order.getOrderedDishesFromDB();
         List<OrderedDish> summarizedOrderedDishes = getSummarizeOrderedDishes(orderedDishes);
         List<List<String>> summarizedAsStrings = getAllThreeOrderedDishesForMenu(summarizedOrderedDishes);
-        printAllOrderedDishesWithNumbers(summarizedAsStrings);
+        printAllOrderedDishesWithNumbers(summarizedAsStrings, order);
         pressAnyKeyToContinue();
     }
 
@@ -399,7 +399,7 @@ public class OrdersOperationsMenuBuilder {
 
     public static OrderedDish getOrderedDishFromList(List<OrderedDish> orderedDishes, Dish dish) {
         for (OrderedDish orderedDish : orderedDishes) {
-            if (orderedDish.getDish().equals(dish)) {
+            if (orderedDish.getDish().getName().equals(dish.getName())) {
                 return orderedDish;
             }
         }
@@ -410,10 +410,6 @@ public class OrdersOperationsMenuBuilder {
         // Print the current order
         List<List<String>> allThreeOrderedDishesForMenu = getAllThreeOrderedDishesForMenu(order);
         printAllOrderedDishesWithNumbers(allThreeOrderedDishesForMenu, optionZeroText);
-    }
-
-    public static void printOrderInMenu(Order order) {
-        printOrderInMenu(order, "");
     }
 
     public static void removeDishFromOrder(Order order) {
@@ -519,7 +515,7 @@ public class OrdersOperationsMenuBuilder {
         return result;
     }
 
-    public static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu, String optionZeroText) {
+    public static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu, String optionZeroText, boolean printTotal, String totalPrice) {
         List<String> food = allThreeOrderedDishesForMenu.get(0);
         List<String> drink = allThreeOrderedDishesForMenu.get(1);
         List<String> dessert = allThreeOrderedDishesForMenu.get(2);
@@ -532,26 +528,36 @@ public class OrdersOperationsMenuBuilder {
 
         if (!food.isEmpty()) {
             if (drink.isEmpty() && dessert.isEmpty()) {
-                printMenuOptionsInFrameTableRestaurantMenu(food, "Food", "", optionZeroText, maxColumnLengths);
+                printMenuOptionsInFrameTableRestaurantMenu(food, "Food", "", optionZeroText, maxColumnLengths, printTotal, totalPrice);
             } else {
                 printMenuOptionsInFrameTableRestaurantMenu(food, "Food", "", "", maxColumnLengths);
             }
         }
         if (!drink.isEmpty()) {
             if (dessert.isEmpty()) {
-                printMenuOptionsInFrameTableRestaurantMenu(drink, "Drinks", "", optionZeroText, maxColumnLengths);
+                printMenuOptionsInFrameTableRestaurantMenu(drink, "Drinks", "", optionZeroText, maxColumnLengths, printTotal, totalPrice);
             } else {
                 printMenuOptionsInFrameTableRestaurantMenu(drink, "Drinks", "", "", maxColumnLengths);
             }
         }
         if (!dessert.isEmpty()) {
-            printMenuOptionsInFrameTableRestaurantMenu(dessert, "Deserts", "", optionZeroText, maxColumnLengths);
+            printMenuOptionsInFrameTableRestaurantMenu(dessert, "Deserts", "", optionZeroText, maxColumnLengths, printTotal, totalPrice);
         }
 
     }
 
-    public static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu) {
-        printAllOrderedDishesWithNumbers(allThreeOrderedDishesForMenu, "");
+    public static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu, String optionZeroText) {
+        printAllOrderedDishesWithNumbers(allThreeOrderedDishesForMenu, optionZeroText, false, "NA");
+    }
+
+    public static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu, Order order) {
+        String totalPrice = Validators.formatDecimalNumber(order.getCalculatedTotalPrice());
+        printAllOrderedDishesWithNumbers(allThreeOrderedDishesForMenu, "", true, totalPrice);
+    }
+
+    public static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu, List<OrderedDish> orderedDishes) {
+        String totalPrice = Validators.formatDecimalNumber(Order.getCalculatedTotalPrice(orderedDishes));
+        printAllOrderedDishesWithNumbers(allThreeOrderedDishesForMenu, "", true, totalPrice);
     }
 
 }

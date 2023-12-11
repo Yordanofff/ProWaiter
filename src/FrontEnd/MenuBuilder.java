@@ -15,7 +15,6 @@ public class MenuBuilder {
     public static final String sep = ",";  // separator for the strings when printing menus
     static final int MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU = 5;
     static final String MENU_SEPARATOR = " - ";  // With spaces if required.
-    static final String SideWall = "│";
     static Scanner scanner = new Scanner(System.in);
     static int numSpacesAroundEachColumnWord = 2;
 
@@ -116,10 +115,6 @@ public class MenuBuilder {
 
             // Executing the selected option
             menuAction.execute(selectedOption, user);
-
-            // pause
-//            System.out.print("Press any key to continue..: ");
-//            scanner.nextLine();
 
             System.out.println();
         }
@@ -309,7 +304,6 @@ public class MenuBuilder {
         return dataToPrint;
     }
 
-
     private static String addTrailingSpacesBeginningOfString(String str, int desiredLength) {
         return " ".repeat(desiredLength - str.length()) + str;
     }
@@ -403,9 +397,9 @@ public class MenuBuilder {
         }
     }
 
-    public static void printMenuOptionsInFrameTable(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames) {
-        printMenuOptionsInFrameTable(rowsWithCommaSeparatedColumns, frameLabel, columnNames, "");
-    }
+//    public static void printMenuOptionsInFrameTable(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames) {
+//        printMenuOptionsInFrameTable(rowsWithCommaSeparatedColumns, frameLabel, columnNames, "");
+//    }
 
     /**
      * ┌──────────────────┬─────────┐
@@ -440,7 +434,9 @@ public class MenuBuilder {
      *                                      It is needed when printing more than one rowsWithCommaSeparatedColumns, and
      *                                      it needs to be calculated prior to entering the method.
      */
-    public static void printMenuOptionsInFrameTableRestaurantMenu(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText, int[] maxColumnLengths) {
+    public static void printMenuOptionsInFrameTableRestaurantMenu(List<String> rowsWithCommaSeparatedColumns, String frameLabel,
+                                                                  String columnNames, String zeroOptionText, int[] maxColumnLengths,
+                                                                  boolean printReceipt, String totalPrice) {
         if (maxColumnLengths == null) {
             maxColumnLengths = MenuBuilder.getMaxColumnLengths(rowsWithCommaSeparatedColumns, columnNames);
         }
@@ -466,10 +462,18 @@ public class MenuBuilder {
             printMiddleMenuLineTable(row, maxColumnLengths, numSpacesAroundEachColumnWord);
         }
         if (zeroOptionText.isEmpty()) {
-            System.out.println(getBottomLineTable(maxColumnLengths));
+            if (printReceipt) {
+                printTotal(maxColumnLengths, totalPrice);
+            } else {
+                System.out.println(getBottomLineTable(maxColumnLengths));
+            }
         } else {
             printZeroOptionText(frameLength, maxColumnLengths, zeroOptionText);
         }
+    }
+
+    public static void printMenuOptionsInFrameTableRestaurantMenu(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText, int[] maxColumnLengths) {
+        printMenuOptionsInFrameTableRestaurantMenu(rowsWithCommaSeparatedColumns, frameLabel, columnNames, zeroOptionText, maxColumnLengths, false, "NA");
     }
 
     // Use when printing single list rowsWithCommaSeparatedColumns, and there's no need to match frame sizes.
@@ -492,12 +496,18 @@ public class MenuBuilder {
         System.out.println(getBottomLine(frameLength));
     }
 
-    public static int getFrameLength(int[] maxColumnLengths, String columnNames) {
-        int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
-        int maxNumberOfSymbolsAllRows = getMaxNumberOfSymbolsAllRows(maxColumnLengths);
-        int numAddedSpaces = numberOfColumns * 2 * numSpacesAroundEachColumnWord;
-        return maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
+    public static void printTotal(int[] maxColumnLengths, String totalPrice) {
+        System.out.println(getTopLineTableForTotal(maxColumnLengths));
+        printMiddleMenuLineTableForTotal("Total:  ", totalPrice, maxColumnLengths);
+        System.out.println(getBottomLineTableForTotal(maxColumnLengths));
     }
+
+//    public static int getFrameLength(int[] maxColumnLengths, String columnNames) {
+//        int numberOfColumns = getMaxNumberOfColumns(maxColumnLengths, columnNames);
+//        int maxNumberOfSymbolsAllRows = getMaxNumberOfSymbolsAllRows(maxColumnLengths);
+//        int numAddedSpaces = numberOfColumns * 2 * numSpacesAroundEachColumnWord;
+//        return maxNumberOfSymbolsAllRows + numAddedSpaces + numberOfColumns + 1;
+//    }
 
     private static String addExtraSeparatorsToLength(String columnNames, int numberOfColumns) {
         // Add extra , to the columns so that it prints walls on right side if columns are more than column names.
@@ -548,8 +558,7 @@ public class MenuBuilder {
         int[] maxColumnLengthsDrink = getMaxColumnLengths(l2, columnNames);
         int[] maxColumnLengthsDesert = getMaxColumnLengths(l3, columnNames);
 
-        int[] maxColumnLengths = getBiggest(maxColumnLengthsFood, maxColumnLengthsDrink, maxColumnLengthsDesert);
-        return maxColumnLengths;
+        return getBiggest(maxColumnLengthsFood, maxColumnLengthsDrink, maxColumnLengthsDesert);
     }
 
     static int[] getMaxColumnLengthsAcrossLists(List<List<String>> nestedList, String columnNames) {
@@ -561,19 +570,19 @@ public class MenuBuilder {
         return maxColumnLengths;
     }
 
-    private static int[] getLastXElements(int[] sourceArray, int x) {
-        // Ensure x is not greater than the length of the source array
-        x = Math.min(x, sourceArray.length);
-
-        int[] resultArray = new int[x];
-
-        // Copy the last x elements from the source array to the result array
-        for (int i = 0; i < x; i++) {
-            resultArray[i] = sourceArray[sourceArray.length - x + i];
-        }
-
-        return resultArray;
-    }
+//    private static int[] getLastXElements(int[] sourceArray, int x) {
+//        // Ensure x is not greater than the length of the source array
+//        x = Math.min(x, sourceArray.length);
+//
+//        int[] resultArray = new int[x];
+//
+//        // Copy the last x elements from the source array to the result array
+//        for (int i = 0; i < x; i++) {
+//            resultArray[i] = sourceArray[sourceArray.length - x + i];
+//        }
+//
+//        return resultArray;
+//    }
 
     static int getMaxNumberOfSymbolsAllRows(int[] maxColumnLengths) {
         int n = 0;

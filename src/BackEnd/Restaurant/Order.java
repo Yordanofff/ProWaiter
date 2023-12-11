@@ -166,8 +166,12 @@ public class Order {
 
     public double getCalculatedTotalPrice() {
         List<OrderedDish> currentOrder = getOrderedDishesFromDB();
+        return getCalculatedTotalPrice(currentOrder);
+    }
+
+    public static double getCalculatedTotalPrice(List<OrderedDish> orderedDishes){
         double totalPrice = 0;
-        for (OrderedDish orderedDish : currentOrder) {
+        for (OrderedDish orderedDish : orderedDishes) {
             totalPrice += orderedDish.getDish().getPrice() * orderedDish.getQuantity();
         }
         return totalPrice;
