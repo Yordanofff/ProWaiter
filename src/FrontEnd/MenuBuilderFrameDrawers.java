@@ -16,6 +16,7 @@ public class MenuBuilderFrameDrawers {
     static final String bottomRightCorner = "┘";
     static final String midRight = "┤";
     static final String topBottom = "─";
+    static final String sideWall = "│";
 
     // ┌────────── [ADMIN] ───────────┐
     static String getTopLineOfMenu(int length, String label) {
@@ -64,6 +65,21 @@ public class MenuBuilderFrameDrawers {
         toReturn += mostRightSymbol;
         return ConsolePrinter.getGreenMsg(toReturn);
     }
+    static String getGreenLineTableForTotal(String mostLeftSymbol, String mostRightSymbol, String crossSymbol, String midCross, int[] maxColumnLengths) {
+        String toReturn = "";
+        toReturn += mostLeftSymbol;
+        for (int i = 0; i < maxColumnLengths.length; i++) {
+            int numBottomSymbols = maxColumnLengths[i] + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU - 1;
+            toReturn += topBottom.repeat(numBottomSymbols);
+            if (i == maxColumnLengths.length - 2) {
+                toReturn += midCross;
+            } else if (i != maxColumnLengths.length - 1) {
+                toReturn += crossSymbol;
+            }
+        }
+        toReturn += mostRightSymbol;
+        return ConsolePrinter.getGreenMsg(toReturn);
+    }
 
     // └──────────┴───────────┴────────────────┴────────────────┘
     static String getBottomLineTable(int[] maxColumnLengths) {
@@ -73,6 +89,49 @@ public class MenuBuilderFrameDrawers {
     // ├──────────┴───────────┴────────────────┴────────────────┤
     static String getBottomLineTableContinuingDownCorners(int[] maxColumnLengths) {
         return getGreenLineTable(midLeft, midRight, bottomCross, maxColumnLengths);
+    }
+
+    // ├─────────┴─────────┴─────────┴────────────┼───────────────┤
+    static String getTopLineTableForTotal(int[] maxColumnLengths) {
+        return getGreenLineTableForTotal(midLeft, midRight, bottomCross, midCross,maxColumnLengths);
+    }
+
+    //└──────────────────────────────────────────┴───────────────┘
+    static String getBottomLineTableForTotal(int[] maxColumnLengths) {
+        return getGreenLineTableForTotal(bottomLeftCorner, bottomRightCorner, topBottom, bottomCross,maxColumnLengths);
+    }
+
+    // │                                  Total:  │  25.30        │
+    static void printMiddleMenuLineTableForTotal(String totalText, String totalSum, int[] maxColumnLengths) {
+
+        int textLength = totalText.length();  // Make sure to add as many spaces as needed
+
+        StringBuilder toPrint = new StringBuilder();
+        int numSpaces = getNumberOfSpacesToSeparatorForTotal(maxColumnLengths);
+        int numSpacesBeforeWord = numSpaces - textLength;  // - numSpacesAroundEachColumnWord
+        toPrint.append(ConsolePrinter.getGreenMsg(sideWall));
+
+        // Will not add num spaces around each word. To be able to get the label as close to the border as needed.
+        toPrint.append(" ".repeat(numSpacesBeforeWord));
+
+        toPrint.append(totalText);
+        toPrint.append(ConsolePrinter.getGreenMsg(sideWall)).append(" ".repeat(numSpacesAroundEachColumnWord));
+
+        toPrint.append(totalSum);
+        int numSymbolsLastColumn = maxColumnLengths[maxColumnLengths.length -1];
+        int numSpacesAfterTotalPrice = numSymbolsLastColumn + numSpacesAroundEachColumnWord - totalSum.length();
+
+        toPrint.append(" ".repeat(numSpacesAfterTotalPrice)).append(ConsolePrinter.getGreenMsg(sideWall));
+
+        System.out.println(toPrint);
+    }
+
+    private static int getNumberOfSpacesToSeparatorForTotal(int[] maxColumnLengths) {
+        int numSpaces = 0;
+        for (int i = 0; i < maxColumnLengths.length - 1; i++) {
+            numSpaces += maxColumnLengths[i] + (2 * numSpacesAroundEachColumnWord) + 1;
+        }
+        return numSpaces - 1; // remove the first wall symbol length.
     }
 
     // ├──────────┼───────────┼────────────────┼────────────────┤
@@ -104,12 +163,11 @@ public class MenuBuilderFrameDrawers {
 
             int maxLengthCurrentPosition = maxColumnLengths[i];
             int count = maxLengthCurrentPosition - currentElement.length() + numSpacesAroundEachColumnWord;
-            toPrint.append(ConsolePrinter.getGreenMsg(SideWall) + " ".repeat(numSpacesAroundEachColumnWord) +
-                    currentElement + " ".repeat(count));
+            toPrint.append(ConsolePrinter.getGreenMsg(sideWall)).append(" ".repeat(numSpacesAroundEachColumnWord)).append(currentElement).append(" ".repeat(count));
 
             // Add end of frame symbol
             if (i == elementsLength - 1) {
-                toPrint.append(ConsolePrinter.getGreenMsg(SideWall));
+                toPrint.append(ConsolePrinter.getGreenMsg(sideWall));
             }
         }
         System.out.println(toPrint);
@@ -152,14 +210,14 @@ public class MenuBuilderFrameDrawers {
      * @param rowData     - the actual data that needs to be printed "0 - Exit"
      */
     static void printMiddleMenuLine(int frameLength, String rowData, int numberOfSymbolsFromLeftWall) {
-        String coloredFrameAndSpacesBeginningOfRow = ConsolePrinter.getGreenMsg(MenuBuilder.SideWall + " ".repeat(numberOfSymbolsFromLeftWall));
+        String coloredFrameAndSpacesBeginningOfRow = ConsolePrinter.getGreenMsg(sideWall + " ".repeat(numberOfSymbolsFromLeftWall));
         System.out.print(coloredFrameAndSpacesBeginningOfRow + rowData);
         if (numberOfSymbolsFromLeftWall == MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU) {
-            System.out.println(ConsolePrinter.getGreenMsg(" ".repeat(getNumberOfRemainingSpacesToTheEndOfTheFrame(frameLength, rowData)) + MenuBuilder.SideWall));
+            System.out.println(ConsolePrinter.getGreenMsg(" ".repeat(getNumberOfRemainingSpacesToTheEndOfTheFrame(frameLength, rowData)) + sideWall));
         } else {
             int diff = MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU - numberOfSymbolsFromLeftWall;
             frameLength = frameLength + diff;  // add more spaces when printing the frame so that the right wall is in the correct place.
-            System.out.println(ConsolePrinter.getGreenMsg(" ".repeat(getNumberOfRemainingSpacesToTheEndOfTheFrame(frameLength, rowData)) + MenuBuilder.SideWall));
+            System.out.println(ConsolePrinter.getGreenMsg(" ".repeat(getNumberOfRemainingSpacesToTheEndOfTheFrame(frameLength, rowData)) + sideWall));
         }
     }
 

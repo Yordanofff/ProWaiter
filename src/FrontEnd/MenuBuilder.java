@@ -15,7 +15,6 @@ public class MenuBuilder {
     public static final String sep = ",";  // separator for the strings when printing menus
     static final int MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU = 5;
     static final String MENU_SEPARATOR = " - ";  // With spaces if required.
-    static final String SideWall = "│";
     static Scanner scanner = new Scanner(System.in);
     static int numSpacesAroundEachColumnWord = 2;
 
@@ -435,7 +434,9 @@ public class MenuBuilder {
      *                                      It is needed when printing more than one rowsWithCommaSeparatedColumns, and
      *                                      it needs to be calculated prior to entering the method.
      */
-    public static void printMenuOptionsInFrameTableRestaurantMenu(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText, int[] maxColumnLengths) {
+    public static void printMenuOptionsInFrameTableRestaurantMenu(List<String> rowsWithCommaSeparatedColumns, String frameLabel,
+                                                                  String columnNames, String zeroOptionText, int[] maxColumnLengths,
+                                                                  boolean printReceipt, String totalPrice) {
         if (maxColumnLengths == null) {
             maxColumnLengths = MenuBuilder.getMaxColumnLengths(rowsWithCommaSeparatedColumns, columnNames);
         }
@@ -461,10 +462,18 @@ public class MenuBuilder {
             printMiddleMenuLineTable(row, maxColumnLengths, numSpacesAroundEachColumnWord);
         }
         if (zeroOptionText.isEmpty()) {
-            System.out.println(getBottomLineTable(maxColumnLengths));
+            if (printReceipt) {
+                printTotal(maxColumnLengths, totalPrice);
+            } else {
+                System.out.println(getBottomLineTable(maxColumnLengths));
+            }
         } else {
             printZeroOptionText(frameLength, maxColumnLengths, zeroOptionText);
         }
+    }
+
+    public static void printMenuOptionsInFrameTableRestaurantMenu(List<String> rowsWithCommaSeparatedColumns, String frameLabel, String columnNames, String zeroOptionText, int[] maxColumnLengths) {
+        printMenuOptionsInFrameTableRestaurantMenu(rowsWithCommaSeparatedColumns, frameLabel, columnNames, zeroOptionText, maxColumnLengths, false, "NA");
     }
 
     // Use when printing single list rowsWithCommaSeparatedColumns, and there's no need to match frame sizes.
@@ -485,6 +494,12 @@ public class MenuBuilder {
         zeroOptionText = "0 - " + zeroOptionText;
         printMiddleMenuLine(frameLength, zeroOptionText, numSpacesAroundEachColumnWord);
         System.out.println(getBottomLine(frameLength));
+    }
+
+    public static void printTotal(int[] maxColumnLengths, String totalPrice) {
+        System.out.println(getTopLineTableForTotal(maxColumnLengths));
+        printMiddleMenuLineTableForTotal("Total:  ", totalPrice, maxColumnLengths);
+        System.out.println(getBottomLineTableForTotal(maxColumnLengths));
     }
 
 //    public static int getFrameLength(int[] maxColumnLengths, String columnNames) {
