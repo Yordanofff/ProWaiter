@@ -399,7 +399,7 @@ public class OrdersOperationsMenuBuilder {
 
     public static OrderedDish getOrderedDishFromList(List<OrderedDish> orderedDishes, Dish dish) {
         for (OrderedDish orderedDish : orderedDishes) {
-            if (orderedDish.getDish().equals(dish)) {
+            if (orderedDish.getDish().getName().equals(dish.getName())) {
                 return orderedDish;
             }
         }
