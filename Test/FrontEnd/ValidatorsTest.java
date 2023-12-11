@@ -71,5 +71,59 @@ class ValidatorsTest {
         assertTrue(Validators.isValidUsername(testValue, 1));
     }
 
+    @Test
+    void isPasswordWithSpaceValid() {
+        String testValue = "pass word";
+        assertFalse(Validators.isPasswordValid(testValue, 1));
+    }
+
+    @Test
+    void isShortPasswordLongEnough() {
+        String testValue = "pass";
+        assertFalse(Validators.isPasswordValid(testValue, 10));
+    }
+
+    @Test
+    void isLongPasswordLongEnough() {
+        String testValue = "passWord123!";
+        assertTrue(Validators.isPasswordValid(testValue, 10));
+    }
+
+    @Test
+    void isPasswordWithoutCapitalLetterValid() {
+        String testValue = "password";
+        assertFalse(Validators.isPasswordValid(testValue, 1));
+    }
+
+    @Test
+    void isPasswordOnlyWithCapitalLettersValid() {
+        String testValue = "PASSWORD";
+        assertFalse(Validators.isPasswordValid(testValue, 1));
+    }
+
+    @Test
+    void isPasswordWithCapitalAndLowercaseLettersValid() {
+        String testValue = "passWORD";
+        assertFalse(Validators.isPasswordValid(testValue, 1));
+    }
+
+    @Test
+    void isPasswordWithDigitsOnlyValid() {
+        String testValue = "123";
+        assertFalse(Validators.isPasswordValid(testValue, 1));
+    }
+
+    @Test
+    void isPasswordWithAllRequiredLettersAndDigitsButNotLongEnoughValid() {
+        String testValue = "passWORD123";
+        assertFalse(Validators.isPasswordValid(testValue, 20));
+    }
+
+    @Test
+    void isPasswordWithAllRequiredLettersAndDigitsAndLongEnoughValid() {
+        String testValue = "passWORD123";
+        assertTrue(Validators.isPasswordValid(testValue, 1));
+    }
+
     // TODO - add more tests
 }
