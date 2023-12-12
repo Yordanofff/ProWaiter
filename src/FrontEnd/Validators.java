@@ -4,6 +4,10 @@ import java.text.DecimalFormat;
 
 public class Validators {
     public static boolean isValidName(String name) {
+        if (isStringNullOrEmpty(name)) {
+            ConsolePrinter.printError("The name cannot be null or an empty string!");
+            return false;
+        }
         if (name.matches("[a-zA-Z]+")) {
             return true;
         } else if (isSpaceInString(name)) {
@@ -15,6 +19,10 @@ public class Validators {
     }
 
     public static boolean isValidUsername(String username, int requiredLength) {
+        if (isStringNullOrEmpty(username)) {
+            ConsolePrinter.printError("The username cannot be null or an empty string!");
+            return false;
+        }
         // Check if the username contains only letters, digits, and underscores
         if (!isStringLongEnough(username, requiredLength)) {
             ConsolePrinter.printError("The username [" + username + "] needs to be at least [" + requiredLength + "] symbols long!");
@@ -30,6 +38,10 @@ public class Validators {
     }
 
     public static boolean isPasswordValid(String password, int requiredLength) {
+        if (isStringNullOrEmpty(password)) {
+            ConsolePrinter.printError("The password cannot be null or an empty string!");
+            return false;
+        }
         if (isSpaceInString(password)) {
             ConsolePrinter.printError("The password cannot contain spaces!");
             return false;
@@ -50,10 +62,16 @@ public class Validators {
     }
 
     private static boolean isStringLongEnough(String str, int requiredLength) {
+        if (str == null) {
+            return false;
+        }
         return str.length() >= requiredLength;
     }
 
     private static boolean isDigitInString(String str) {
+        if (isStringNullOrEmpty(str)) {
+            return false;
+        }
         for (Character character : str.toCharArray()) {
             if (Character.isDigit(character)) {
                 return true;
@@ -63,6 +81,9 @@ public class Validators {
     }
 
     public static boolean isCapitalLetterInString(String str) {
+        if (isStringNullOrEmpty(str)) {
+            return false;
+        }
         for (Character character : str.toCharArray()) {
             if (Character.isUpperCase(character)) {
                 return true;
@@ -81,6 +102,9 @@ public class Validators {
     }
 
     private static boolean isSpaceInString(String str) {
+        if (isStringNullOrEmpty(str)) {
+            return false;
+        }
         for (String letter : str.split("")) {
             if (letter.equals(" ")) {
                 return true;
@@ -90,11 +114,17 @@ public class Validators {
     }
 
     private static boolean isFirstLetterCapital(String str) {
+        if (isStringNullOrEmpty(str)) {
+            return false;
+        }
         char firstChar = str.charAt(0);
         return Character.isUpperCase(firstChar);
     }
 
     private static boolean areAllLettersStartingAtSecondLowercase(String str) {
+        if (isStringNullOrEmpty(str)) {
+            return false;
+        }
         for (int i = 1; i < str.length(); i++) {
             if (Character.isUpperCase(str.charAt(i))) {
                 return false;
@@ -103,7 +133,17 @@ public class Validators {
         return true;
     }
 
+    private static boolean isStringNullOrEmpty(String str) {
+        if ((str == null) || (str.isEmpty())) {
+            return true;
+        }
+        return false;
+    }
+
     public static boolean isNameWrittenCorrectly(String name) {
+        if (name == null) {
+            return false;
+        }
         // Capitalized + all other letters lowercase
         return isFirstLetterCapital(name) && areAllLettersStartingAtSecondLowercase(name);
     }
