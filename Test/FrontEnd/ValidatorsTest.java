@@ -227,6 +227,131 @@ class ValidatorsTest {
         assertFalse(Validators.isNameWrittenCorrectly(input));
     }
 
+    @Test
+    void isNumberInArrayWithNumberPresent() {
+        int[] arr = {1, 2, 3, 4, 5};
+        int targetNumber = 3;
+        assertTrue(Validators.isNumberInArray(arr, targetNumber));
+    }
+
+    @Test
+    void isNumberInArrayWithNumberNotPresent() {
+        int[] arr = {1, 2, 3, 4, 5};
+        int targetNumber = 6;
+        assertFalse(Validators.isNumberInArray(arr, targetNumber));
+    }
+
+    @Test
+    void isNumberInArrayWithEmptyArray() {
+        int[] arr = {};
+        int targetNumber = 3;
+        assertFalse(Validators.isNumberInArray(arr, targetNumber));
+    }
+
+    @Test
+    void isNumberInArrayWithNullArray() {
+        int[] arr = null;
+        int targetNumber = 3;
+        assertFalse(Validators.isNumberInArray(arr, targetNumber));
+    }
+
+    @Test
+    void intArrayToStringWithPositiveNumbers() {
+        int[] array = {1, 2, 3, 4, 5};
+        assertEquals("1, 2, 3, 4, 5", Validators.intArrayToString(array));
+    }
+
+    @Test
+    void intArrayToStringWithNegativeNumbers() {
+        int[] array = {-1, -2, -3, -4, -5};
+        assertEquals("-1, -2, -3, -4, -5", Validators.intArrayToString(array));
+    }
+
+    @Test
+    void intArrayToStringWithEmptyArray() {
+        int[] array = {};
+        assertEquals("", Validators.intArrayToString(array));
+    }
+
+    @Test
+    void intArrayToStringWithNull() {
+        int[] array = null;
+        assertEquals(null, Validators.intArrayToString(array));
+    }
+
+    @Test
+    void isNullAnInteger() {
+        String input = null;
+        assertFalse(Validators.isInteger(input));
+    }
+
+    @Test
+    void isEmptyStringAnInteger() {
+        String input = "";
+        assertFalse(Validators.isInteger(input));
+    }
+
+    @Test
+    void isTextAnInteger() {
+        String input = "Hello";
+        assertFalse(Validators.isInteger(input));
+    }
+
+    @Test
+    void isTextAndNumberAnInteger() {
+        String input = "Hello123";
+        assertFalse(Validators.isInteger(input));
+    }
+
+    @Test
+    void isNumberWithSpaceAnInteger() {
+        String input = "123 ";
+        assertTrue(Validators.isInteger(input));
+    }
+
+    @Test
+    void isNumberAnInteger() {
+        String input = "123";
+        assertTrue(Validators.isInteger(input));
+    }
+
+    @Test
+    void isDoubleNumberAnInteger() {
+        String input = "1.23";
+        assertFalse(Validators.isInteger(input));
+    }
+
+    @Test
+    void formatWholeNumberAsDouble() {
+        double num = 1;
+        assertEquals("1.00", Validators.formatDecimalNumber(num));
+    }
+
+    @Test
+    void format3digitsAfterDecimalPointAsDouble() {
+        double num = 1.001;
+        assertEquals("1.00", Validators.formatDecimalNumber(num));
+    }
+
+    @Test
+    void format1digitsAfterDecimalPointAsDouble() {
+        double num = 1.1;
+        assertEquals("1.10", Validators.formatDecimalNumber(num));
+    }
+
+    @Test
+    void formatZeroAsDouble() {
+        double num = 0;
+        assertEquals("0.00", Validators.formatDecimalNumber(num));
+    }
+
+    @Test
+    void formatZeroPointFiveAsDouble() {
+        double num = 0.5;
+        assertEquals("0.50", Validators.formatDecimalNumber(num));
+    }
+
+
 
     // TODO - add more tests
 }

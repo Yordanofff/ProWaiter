@@ -149,6 +149,9 @@ public class Validators {
     }
 
     static boolean isNumberInArray(int[] array, int targetNumber) {
+        if (array == null) {
+            return false;
+        }
         for (int number : array) {
             if (number == targetNumber) {
                 return true;
@@ -158,6 +161,9 @@ public class Validators {
     }
 
     static String intArrayToString(int[] array) {
+        if (array == null) {
+            return null;
+        }
         String[] stringArray = new String[array.length];
 
         for (int i = 0; i < array.length; i++) {
@@ -168,8 +174,11 @@ public class Validators {
     }
 
     static boolean isInteger(String integerToTest) {
+        if (isStringNullOrEmpty(integerToTest)) {
+            return false;
+        }
         try {
-            Integer.parseInt(integerToTest);
+            Integer.parseInt(integerToTest.trim());
             return true;
         } catch (NumberFormatException e) {
             return false;
