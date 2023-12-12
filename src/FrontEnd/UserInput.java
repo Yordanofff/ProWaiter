@@ -26,27 +26,6 @@ public class UserInput {
         return scanner.nextLine();
     }
 
-    public static double getDoubleInput(String question) {
-        double result = 0;
-        boolean validInput = false;
-        String input = null;
-
-        while (!validInput) {
-            try {
-                ConsolePrinter.printQuestion(question);
-                input = scanner.nextLine();
-
-                // Attempt to parse the input as a double
-                result = Double.parseDouble(input);
-                validInput = true;
-            } catch (NumberFormatException e) {
-                ConsolePrinter.printError("Invalid input [" + input + "]. Please enter a valid double or integer.");
-            }
-        }
-
-        return result;
-    }
-
     public static int getIntInput(String question) {
         int result = 0;
         boolean validInput = false;
@@ -68,7 +47,51 @@ public class UserInput {
         return result;
     }
 
-    public static String getUsername(boolean isCreatingNewUser) {
+    public static String getUsername() {
+        return getUsername(true);
+    }
+
+    public static String getPassword(String username) {
+        return getPassword(username, true);
+    }
+
+    public static String getFirstName() {
+        return getName("first");
+    }
+
+    public static String getLastName() {
+        return getName("last");
+    }
+
+    public static boolean getConfirmation(String message) {
+        ConsolePrinter.printQuestion(message + " (yes/no): ");
+
+        String confirmation = scanner.nextLine().trim().toLowerCase();
+        return confirmation.equals("yes");
+    }
+
+    static double getDoubleInput(String question) {
+        double result = 0;
+        boolean validInput = false;
+        String input = null;
+
+        while (!validInput) {
+            try {
+                ConsolePrinter.printQuestion(question);
+                input = scanner.nextLine();
+
+                // Attempt to parse the input as a double
+                result = Double.parseDouble(input);
+                validInput = true;
+            } catch (NumberFormatException e) {
+                ConsolePrinter.printError("Invalid input [" + input + "]. Please enter a valid double or integer.");
+            }
+        }
+
+        return result;
+    }
+
+    static String getUsername(boolean isCreatingNewUser) {
         String username;
         while (true) {
             String question = "Please enter username: ";
@@ -99,21 +122,7 @@ public class UserInput {
         return username.toLowerCase();
     }
 
-    public static String getUsername() {
-        return getUsername(true);
-    }
-
-    private static boolean isUserNameAlreadyInDB(String userName) {
-        List<User> activeUsers = UserManager.getActiveUsers();
-        for (User user : activeUsers) {
-            if (user.getUsername().equalsIgnoreCase(userName)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static String getPassword(String username, boolean validatePassword) {
+    static String getPassword(String username, boolean validatePassword) {
         String password;
         while (true) {
             String question = "Please enter password for user [" + username + "]: ";
@@ -133,51 +142,6 @@ public class UserInput {
             }
         }
         return password;
-    }
-
-    public static String getPassword(String username) {
-        return getPassword(username, true);
-    }
-
-    public static String getFirstName() {
-        return getName("first");
-    }
-
-    public static String getLastName() {
-        return getName("last");
-    }
-
-    private static String getName(String firstOrLastName) {
-        String nameToReturn;
-        while (true) {
-            String question = "Please enter your " + firstOrLastName + " name: ";
-            String userInput = getUserInput(question);
-
-            if (Validators.isValidName(userInput)) {
-                nameToReturn = userInput;
-                if (!Validators.isNameWrittenCorrectly(nameToReturn)) {
-                    String fixedCapitalizationName = UserInput.capitalize(nameToReturn);
-                    ConsolePrinter.printWarning("Incorrect capitalization of " + firstOrLastName +
-                            " name [" + nameToReturn + "]. Will be renamed to [" + fixedCapitalizationName + "].");
-                    nameToReturn = fixedCapitalizationName;
-                }
-                break;
-            } else {
-                System.out.println("Try again.");
-            }
-        }
-        return nameToReturn;
-    }
-
-    public static String capitalize(String str) {
-        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
-    }
-
-    public static boolean getConfirmation(String message) {
-        ConsolePrinter.printQuestion(message + " (yes/no): ");
-
-        String confirmation = scanner.nextLine().trim().toLowerCase();
-        return confirmation.equals("yes");
     }
 
     static int getUserInputFrom0toNumberOrder(int[] possibleTables) {
@@ -230,5 +194,41 @@ public class UserInput {
         ConsolePrinter.printQuestion("Press [Enter] to continue...");
         Scanner scanner = new Scanner(System.in);
         scanner.nextLine();
+    }
+
+    private static boolean isUserNameAlreadyInDB(String userName) {
+        List<User> activeUsers = UserManager.getActiveUsers();
+        for (User user : activeUsers) {
+            if (user.getUsername().equalsIgnoreCase(userName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String getName(String firstOrLastName) {
+        String nameToReturn;
+        while (true) {
+            String question = "Please enter your " + firstOrLastName + " name: ";
+            String userInput = getUserInput(question);
+
+            if (Validators.isValidName(userInput)) {
+                nameToReturn = userInput;
+                if (!Validators.isNameWrittenCorrectly(nameToReturn)) {
+                    String fixedCapitalizationName = UserInput.capitalize(nameToReturn);
+                    ConsolePrinter.printWarning("Incorrect capitalization of " + firstOrLastName +
+                            " name [" + nameToReturn + "]. Will be renamed to [" + fixedCapitalizationName + "].");
+                    nameToReturn = fixedCapitalizationName;
+                }
+                break;
+            } else {
+                System.out.println("Try again.");
+            }
+        }
+        return nameToReturn;
+    }
+
+    private static String capitalize(String str) {
+        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
 }
