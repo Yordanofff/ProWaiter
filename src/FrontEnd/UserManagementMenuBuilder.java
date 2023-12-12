@@ -11,7 +11,7 @@ import static FrontEnd.MenuBuilder.*;
 import static FrontEnd.UserInput.getUserInputFrom0toNumber;
 
 public class UserManagementMenuBuilder {
-    public static void UserManagementMenu(User user) {
+    static void UserManagementMenu(User user) {
         String[] menuOptions = new String[]{"View all users", "Add user", "Edit user", "Delete user"};
         String frameLabel = "[" + user.getUserType().toString() + "]";  // Allowing MANAGER class to be added later on and not having to change this.
         String topMenuLabel = "User Management";
@@ -20,7 +20,7 @@ public class UserManagementMenuBuilder {
         buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, UserManagementMenuBuilder::UserManagementMenuAction);
     }
 
-    public static void UserManagementMenuAction(int option, User user) {
+    private static void UserManagementMenuAction(int option, User user) {
         // TODO: use user somewhere or remove it.
         switch (option) {
             case 1 -> printAllUsersAlignedAndGetUserInput(true);
@@ -30,7 +30,7 @@ public class UserManagementMenuBuilder {
         }
     }
 
-    public static void printAllUsersAlignedWithNumbers(String columnNames, List<List<String>> allUsers) {
+    private static void printAllUsersAlignedWithNumbers(String columnNames, List<List<String>> allUsers) {
         List<String> allAdmins = allUsers.get(0);
         List<String> allWaiters = allUsers.get(1);
         List<String> allCooks = allUsers.get(2);
@@ -42,7 +42,7 @@ public class UserManagementMenuBuilder {
         printMenuOptionsInFrameTableRestaurantMenu(allCooks, "COOKS", "", "Go Back", maxColumnLengths);
     }
 
-    public static List<List<String>> getAllUsersNestedList(boolean printPassword) {
+    private static List<List<String>> getAllUsersNestedList(boolean printPassword) {
         List<String> allAdmins = UserManager.getAllUsersInformationByUserType(UserType.ADMIN, printPassword, true, 1);
         List<String> allWaiters = UserManager.getAllUsersInformationByUserType(UserType.WAITER, printPassword, true, allAdmins.size() + 1);
         List<String> allCooks = UserManager.getAllUsersInformationByUserType(UserType.COOK, printPassword, true, allAdmins.size() + allWaiters.size() + 1);
@@ -50,7 +50,7 @@ public class UserManagementMenuBuilder {
         return MenuBuilder.combineLists(allAdmins, allWaiters, allCooks);
     }
 
-    public static void printAllUsersAlignedAndGetUserInput(List<List<String>> allUsers, boolean printPassword) {
+    private static void printAllUsersAlignedAndGetUserInput(List<List<String>> allUsers, boolean printPassword) {
         String columnNames = "Index, Username, Full Name";
         if (printPassword) {
             columnNames = "Index, Username, Full Name, Password";
@@ -59,12 +59,12 @@ public class UserManagementMenuBuilder {
         printAllUsersAlignedWithNumbers(columnNames, allUsers);
     }
 
-    public static void printAllUsersAlignedAndGetUserInput(boolean printPassword) {
+    private static void printAllUsersAlignedAndGetUserInput(boolean printPassword) {
         List<List<String>> allUsers = getAllUsersNestedList(printPassword);
         printAllUsersAlignedAndGetUserInput(allUsers, printPassword);
     }
 
-    public static String getUsernameFromUserSelection(List<List<String>> allUsers) {
+    private static String getUsernameFromUserSelection(List<List<String>> allUsers) {
         List<String> allUsersString = getMergedListOfNestedStringLists(allUsers);
         ConsolePrinter.printQuestion("Select the index of the user that you wish to modify: ");
         int selection = getUserInputFrom0toNumber(allUsersString.size());
@@ -76,7 +76,7 @@ public class UserManagementMenuBuilder {
         return getFirstElementFromIndex(selection, allUsersString);
     }
 
-    public static void addUserMenu() {
+    private static void addUserMenu() {
         String[] userTypeNames = UserManager.getUserTypeNames();
 
         String frameLabel = "Select User Type";  // No frame label on the Login Menu page.
@@ -86,7 +86,7 @@ public class UserManagementMenuBuilder {
         buildMenu(userTypeNames, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> addUserMenuAction(option), null);
     }
 
-    public static void addUserMenuAction(int option) {
+    private static void addUserMenuAction(int option) {
         switch (option) {
             case 1 -> UserManager.addAdmin();
             case 2 -> UserManager.addWaiter();
@@ -95,7 +95,7 @@ public class UserManagementMenuBuilder {
         }
     }
 
-    public static void editUserMenu(boolean printPassword) {
+    private static void editUserMenu(boolean printPassword) {
         printAllUsersAlignedAndGetUserInput(printPassword);
 
         List<List<String>> allUsers = getAllUsersNestedList(printPassword);
@@ -107,10 +107,11 @@ public class UserManagementMenuBuilder {
             System.out.println("You selected: " + selectedUsername);
         }
 
+        System.out.println("This method is yet to be implemented..");
         //  TODO: print another menu 1.2.3.4 - options what to change + UserInput prompt for that.
     }
 
-    public static void deleteUserMenuSelectUserType() {
+    private static void deleteUserMenuSelectUserType() {
         String[] userTypeNames = UserManager.getUserTypeNames();
 
         String frameLabel = "Select User Type";
@@ -120,7 +121,7 @@ public class UserManagementMenuBuilder {
         buildMenu(userTypeNames, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> deleteUserMenuAction(option), null);
     }
 
-    public static void deleteUserMenuAction(int option) {
+    private static void deleteUserMenuAction(int option) {
         switch (option) {
             case 1 -> deleteUserMenuPrintUsers(UserType.ADMIN);
             case 2 -> deleteUserMenuPrintUsers(UserType.WAITER);
