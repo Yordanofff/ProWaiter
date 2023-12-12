@@ -4,8 +4,7 @@ import BackEnd.Users.User;
 import BackEnd.Users.UserManager;
 import BackEnd.Users.UserType;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static FrontEnd.MenuBuilder.*;
 import static FrontEnd.UserInput.getUserInputFrom0toNumber;
@@ -160,4 +159,33 @@ public class UserManagementMenuBuilder {
             System.out.println("Cancelling..");
         }
     }
+
+    private static List<String> createListWithCommaSeparatedValues(Map<Integer, String> map) {
+        List<String> resultList = new ArrayList<>();
+
+        for (Map.Entry<Integer, String> entry : map.entrySet()) {
+            String commaSeparatedValue = entry.getKey() + sep + entry.getValue();
+            resultList.add(commaSeparatedValue);
+        }
+
+        return resultList;
+    }
+
+    private static HashMap<Integer, String> mapNumbersToItems(String[] items, int startingNumber) {
+        // Using LinkedHashMap to keep the order as they were added.
+        HashMap<Integer, String> itemsWithNumbers = new LinkedHashMap<>();
+
+        for (int i = startingNumber; i < items.length + startingNumber; i++) {
+            itemsWithNumbers.put(i, items[i - 1]);
+        }
+
+        return itemsWithNumbers;
+    }
+
+    private static String getStringForInteger(HashMap<Integer, String> map, int key, int columnToReturn) {
+        String data = map.get(key);
+        String[] columns = data.split(sep);
+        return columns[columnToReturn];
+    }
+
 }
