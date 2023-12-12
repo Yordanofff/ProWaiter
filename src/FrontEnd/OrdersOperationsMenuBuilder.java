@@ -26,7 +26,7 @@ import static FrontEnd.UserInput.*;
 import static FrontEnd.Validators.formatDecimalNumber;
 
 public class OrdersOperationsMenuBuilder {
-    public static void ordersMenu(User user) {
+    static void ordersMenu(User user) {
         String[] menuOptions = new String[]{"New order", "Show open orders", "Deliver order", "Close order", "Show completed orders"};
         String frameLabel = "[" + user.getUserType() + "]";
         String topMenuLabel = "Order Management";
@@ -34,6 +34,15 @@ public class OrdersOperationsMenuBuilder {
         String optionZeroMsg = "Going back...";
         buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel,
                 (option, nouser) -> ordersMenuOptions(option), user);  // lambda function to ignore the user.
+    }
+
+    static void kitchenOrdersMenu(User user) {
+        String[] menuOptions = new String[]{"Show open orders", "Set status to \"Cooking\"", "Set status to \"Cooked\""};
+        String frameLabel = "[" + user.getUserType() + "]";
+        String topMenuLabel = "Restaurant Menu Options";
+        String optionZeroText = "Log out";
+        String optionZeroMsg = "Logging out...";
+        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> kitchenOrdersMenuOptions(option), user);  // lambda function to ignore the user.
     }
 
     private static Table getFreeTableFromUserPrompt() {
@@ -46,7 +55,7 @@ public class OrdersOperationsMenuBuilder {
         return new Table(selectedTableNumber);
     }
 
-    public static void ordersMenuOptions(int option) {
+    private static void ordersMenuOptions(int option) {
         switch (option) {
             case 1 -> {
                 Table table = getFreeTableFromUserPrompt();
@@ -74,16 +83,7 @@ public class OrdersOperationsMenuBuilder {
         }
     }
 
-    public static void kitchenOrdersMenu(User user) {
-        String[] menuOptions = new String[]{"Show open orders", "Set status to \"Cooking\"", "Set status to \"Cooked\""};
-        String frameLabel = "[" + user.getUserType() + "]";
-        String topMenuLabel = "Restaurant Menu Options";
-        String optionZeroText = "Log out";
-        String optionZeroMsg = "Logging out...";
-        buildMenu(menuOptions, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, (option, nouser) -> kitchenOrdersMenuOptions(option), user);  // lambda function to ignore the user.
-    }
-
-    public static void kitchenOrdersMenuOptions(int option) {
+    private static void kitchenOrdersMenuOptions(int option) {
         switch (option) {
             case 1 -> printTablesForKitchen(Restaurant.GET_INSTANCE());
             case 2 -> printTablesReadyToBeCooking(Restaurant.GET_INSTANCE());
@@ -112,7 +112,7 @@ public class OrdersOperationsMenuBuilder {
         return new OrderedDish(dish, dishQuantity);
     }
 
-    public static Order createNewOrder(Table table) {
+    private static Order createNewOrder(Table table) {
         Order order = new Order(table);
 
         // Create an entry in DB: this.isPaid = false, OrderStatus.CREATED, tableNumber
@@ -151,7 +151,7 @@ public class OrdersOperationsMenuBuilder {
         DBOperations.updateOrderDishesToDB(order);  // Write Ordered Dishes to DB
     }
 
-    public static int getFreeTableNumberFromUserPrompt(Restaurant restaurant) {
+    private static int getFreeTableNumberFromUserPrompt(Restaurant restaurant) {
         int[] freeTables = restaurant.getFreeTablesArr();
         String frameLabel = "Free tables"; // No frame label on the Login Menu page.
         String topMenuLabel = "Please enter a table number:";
@@ -162,7 +162,7 @@ public class OrdersOperationsMenuBuilder {
         return buildMenuOrder(freeTables, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
     }
 
-    public static void printTablesGetAndEditOrder(Restaurant restaurant) {
+    private static void printTablesGetAndEditOrder(Restaurant restaurant) {
         int tableNumber = getOccupiedTableNumberFromUserPrompt(restaurant);
         if (tableNumber == 0) {
             return;
@@ -174,7 +174,7 @@ public class OrdersOperationsMenuBuilder {
         viewSingleOpenOrderMenu(selectedOrder);
     }
 
-    public static void printTablesForKitchen(Restaurant restaurant) {
+    private static void printTablesForKitchen(Restaurant restaurant) {
         int tableNumber = getOccupiedTableNumberFromUserPrompt(restaurant);
         if (tableNumber == 0) {
             return;
@@ -187,7 +187,7 @@ public class OrdersOperationsMenuBuilder {
         viewSingleOpenOrderMenuAction(1, selectedOrder);
     }
 
-    public static int getOccupiedTableNumberFromUserPrompt(Restaurant restaurant) {
+    private static int getOccupiedTableNumberFromUserPrompt(Restaurant restaurant) {
         int[] occupiedTablesArr = restaurant.getOccupiedTablesArr();
         String frameLabel = "Open Orders";
         String topMenuLabel = "Select Table Number To View Order:";
@@ -198,13 +198,13 @@ public class OrdersOperationsMenuBuilder {
         return buildMenuOrder(occupiedTablesArr, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
     }
 
-    public static void printTablesReadyToBeDelivered(Restaurant restaurant) {
+    private static void printTablesReadyToBeDelivered(Restaurant restaurant) {
         // get tables with status "COOKED". Then set status to "SERVED".
         int tableNumber = getTableNumberFromUserPromptWithStatusCooked(restaurant);
         setOrderStatusForTableInDB(tableNumber, OrderStatus.SERVED, restaurant);
     }
 
-    public static int getTableNumberFromUserPromptWithStatusCooked(Restaurant restaurant) {
+    private static int getTableNumberFromUserPromptWithStatusCooked(Restaurant restaurant) {
         int[] occupiedTablesArr = restaurant.getCookedTablesArr();
         String frameLabel = "Cooked Orders";
         String topMenuLabel = "Select Table Number To View Order:";
@@ -215,13 +215,13 @@ public class OrdersOperationsMenuBuilder {
         return buildMenuOrder(occupiedTablesArr, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
     }
 
-    public static void printTablesReadyToBeClosed(Restaurant restaurant) {
+    private static void printTablesReadyToBeClosed(Restaurant restaurant) {
         // get tables with status "DELIVERED". Then set status to "PAID".
         int tableNumber = getTableNumberFromUserPromptWithStatusDelivered(restaurant);
         setOrderStatusForTableInDB(tableNumber, OrderStatus.PAID, restaurant);
     }
 
-    public static int getTableNumberFromUserPromptWithStatusDelivered(Restaurant restaurant) {
+    private static int getTableNumberFromUserPromptWithStatusDelivered(Restaurant restaurant) {
         int[] occupiedTablesArr = restaurant.getDeliveredTablesArr();
         String frameLabel = "Delivered Orders";
         String topMenuLabel = "Select Table Number To View Order:";
@@ -232,13 +232,13 @@ public class OrdersOperationsMenuBuilder {
         return buildMenuOrder(occupiedTablesArr, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
     }
 
-    public static void printTablesReadyToBeCooking(Restaurant restaurant) {
+    private static void printTablesReadyToBeCooking(Restaurant restaurant) {
         // get tables with status "CREATED" or "UPDATED" - ready to be "COOKED". Then set status to COOKING.
         int tableNumber = getTableNumberFromUserPromptWithStatusCreatedOrUpdated(restaurant);
         setOrderStatusForTableInDB(tableNumber, OrderStatus.COOKING, restaurant);
     }
 
-    public static int getTableNumberFromUserPromptWithStatusCreatedOrUpdated(Restaurant restaurant) {
+    private static int getTableNumberFromUserPromptWithStatusCreatedOrUpdated(Restaurant restaurant) {
         int[] occupiedTablesArr = restaurant.getReadyForKitchenCookingTablesArr();
         String frameLabel = "Kitchen Orders";
         String topMenuLabel = "Select Table Number To View Order:";
@@ -249,13 +249,13 @@ public class OrdersOperationsMenuBuilder {
         return buildMenuOrder(occupiedTablesArr, topMenuLabel, optionZeroText, optionZeroMsg, frameLabel, tableText);
     }
 
-    public static void printTablesReadyToBeCooked(Restaurant restaurant) {
+    private static void printTablesReadyToBeCooked(Restaurant restaurant) {
         // get tables with status "COOKING". Then set status to "COOKED".
         int tableNumber = getTableNumberFromUserPromptWithStatusCooking(restaurant);
         setOrderStatusForTableInDB(tableNumber, OrderStatus.COOKED, restaurant);
     }
 
-    public static int getTableNumberFromUserPromptWithStatusCooking(Restaurant restaurant) {
+    private static int getTableNumberFromUserPromptWithStatusCooking(Restaurant restaurant) {
         int[] occupiedTablesArr = restaurant.getReadyForKitchenCookedTablesArr();
         String frameLabel = "Cooking Orders";
         String topMenuLabel = "Select Table Number To View Order:";
@@ -291,7 +291,7 @@ public class OrdersOperationsMenuBuilder {
         return ChronoUnit.MINUTES.between(start, LocalDateTime.now());
     }
 
-    public static void printClosedOrder() {
+    private static void printClosedOrder() {
         String columnNames = "Index, Table Number, Order Number";
         List<String> allClosedOrdersInformation = getAllClosedOrdersInformation();
 
@@ -310,7 +310,7 @@ public class OrdersOperationsMenuBuilder {
         printAllDishesInOrder(id);
     }
 
-    public static void printAllDishesInOrder(long id) {
+    private static void printAllDishesInOrder(long id) {
         List<OrderedDish> orderedDishes = Restaurant.getAllOrderedDishesFromDB(id);
 
         List<List<String>> allDishes = getAllThreeOrderedDishesForMenu(orderedDishes);
@@ -320,7 +320,7 @@ public class OrdersOperationsMenuBuilder {
         printClosedOrder();
     }
 
-    public static long getOrderID(List<String> allClosedOrdersInformation, int selectedIndexByUser) {
+    private static long getOrderID(List<String> allClosedOrdersInformation, int selectedIndexByUser) {
         int orderNumberPositionInString = 2;
         String idString = getElementPositionFromIndex(selectedIndexByUser, allClosedOrdersInformation, orderNumberPositionInString);
 
@@ -331,7 +331,7 @@ public class OrdersOperationsMenuBuilder {
         return Long.parseLong(idString);
     }
 
-    public static void viewSingleOpenOrderMenu(Order order) {
+    private static void viewSingleOpenOrderMenu(Order order) {
         String[] menuOptions = new String[]{"Show order", "Add dish", "Remove dish", "Print Receipt"};
         String frameLabel = "[Table " + order.getTableNumber() + "]";
         String topMenuLabel = "Select option: ";
@@ -350,7 +350,7 @@ public class OrdersOperationsMenuBuilder {
         }
     }
 
-    public static void viewSingleOpenOrderMenuAction(int option, Order order) {
+    private static void viewSingleOpenOrderMenuAction(int option, Order order) {
         switch (option) {
             case 1 -> {
                 ConsolePrinter.printInfo("Order created at: " + convertDateTimeToHumanReadable(order.getCreationDateTime()));
@@ -374,7 +374,7 @@ public class OrdersOperationsMenuBuilder {
         return dt.format(formatter);
     }
 
-    public static void printReceipt(Order order) {
+    private static void printReceipt(Order order) {
         List<OrderedDish> orderedDishes = order.getOrderedDishesFromDB();
         List<OrderedDish> summarizedOrderedDishes = getSummarizeOrderedDishes(orderedDishes);
         List<List<String>> summarizedAsStrings = getAllThreeOrderedDishesForMenu(summarizedOrderedDishes);
@@ -382,7 +382,7 @@ public class OrdersOperationsMenuBuilder {
         pressAnyKeyToContinue();
     }
 
-    public static List<OrderedDish> getSummarizeOrderedDishes(List<OrderedDish> orderedDishes) {
+    private static List<OrderedDish> getSummarizeOrderedDishes(List<OrderedDish> orderedDishes) {
         List<OrderedDish> summarizedList = new ArrayList<>();
 
         for (OrderedDish orderedDish : orderedDishes) {
@@ -397,7 +397,7 @@ public class OrdersOperationsMenuBuilder {
         return summarizedList;
     }
 
-    public static OrderedDish getOrderedDishFromList(List<OrderedDish> orderedDishes, Dish dish) {
+    private static OrderedDish getOrderedDishFromList(List<OrderedDish> orderedDishes, Dish dish) {
         for (OrderedDish orderedDish : orderedDishes) {
             if (orderedDish.getDish().getName().equals(dish.getName())) {
                 return orderedDish;
@@ -406,13 +406,13 @@ public class OrdersOperationsMenuBuilder {
         return null;
     }
 
-    public static void printOrderInMenu(Order order, String optionZeroText) {
+    private static void printOrderInMenu(Order order, String optionZeroText) {
         // Print the current order
         List<List<String>> allThreeOrderedDishesForMenu = getAllThreeOrderedDishesForMenu(order);
         printAllOrderedDishesWithNumbers(allThreeOrderedDishesForMenu, optionZeroText);
     }
 
-    public static void removeDishFromOrder(Order order) {
+    private static void removeDishFromOrder(Order order) {
 
         printOrderInMenu(order, "Go Back");
 
@@ -440,7 +440,7 @@ public class OrdersOperationsMenuBuilder {
         ConsolePrinter.printInfo("Successfully removed [" + maximumPossibleDishesWithThatNameToRemove + " x " + selectedDishName + "].");
     }
 
-    public static String getDishNameFromSelection(List<List<String>> allThreeOrderedDishesForMenu, int selectedIndex) {
+    private static String getDishNameFromSelection(List<List<String>> allThreeOrderedDishesForMenu, int selectedIndex) {
         String dishname;
         for (List<String> sectionWithTypeInMenu : allThreeOrderedDishesForMenu) {
             dishname = MenuBuilder.getFirstElementFromIndex(selectedIndex, sectionWithTypeInMenu);
@@ -451,7 +451,7 @@ public class OrdersOperationsMenuBuilder {
         return null;
     }
 
-    public static void addDishToOrder(Order order) {
+    private static void addDishToOrder(Order order) {
         while (true) {
             OrderedDish orderedDish = getDishFromUserInput();
 
@@ -466,11 +466,11 @@ public class OrdersOperationsMenuBuilder {
 
     }
 
-    public static List<List<String>> getAllThreeOrderedDishesForMenu(Order order) {
+    private static List<List<String>> getAllThreeOrderedDishesForMenu(Order order) {
         return getAllThreeOrderedDishesForMenu(order.getOrderedDishesFromDB());
     }
 
-    public static List<List<String>> getAllThreeOrderedDishesForMenu(List<OrderedDish> orderedDishList) {
+    private static List<List<String>> getAllThreeOrderedDishesForMenu(List<OrderedDish> orderedDishList) {
         List<OrderedDish> allFood = new ArrayList<>();
         List<OrderedDish> allDrinks = new ArrayList<>();
         List<OrderedDish> allDeserts = new ArrayList<>();
@@ -494,7 +494,7 @@ public class OrdersOperationsMenuBuilder {
         return MenuBuilder.combineLists(allFoodCommaSeparated, allDrinkCommaSeparated, allDessertCommaSeparated);
     }
 
-    public static List<String> joinOrderedDishToString(List<OrderedDish> orderedDishes, boolean addDishType, boolean addNumbers, int startNumber) {
+    private static List<String> joinOrderedDishToString(List<OrderedDish> orderedDishes, boolean addDishType, boolean addNumbers, int startNumber) {
         List<String> result = new ArrayList<>();
         String dataToAdd = "";
 
@@ -515,7 +515,7 @@ public class OrdersOperationsMenuBuilder {
         return result;
     }
 
-    public static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu, String optionZeroText, boolean printTotal, String totalPrice) {
+    private static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu, String optionZeroText, boolean printTotal, String totalPrice) {
         List<String> food = allThreeOrderedDishesForMenu.get(0);
         List<String> drink = allThreeOrderedDishesForMenu.get(1);
         List<String> dessert = allThreeOrderedDishesForMenu.get(2);
@@ -546,16 +546,16 @@ public class OrdersOperationsMenuBuilder {
 
     }
 
-    public static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu, String optionZeroText) {
+    private static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu, String optionZeroText) {
         printAllOrderedDishesWithNumbers(allThreeOrderedDishesForMenu, optionZeroText, false, "NA");
     }
 
-    public static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu, Order order) {
+    private static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu, Order order) {
         String totalPrice = Validators.formatDecimalNumber(order.getCalculatedTotalPrice());
         printAllOrderedDishesWithNumbers(allThreeOrderedDishesForMenu, "", true, totalPrice);
     }
 
-    public static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu, List<OrderedDish> orderedDishes) {
+    private static void printAllOrderedDishesWithNumbers(List<List<String>> allThreeOrderedDishesForMenu, List<OrderedDish> orderedDishes) {
         String totalPrice = Validators.formatDecimalNumber(Order.getCalculatedTotalPrice(orderedDishes));
         printAllOrderedDishesWithNumbers(allThreeOrderedDishesForMenu, "", true, totalPrice);
     }
