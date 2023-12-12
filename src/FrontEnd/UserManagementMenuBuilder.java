@@ -8,6 +8,7 @@ import java.util.*;
 
 import static FrontEnd.MenuBuilder.*;
 import static FrontEnd.UserInput.getUserInputFrom0toNumber;
+import static FrontEnd.UserInput.pressAnyKeyToContinue;
 
 public class UserManagementMenuBuilder {
     static void UserManagementMenu(User user) {
@@ -22,14 +23,14 @@ public class UserManagementMenuBuilder {
     private static void UserManagementMenuAction(int option, User user) {
         // TODO: use user somewhere or remove it.
         switch (option) {
-            case 1 -> printAllUsersAlignedAndGetUserInput(true);
+            case 1 -> printAllUsersAlignedAndGetUserInput(true, true);
             case 2 -> addUserMenu();
             case 3 -> editUserMenu(true);
             case 4 -> deleteUserMenuSelectUserType();
         }
     }
 
-    private static void printAllUsersAlignedWithNumbers(String columnNames, List<List<String>> allUsers) {
+    private static void printAllUsersAlignedWithNumbers(String columnNames, List<List<String>> allUsers, boolean isJustView) {
         List<String> allAdmins = allUsers.get(0);
         List<String> allWaiters = allUsers.get(1);
         List<String> allCooks = allUsers.get(2);
@@ -38,7 +39,19 @@ public class UserManagementMenuBuilder {
 
         printMenuOptionsInFrameTableRestaurantMenu(allAdmins, "ADMINS", columnNames, "", maxColumnLengths);
         printMenuOptionsInFrameTableRestaurantMenu(allWaiters, "WAITERS", "", "", maxColumnLengths);
-        printMenuOptionsInFrameTableRestaurantMenu(allCooks, "COOKS", "", "Go Back", maxColumnLengths);
+
+        if (isJustView) {
+            printMenuOptionsInFrameTableRestaurantMenu(allCooks, "COOKS", "", "", maxColumnLengths);
+            pressAnyKeyToContinue();
+        } else {
+            printMenuOptionsInFrameTableRestaurantMenu(allCooks, "COOKS", "", "Go back", maxColumnLengths);
+        }
+    }
+
+
+    private static void printAllUsersAlignedWithNumbers(String columnNames, List<List<String>> allUsers) {
+        // This will be used for the User Edit menu.
+        printAllUsersAlignedWithNumbers(columnNames, allUsers, false);
     }
 
     private static List<List<String>> getAllUsersNestedList(boolean printPassword) {
@@ -49,18 +62,18 @@ public class UserManagementMenuBuilder {
         return MenuBuilder.combineLists(allAdmins, allWaiters, allCooks);
     }
 
-    private static void printAllUsersAlignedAndGetUserInput(List<List<String>> allUsers, boolean printPassword) {
+    private static void printAllUsersAlignedAndGetUserInput(List<List<String>> allUsers, boolean printPassword, boolean isJustView) {
         String columnNames = "Index, Username, Full Name";
         if (printPassword) {
             columnNames = "Index, Username, Full Name, Password";
         }
 
-        printAllUsersAlignedWithNumbers(columnNames, allUsers);
+        printAllUsersAlignedWithNumbers(columnNames, allUsers, isJustView);
     }
 
-    private static void printAllUsersAlignedAndGetUserInput(boolean printPassword) {
+    private static void printAllUsersAlignedAndGetUserInput(boolean printPassword,boolean isJustView) {
         List<List<String>> allUsers = getAllUsersNestedList(printPassword);
-        printAllUsersAlignedAndGetUserInput(allUsers, printPassword);
+        printAllUsersAlignedAndGetUserInput(allUsers, printPassword, isJustView);
     }
 
     private static String getUsernameFromUserSelection(List<List<String>> allUsers) {
@@ -95,7 +108,7 @@ public class UserManagementMenuBuilder {
     }
 
     private static void editUserMenu(boolean printPassword) {
-        printAllUsersAlignedAndGetUserInput(printPassword);
+        printAllUsersAlignedAndGetUserInput(printPassword, false);
 
         List<List<String>> allUsers = getAllUsersNestedList(printPassword);
 
@@ -107,6 +120,7 @@ public class UserManagementMenuBuilder {
         }
 
         System.out.println("This method is yet to be implemented..");
+        pressAnyKeyToContinue();
         //  TODO: print another menu 1.2.3.4 - options what to change + UserInput prompt for that.
     }
 
