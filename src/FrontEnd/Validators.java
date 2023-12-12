@@ -3,7 +3,12 @@ package FrontEnd;
 import java.text.DecimalFormat;
 
 public class Validators {
-    public static boolean isValidName(String name) {
+    public static String formatDecimalNumber(double number) {
+        DecimalFormat decimalFormat = new DecimalFormat("0.00"); // just to push
+        return decimalFormat.format(number);
+    }
+
+    static boolean isValidName(String name) {
         if (isStringNullOrEmpty(name)) {
             ConsolePrinter.printError("The name cannot be null or an empty string!");
             return false;
@@ -18,7 +23,7 @@ public class Validators {
         return false;
     }
 
-    public static boolean isValidUsername(String username, int requiredLength) {
+    static boolean isValidUsername(String username, int requiredLength) {
         if (isStringNullOrEmpty(username)) {
             ConsolePrinter.printError("The username cannot be null or an empty string!");
             return false;
@@ -37,7 +42,7 @@ public class Validators {
         return false;
     }
 
-    public static boolean isPasswordValid(String password, int requiredLength) {
+    static boolean isPasswordValid(String password, int requiredLength) {
         if (isStringNullOrEmpty(password)) {
             ConsolePrinter.printError("The password cannot be null or an empty string!");
             return false;
@@ -61,35 +66,49 @@ public class Validators {
         return true;
     }
 
-    private static boolean isStringLongEnough(String str, int requiredLength) {
-        if (str == null) {
+    static boolean isNameWrittenCorrectly(String name) {
+        if (name == null) {
             return false;
         }
-        return str.length() >= requiredLength;
+        // Capitalized + all other letters lowercase
+        return isFirstLetterCapital(name) && areAllLettersStartingAtSecondLowercase(name);
     }
 
-    private static boolean isDigitInString(String str) {
-        if (isStringNullOrEmpty(str)) {
+    static boolean isNumberInArray(int[] array, int targetNumber) {
+        if (array == null) {
             return false;
         }
-        for (Character character : str.toCharArray()) {
-            if (Character.isDigit(character)) {
+        for (int number : array) {
+            if (number == targetNumber) {
                 return true;
             }
         }
         return false;
     }
 
-    public static boolean isCapitalLetterInString(String str) {
-        if (isStringNullOrEmpty(str)) {
+    static String intArrayToString(int[] array) {
+        if (array == null) {
+            return null;
+        }
+        String[] stringArray = new String[array.length];
+
+        for (int i = 0; i < array.length; i++) {
+            stringArray[i] = String.valueOf(array[i]);
+        }
+
+        return String.join(", ", stringArray);
+    }
+
+    static boolean isInteger(String integerToTest) {
+        if (isStringNullOrEmpty(integerToTest)) {
             return false;
         }
-        for (Character character : str.toCharArray()) {
-            if (Character.isUpperCase(character)) {
-                return true;
-            }
+        try {
+            Integer.parseInt(integerToTest.trim());
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
         }
-        return false;
     }
 
     private static boolean isLowercaseLetterInString(String str) {
@@ -140,53 +159,34 @@ public class Validators {
         return false;
     }
 
-    public static boolean isNameWrittenCorrectly(String name) {
-        if (name == null) {
+    private static boolean isDigitInString(String str) {
+        if (isStringNullOrEmpty(str)) {
             return false;
         }
-        // Capitalized + all other letters lowercase
-        return isFirstLetterCapital(name) && areAllLettersStartingAtSecondLowercase(name);
-    }
-
-    static boolean isNumberInArray(int[] array, int targetNumber) {
-        if (array == null) {
-            return false;
-        }
-        for (int number : array) {
-            if (number == targetNumber) {
+        for (Character character : str.toCharArray()) {
+            if (Character.isDigit(character)) {
                 return true;
             }
         }
         return false;
     }
 
-    static String intArrayToString(int[] array) {
-        if (array == null) {
-            return null;
-        }
-        String[] stringArray = new String[array.length];
-
-        for (int i = 0; i < array.length; i++) {
-            stringArray[i] = String.valueOf(array[i]);
-        }
-
-        return String.join(", ", stringArray);
-    }
-
-    static boolean isInteger(String integerToTest) {
-        if (isStringNullOrEmpty(integerToTest)) {
+    public static boolean isCapitalLetterInString(String str) {
+        if (isStringNullOrEmpty(str)) {
             return false;
         }
-        try {
-            Integer.parseInt(integerToTest.trim());
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
+        for (Character character : str.toCharArray()) {
+            if (Character.isUpperCase(character)) {
+                return true;
+            }
         }
+        return false;
     }
 
-    public static String formatDecimalNumber(double number) {
-        DecimalFormat decimalFormat = new DecimalFormat("0.00"); // just to push
-        return decimalFormat.format(number);
+    private static boolean isStringLongEnough(String str, int requiredLength) {
+        if (str == null) {
+            return false;
+        }
+        return str.length() >= requiredLength;
     }
 }
