@@ -43,42 +43,9 @@ public class MenuBuilderFrameDrawers {
         return getGreenLineTable(topLeftCorner, topRightCorner, topCross, maxColumnLengths);
     }
 
-    static String getGreenLine(int length, String mostLeftSymbol, String mostRightSymbol) {
-        return ConsolePrinter.getGreenMsg(mostLeftSymbol + topBottom.repeat(length - 2) + mostRightSymbol);
-    }
-
     // ├────────────────────────┬───────────┬────────────────┬────────────────┤
     static String getTopLineTableEndingUpDown(int[] maxColumnLengths) {
         return getGreenLineTable(midLeft, midRight, topCross, maxColumnLengths);
-    }
-
-    static String getGreenLineTable(String mostLeftSymbol, String mostRightSymbol, String crossSymbol, int[] maxColumnLengths) {
-        String toReturn = "";
-        toReturn += mostLeftSymbol;
-        for (int i = 0; i < maxColumnLengths.length; i++) {
-            int numBottomSymbols = maxColumnLengths[i] + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU - 1;
-            toReturn += topBottom.repeat(numBottomSymbols);
-            if (i != maxColumnLengths.length - 1) {
-                toReturn += crossSymbol;
-            }
-        }
-        toReturn += mostRightSymbol;
-        return ConsolePrinter.getGreenMsg(toReturn);
-    }
-    static String getGreenLineTableForTotal(String mostLeftSymbol, String mostRightSymbol, String crossSymbol, String midCross, int[] maxColumnLengths) {
-        String toReturn = "";
-        toReturn += mostLeftSymbol;
-        for (int i = 0; i < maxColumnLengths.length; i++) {
-            int numBottomSymbols = maxColumnLengths[i] + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU - 1;
-            toReturn += topBottom.repeat(numBottomSymbols);
-            if (i == maxColumnLengths.length - 2) {
-                toReturn += midCross;
-            } else if (i != maxColumnLengths.length - 1) {
-                toReturn += crossSymbol;
-            }
-        }
-        toReturn += mostRightSymbol;
-        return ConsolePrinter.getGreenMsg(toReturn);
     }
 
     // └──────────┴───────────┴────────────────┴────────────────┘
@@ -124,14 +91,6 @@ public class MenuBuilderFrameDrawers {
         toPrint.append(" ".repeat(numSpacesAfterTotalPrice)).append(ConsolePrinter.getGreenMsg(sideWall));
 
         System.out.println(toPrint);
-    }
-
-    private static int getNumberOfSpacesToSeparatorForTotal(int[] maxColumnLengths) {
-        int numSpaces = 0;
-        for (int i = 0; i < maxColumnLengths.length - 1; i++) {
-            numSpaces += maxColumnLengths[i] + (2 * numSpacesAroundEachColumnWord) + 1;
-        }
-        return numSpaces - 1; // remove the first wall symbol length.
     }
 
     // ├──────────┼───────────┼────────────────┼────────────────┤
@@ -225,6 +184,13 @@ public class MenuBuilderFrameDrawers {
         printMiddleMenuLine(frameLength, rowData, MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU);
     }
 
+    static int getTheNumberOfSymbolsInTheLongestString(String str, List<String> listOfStrings) {
+        // Create a new list that combines the current list and the string and get the length of the longest one.
+        List<String> menuQuestionAndOptions = new ArrayList<>(listOfStrings);
+        menuQuestionAndOptions.add(str);
+        return getLengthOfTheLongestStringInList(menuQuestionAndOptions);
+    }
+
     private static int getNumberOfRemainingSpacesToTheEndOfTheFrame(int frameLength, String rowData) {
         return (frameLength - (getStringLengthWithoutANSI(rowData) + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU + 2));
     }
@@ -244,11 +210,46 @@ public class MenuBuilderFrameDrawers {
         return str.replaceAll("\u001B\\[[;\\d]*m", "").length();
     }
 
-    static int getTheNumberOfSymbolsInTheLongestString(String str, List<String> listOfStrings) {
-        // Create a new list that combines the current list and the string and get the length of the longest one.
-        List<String> menuQuestionAndOptions = new ArrayList<>(listOfStrings);
-        menuQuestionAndOptions.add(str);
-        return getLengthOfTheLongestStringInList(menuQuestionAndOptions);
+    private static String getGreenLine(int length, String mostLeftSymbol, String mostRightSymbol) {
+        return ConsolePrinter.getGreenMsg(mostLeftSymbol + topBottom.repeat(length - 2) + mostRightSymbol);
+    }
+
+    private static int getNumberOfSpacesToSeparatorForTotal(int[] maxColumnLengths) {
+        int numSpaces = 0;
+        for (int i = 0; i < maxColumnLengths.length - 1; i++) {
+            numSpaces += maxColumnLengths[i] + (2 * numSpacesAroundEachColumnWord) + 1;
+        }
+        return numSpaces - 1; // remove the first wall symbol length.
+    }
+
+    private static String getGreenLineTable(String mostLeftSymbol, String mostRightSymbol, String crossSymbol, int[] maxColumnLengths) {
+        String toReturn = "";
+        toReturn += mostLeftSymbol;
+        for (int i = 0; i < maxColumnLengths.length; i++) {
+            int numBottomSymbols = maxColumnLengths[i] + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU - 1;
+            toReturn += topBottom.repeat(numBottomSymbols);
+            if (i != maxColumnLengths.length - 1) {
+                toReturn += crossSymbol;
+            }
+        }
+        toReturn += mostRightSymbol;
+        return ConsolePrinter.getGreenMsg(toReturn);
+    }
+
+    private static String getGreenLineTableForTotal(String mostLeftSymbol, String mostRightSymbol, String crossSymbol, String midCross, int[] maxColumnLengths) {
+        String toReturn = "";
+        toReturn += mostLeftSymbol;
+        for (int i = 0; i < maxColumnLengths.length; i++) {
+            int numBottomSymbols = maxColumnLengths[i] + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU - 1;
+            toReturn += topBottom.repeat(numBottomSymbols);
+            if (i == maxColumnLengths.length - 2) {
+                toReturn += midCross;
+            } else if (i != maxColumnLengths.length - 1) {
+                toReturn += crossSymbol;
+            }
+        }
+        toReturn += mostRightSymbol;
+        return ConsolePrinter.getGreenMsg(toReturn);
     }
 
 }
